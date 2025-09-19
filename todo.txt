@@ -1,0 +1,9 @@
+1 - Transcripcion automatica de los videos en tiempo replace
+2 - Agregar los dias de aprendizaje del alumno en google calendar
+3 - En cada clase, los alumnos pueden tomar notas
+4 - Añadir descargas de contenido para cada leccion
+5 - Ideas de notificaciones https://www.coursera.org/account-settings
+
+Proximamente:
+1 - Foro de debate para cada curso
+2 - Autenticacion de dos factores
