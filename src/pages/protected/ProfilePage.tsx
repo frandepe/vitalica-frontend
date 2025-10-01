@@ -63,7 +63,7 @@ const ProfilePage = () => {
       <Avatar defaultImage="https://originui.com/avatar-72-01.jpg" />
       <div className="px-6 pb-6 pt-4">
         <div className="space-y-4">
-          <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="flex flex-col gap-4 lg:flex-row">
             {/* Columna de formularios */}
             <BasicInformationForm />
 

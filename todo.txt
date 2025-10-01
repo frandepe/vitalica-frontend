@@ -7,3 +7,24 @@
 Proximamente:
 1 - Foro de debate para cada curso
 2 - Autenticacion de dos factores
+
+
+
+
+
+
+notas
+Podés restringir playback con signed URLs para que solo quienes compraron accedan.
+Webhooks de asset.ready para actualizar DB.
+
+Workflow de subida
+
+Instructor selecciona video → pide al backend un directUploadUrl.
+
+Subida directa a Mux.
+
+Mux webhook notifica “ready” → backend actualiza DB.
+
+Curso siempre está en draft hasta publicación.
+
+Cada video se persiste inmediatamente, no dependemos de que el usuario “finalice” la creación.

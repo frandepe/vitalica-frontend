@@ -2,12 +2,14 @@ interface Props {
   imgCircles: string;
   maskSrc: string;
   alt?: string;
+  className?: string;
 }
 
 export const CirclesImg = ({
   imgCircles,
   maskSrc,
   alt = "imagen circular",
+  className,
 }: Props) => {
   return (
     <div
@@ -18,13 +20,13 @@ export const CirclesImg = ({
       "
     >
       <div
-        className="
+        className={`
             w-[80vw]
             max-w-[400px]
             aspect-square
             bg-center bg-cover bg-no-repeat
-            block
-        "
+            block ${className}
+        `}
         style={{
           backgroundImage: `url("${imgCircles}")`,
           maskImage: `url("${maskSrc}")`,

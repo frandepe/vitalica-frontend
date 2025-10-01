@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Menu,
-  X,
   ChevronLeft,
   ChevronRight,
   BarChart3,
@@ -15,6 +13,7 @@ import {
 } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ScrollToTop } from "@/utils/scroll-top";
+import { useStickyTop } from "@/hooks/useStickyTop";
 
 interface NavigationItem {
   id: string;
@@ -22,10 +21,6 @@ interface NavigationItem {
   icon: React.ComponentType<{ className?: string }>;
   href: string;
   badge?: string;
-}
-
-interface SidebarProps {
-  className?: string;
 }
 
 // Updated navigation items - remove logout from here
@@ -57,10 +52,10 @@ const navigationItems: NavigationItem[] = [
     badge: "12",
   },
   {
-    id: "crear-curso",
+    id: "nuevo-curso",
     name: "Nuevo curso",
     icon: BookPlus,
-    href: "/perfil/crear-curso",
+    href: "/perfil/nuevo-curso",
   },
   {
     id: "resenas",
@@ -70,7 +65,7 @@ const navigationItems: NavigationItem[] = [
   },
 ];
 
-export function DashboardInstructor({ className = "" }: SidebarProps) {
+export function DashboardInstructor() {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeItem, setActiveItem] = useState("dashboard");
@@ -82,7 +77,7 @@ export function DashboardInstructor({ className = "" }: SidebarProps) {
       "/perfil/perfil-de-instructor": "perfil-de-instructor",
       "/perfil/analiticas": "analiticas",
       "/perfil/cursos": "cursos",
-      "/perfil/crear-curso": "crear-curso",
+      "/perfil/nuevo-curso": "nuevo-curso",
       "/perfil/resenas": "resenas",
     };
 
@@ -117,19 +112,22 @@ export function DashboardInstructor({ className = "" }: SidebarProps) {
     navigate(href);
   };
 
+  const navbarHeight = 80; // px
+  const top = useStickyTop(navbarHeight);
+  const sidebarHeight = `calc(100vh - ${top}px)`;
   return (
     <div className="flex">
       <ScrollToTop />
       {/* Mobile hamburger button */}
       <button
         onClick={toggleSidebar}
-        className="fixed top-6 left-6 z-50 p-3 rounded-lg bg-white shadow-md border border-slate-100 md:hidden hover:bg-slate-50 transition-all duration-200"
+        className="fixed top-8 left-0 z-50 p-3 rounded-r-lg bg-white shadow border border-slate-100 md:hidden hover:bg-slate-50 transition-all duration-200"
         aria-label="Toggle sidebar"
       >
         {isOpen ? (
-          <X className="h-5 w-5 text-slate-600" />
+          <ChevronLeft className="h-5 w-5 text-slate-600" />
         ) : (
-          <Menu className="h-5 w-5 text-slate-600" />
+          <ChevronRight className="h-5 w-5 text-slate-600" />
         )}
       </button>
 
@@ -144,12 +142,11 @@ export function DashboardInstructor({ className = "" }: SidebarProps) {
       {/* Sidebar */}
       <div
         className={`
-          fixed top-0 left-0 h-full bg-white border-r border-slate-200 z-40 transition-all duration-300 ease-in-out flex flex-col
-          ${isOpen ? "translate-x-0" : "-translate-x-full"}
-          ${isCollapsed ? "w-28" : "w-78"}
-          md:translate-x-0 md:static md:z-auto
-          ${className}
-        `}
+        fixed left-0 bg-white border-r border-slate-200 z-40 transition-all duration-300 ease-in-out flex flex-col
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        ${isCollapsed ? "w-28" : "w-72"}
+      `}
+        style={{ top, height: sidebarHeight }}
       >
         {/* Header with logo and collapse button */}
         <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-slate-50/60">
@@ -369,10 +366,9 @@ export function DashboardInstructor({ className = "" }: SidebarProps) {
 
       {/* Main Content Area */}
       <div
-        className={`
-
-          ${isCollapsed ? "md:ml-20" : "md:ml-10"}
-        `}
+        className={`flex-1 transition-all duration-300 px-4 ${
+          !isOpen ? "ml-0" : isCollapsed ? "ml-28" : "ml-72"
+        }`}
       >
         <Outlet />
       </div>

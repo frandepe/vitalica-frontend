@@ -1,8 +1,105 @@
+// Roles posibles
+export type Role = "USER" | "INSTRUCTOR" | "ADMIN";
+
+// Estado del instructor
+export type InstructorStatus =
+  | "NOT_APPLIED"
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "SUSPENDED";
+
+// Respuesta del usuario para frontend / autenticación
 export interface User {
   id: string;
   email: string;
-  name: string;
-  avatar?: string;
+  password?: string; // opcional, porque no siempre lo vas a exponer
+  role: Role;
+
+  firstName?: string | null;
+  lastName?: string | null;
+  slug: string;
+
+  avatarUrl?: string | null;
+  avatarUrlId?: string | null;
+
+  phoneCountryCode?: string | null;
+  phoneNumber?: string | null;
+
+  emailVerifiedAt?: Date | null;
+  phoneVerifiedAt?: Date | null;
+
+  language?: string | null;
+  timezone?: string | null;
+
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+
+  isActive: boolean;
+  lastLoginAt?: Date | null;
+  deletedAt?: Date | null;
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Instructor profile
+export interface InstructorProfile {
+  id: string;
+  userId: string;
+  status: InstructorStatus;
+  headline?: string | null;
+  bio?: string | null;
+  specialties: string[]; // podría mapear a enum Specialty si querés
+  avgRating: number;
+  ratingCount: number;
+  totalStudents: number;
+  totalCourses: number;
+
+  payoutMethod?: "PAYPAL" | "MERCADO_PAGO" | "BANK_TRANSFER";
+  payoutAccountId?: string | null;
+  payoutEmail?: string | null;
+  currency?: string;
+
+  country?: string;
+  state?: string | null;
+  city?: string | null;
+  zipCode?: string | null;
+
+  approvedAt?: Date | null;
+  suspendedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Instructor application
+export interface InstructorApplication {
+  id: string;
+  userId: string;
+  status: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "APPROVED" | "REJECTED";
+  dniNumber?: string | null;
+  dniCountry?: string | null;
+  certificateType?: string | null;
+  issuedBy?: string | null;
+  issueDate?: Date | null;
+  expiryDate?: Date | null;
+  submittedAt?: Date | null;
+  reviewedAt?: Date | null;
+  reviewedBy?: string | null;
+  reviewerNotes?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Course review
+export interface CourseReview {
+  id: string;
+  courseId: string;
+  userId: string;
+  rating: number; // 1-5
+  comment?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AuthContextType {

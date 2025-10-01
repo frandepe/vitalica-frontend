@@ -8,7 +8,11 @@ import { lazy } from "react";
 import { DashboardInstructor } from "@/pages/protected/DashboardInstructor";
 import { CardsDashboard } from "@/pages/protected/ChildrensDashboardInstructor/CardsDashboard";
 import { Illustration, NotFound } from "@/pages/public/404Page";
-import { InstructorInformationForm } from "@/components/instructor/Forms/InstructorInformationForm";
+
+import { Analytics } from "@/pages/protected/ChildrensDashboardInstructor/Analytics";
+import { InstructorProfile } from "@/pages/protected/ChildrensDashboardInstructor/InstructorProfile";
+import { Courses } from "@/pages/protected/ChildrensDashboardInstructor/Courses";
+import NewCourse from "@/pages/protected/ChildrensDashboardInstructor/NewCourse";
 
 // Páginas públicas
 const HomePage = lazy(() => import("@/pages/public/HomePage"));
@@ -58,11 +62,11 @@ export const router = createBrowserRouter([
           { path: "panel-administrativo", element: <CardsDashboard /> },
           {
             path: "perfil-de-instructor",
-            element: <InstructorInformationForm />,
+            element: <InstructorProfile />,
           },
-          { path: "analiticas", element: <div>Analytics</div> },
-          { path: "cursos", element: <div>Courses</div> },
-          { path: "crear-curso", element: <div>Students</div> },
+          { path: "analiticas", element: <Analytics /> },
+          { path: "cursos", element: <Courses /> },
+          { path: "nuevo-curso", element: <NewCourse /> },
           { path: "resenas", element: <div>Reviews</div> },
         ],
       },

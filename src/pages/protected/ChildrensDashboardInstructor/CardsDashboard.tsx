@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   BookOpen,
@@ -33,7 +32,7 @@ const features = [
   },
   {
     title: "Nuevo curso",
-    href: "/perfil/crear-curso",
+    href: "/perfil/nuevo-curso",
     description:
       "Crea un curso desde cero y compártelo con tu comunidad de estudiantes.",
     icon: <BookPlus />,
@@ -49,9 +48,12 @@ const features = [
 
 export const CardsDashboard = () => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 relative z-10 py-10 md:max-w-7xl mx-auto gap-10">
+    <div className="flex flex-wrap justify-center md:justify-start relative z-10 py-10 md:max-w-7xl gap-10">
       {features.map((feature) => (
-        <Card key={feature.title} className="h-[250px]">
+        <Card
+          key={feature.title}
+          className="h-[250px] flex-1 min-w-[250px] max-w-[300px]"
+        >
           <Feature {...feature} />
         </Card>
       ))}

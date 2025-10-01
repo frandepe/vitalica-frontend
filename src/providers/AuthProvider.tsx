@@ -1,13 +1,26 @@
-import type { ReactNode } from "react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useEffect } from "react";
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+export default function AppWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const setUser = useAuthStore((state) => state.setUser);
 
-const AuthProvider = ({ children }: AuthProviderProps) => {
-  // No necesitamos context para este ejemplo simple
-  // El estado de auth se maneja directamente en useAuth hook
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetch("/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setUser(data.user);
+        else localStorage.removeItem("token");
+      });
+  }, [setUser]);
+
   return <>{children}</>;
-};
-
-export default AuthProvider;
+}

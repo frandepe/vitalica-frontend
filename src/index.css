@@ -19,7 +19,7 @@
   --color-secondary-dark: #189cf4;
 
   /* Destructive */
-  --color-destructive: var(--color-secondary-dark);
+  --color-destructive: #e53935;
   --color-destructive-foreground: #ffffff;
 
   /* Neutros */

@@ -4,6 +4,8 @@ import { GoogleIcon } from "@/assets/Icons/google";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
+import { Link } from "react-router-dom";
 
 // --- MAIN COMPONENT ---
 
@@ -79,16 +81,16 @@ const LoginPage = () => {
             </span>
           </div>
 
-          <Button variant={"outline"} className="gap-3 border border-border">
-            <GoogleIcon />
-            Continuar con Google
-          </Button>
+          <GoogleLoginButton />
 
           <p className="animate-element animate-delay-900 text-center text-sm text-muted-foreground">
             Nuevo en la plataforma?{" "}
-            <a className="text-secondary hover:underline transition-colors cursor-pointer">
+            <Link
+              to="/auth/register"
+              className="text-secondary hover:underline transition-colors cursor-pointer"
+            >
               Crear una cuenta
-            </a>
+            </Link>
           </p>
         </div>
       </div>

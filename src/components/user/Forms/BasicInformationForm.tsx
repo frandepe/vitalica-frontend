@@ -57,7 +57,7 @@ export const BasicInformationForm = () => {
           />
         </div>
         <div className="flex-1 space-y-2">
-          <Button variant="outline" className="w-full sm:mt-6">
+          <Button variant="outline" className="w-full sm:mt-8">
             Guardar configuración básica
           </Button>
         </div>

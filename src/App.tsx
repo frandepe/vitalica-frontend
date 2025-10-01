@@ -2,6 +2,7 @@ import { RouterProvider } from "react-router-dom";
 import "./App.css";
 import { Suspense } from "react";
 import { router } from "./routes";
+import AppWrapper from "./providers/AuthProvider";
 
 const GlobalLoading = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -14,9 +15,11 @@ const GlobalLoading = () => (
 
 function App() {
   return (
-    <Suspense fallback={<GlobalLoading />}>
-      <RouterProvider router={router} />
-    </Suspense>
+    <AppWrapper>
+      <Suspense fallback={<GlobalLoading />}>
+        <RouterProvider router={router} />
+      </Suspense>
+    </AppWrapper>
   );
 }
 

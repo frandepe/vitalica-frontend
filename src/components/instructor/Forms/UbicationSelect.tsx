@@ -25,7 +25,7 @@ export const UbicationSelect: React.FC<UbicationSelectProps> = ({
   } = useUbication();
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Select Provincia */}
       <div className="flex-1">
         <Label>Provincia</Label>
@@ -57,7 +57,7 @@ export const UbicationSelect: React.FC<UbicationSelectProps> = ({
           onValueChange={onSelectCiudad}
           disabled={!selectedProvincia || ciudadesOptions.length === 0}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full truncate">
             <SelectValue
               placeholder={
                 !selectedProvincia

@@ -1,8 +1,11 @@
 import { GoogleIcon } from "@/assets/Icons/google";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputPassword } from "@/components/ui/password-input";
+import { Link } from "react-router-dom";
 
 // --- MAIN COMPONENT ---
 
@@ -60,18 +63,18 @@ const RegisterPage = () => {
             {/* Checkbox y link */}
             <div className="animate-element animate-delay-500 flex items-center justify-between text-sm">
               <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="rememberMe"
-                  className="custom-checkbox"
-                />
+                <Checkbox name="rememberMe" className="custom-checkbox" />
                 <span className="text-foreground/90">
                   Acepto las políticas de privacidad
                 </span>
               </label>
-              <a className="hover:underline text-secondary transition-colors cursor-pointer">
+              <Link
+                to="/politicas-de-privacidad"
+                target="_blank"
+                className="hover:underline text-secondary transition-colors cursor-pointer"
+              >
                 Ver políticas
-              </a>
+              </Link>
             </div>
 
             <Button type="submit" className="w-full">
@@ -88,17 +91,17 @@ const RegisterPage = () => {
           </div>
 
           {/* Botón Google */}
-          <Button variant={"outline"} className="gap-3 border border-border">
-            <GoogleIcon />
-            Continuar con Google
-          </Button>
+          <GoogleLoginButton />
 
           {/* Link crear cuenta */}
           <p className="animate-element animate-delay-900 text-center text-sm text-muted-foreground">
-            ¿Nuevo en la plataforma?{" "}
-            <a className="text-secondary hover:underline transition-colors cursor-pointer">
-              Crear una cuenta
-            </a>
+            ¿Ya tenés una cuenta?{" "}
+            <Link
+              to="/auth/login"
+              className="text-secondary hover:underline transition-colors cursor-pointer"
+            >
+              Ingresar
+            </Link>
           </p>
         </div>
       </div>

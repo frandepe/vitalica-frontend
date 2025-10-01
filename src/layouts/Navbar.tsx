@@ -1,3 +1,5 @@
+"use client";
+
 import { SearchNav } from "@/components/Search/SearchNav";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,8 +12,9 @@ import {
 } from "@/components/ui/navigation-menu";
 import DropdownMenuNotifications from "@/components/user/DropdownMenuNotifications";
 import DropdownMenuProfile from "@/components/user/DropdownMenuProfile";
-import { Menu, MoveRight, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useHideOnScroll } from "@/hooks/useHideOnScroll";
+import { Menu } from "lucide-react";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 export function Navbar() {
   const navigationItems = [
@@ -19,71 +22,25 @@ export function Navbar() {
       title: "Product",
       description: "Managing a small business today is already tough.",
       items: [
-        {
-          title: "Reports",
-          href: "/reports",
-        },
-        {
-          title: "Statistics",
-          href: "/statistics",
-        },
-        {
-          title: "Dashboards",
-          href: "/dashboards",
-        },
-        {
-          title: "Recordings",
-          href: "/recordings",
-        },
+        { title: "Reports", href: "/reports" },
+        { title: "Statistics", href: "/statistics" },
+        { title: "Dashboards", href: "/dashboards" },
+        { title: "Recordings", href: "/recordings" },
       ],
     },
     {
       title: "Company",
       description: "Managing a small business today is already tough.",
       items: [
-        {
-          title: "About us",
-          href: "/about",
-        },
-        {
-          title: "Fundraising",
-          href: "/fundraising",
-        },
-        {
-          title: "Investors",
-          href: "/investors",
-        },
-        {
-          title: "Contact us",
-          href: "/contact",
-        },
+        { title: "About us", href: "/about" },
+        { title: "Fundraising", href: "/fundraising" },
+        { title: "Investors", href: "/investors" },
+        { title: "Contact us", href: "/contact" },
       ],
     },
   ];
 
-  const [isOpen, setOpen] = useState(false);
-  const [showNavbar, setShowNavbar] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        // Scrolling down
-        setShowNavbar(false);
-      } else {
-        // Scrolling up
-        setShowNavbar(true);
-      }
-
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
-
+  const showNavbar = useHideOnScroll(50);
   const user = null;
 
   return (
@@ -93,6 +50,7 @@ export function Navbar() {
       }`}
     >
       <div className="container relative mx-auto min-h-20 flex gap-4 flex-row lg:grid lg:grid-cols-3 items-center">
+        {/* NAV DESKTOP */}
         <div className="justify-start items-center gap-4 lg:flex hidden flex-row">
           <NavigationMenu className="flex justify-start items-start">
             <NavigationMenuList className="flex justify-start gap-4 flex-row">
@@ -122,7 +80,6 @@ export function Navbar() {
                             className="flex flex-row justify-between items-center hover:bg-muted py-2 px-4 rounded"
                           >
                             <span>{subItem.title}</span>
-                            <MoveRight className="w-4 h-4 text-muted-foreground" />
                           </NavigationMenuLink>
                         ))}
                       </div>
@@ -134,9 +91,13 @@ export function Navbar() {
           </NavigationMenu>
           <SearchNav />
         </div>
+
+        {/* LOGO */}
         <div className="flex lg:justify-center">
           <p className="font-semibold">TWBlocks</p>
         </div>
+
+        {/* USER AREA */}
         {user ? (
           <div className="flex justify-end w-full gap-4">
             <Button variant="ghost" className="hidden md:inline">
@@ -152,35 +113,39 @@ export function Navbar() {
             <DropdownMenuProfile />
           </div>
         )}
-        <div className="flex w-12 shrink lg:hidden items-end justify-end">
-          <Button variant="ghost" onClick={() => setOpen(!isOpen)}>
-            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
-          {isOpen && (
-            <div className="absolute top-20 border-t flex flex-col w-full right-0 bg-background shadow-lg py-4 container gap-8">
-              {navigationItems.map((item) => (
-                <div key={item.title}>
-                  <div className="flex flex-col gap-2">
-                    <p className="text-lg">{item.title}</p>
 
-                    {item.items &&
-                      item.items.map((subItem) => (
+        {/* MOBILE MENU → Drawer */}
+        <div className="flex w-12 shrink lg:hidden items-end justify-end">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button variant="ghost">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="p-6">
+              <div className="flex flex-col gap-8">
+                {navigationItems.map((item) => (
+                  <div key={item.title}>
+                    <p className="text-lg font-medium mb-2">{item.title}</p>
+                    <div className="flex flex-col gap-2">
+                      {item.items?.map((subItem) => (
                         <a
                           key={subItem.title}
                           href={subItem.href}
-                          className="flex justify-between items-center"
+                          className="flex justify-between items-center py-2 px-2 rounded hover:bg-muted"
                         >
                           <span className="text-muted-foreground">
                             {subItem.title}
                           </span>
-                          <MoveRight className="w-4 h-4 stroke-1" />
                         </a>
                       ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+                <SearchNav />
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
       </div>
     </header>
