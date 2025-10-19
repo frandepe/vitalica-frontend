@@ -1,5 +1,7 @@
+import { ToastProvider } from "@/components/ui/toast";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect } from "react";
+import { getMe } from "@/api/authEndpoints";
 
 export default function AppWrapper({
   children,
@@ -9,18 +11,17 @@ export default function AppWrapper({
   const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    const fetchUser = async () => {
+      const res = await getMe();
+      if (res.success && res.data) {
+        setUser(res.data);
+      } else {
+        localStorage.removeItem("token"); // token inválido o expirado
+      }
+    };
 
-    fetch("/api/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) setUser(data.user);
-        else localStorage.removeItem("token");
-      });
+    fetchUser();
   }, [setUser]);
 
-  return <>{children}</>;
+  return <ToastProvider>{children}</ToastProvider>;
 }

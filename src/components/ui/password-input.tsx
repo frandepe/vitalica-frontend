@@ -1,16 +1,49 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Check, Eye, EyeOff, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
-function InputPassword() {
-  const [password, setPassword] = useState("");
+interface InputPasswordProps {
+  value?: string; // valor controlado desde RHF
+  onChange?: (value: string) => void; // callback de cambio
+  onBlur?: () => void;
+  name?: string;
+  showConfirm?: boolean; // si queremos mostrar confirmación
+  onConfirmChange?: (value: string) => void; // callback para confirmar
+}
+
+export function InputPassword({
+  value,
+  onChange,
+  onBlur,
+  name,
+  showConfirm = false,
+  onConfirmChange,
+}: InputPasswordProps) {
+  const [internalPassword, setInternalPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [isVisible, setIsVisible] = useState<boolean>(false);
-  const [isConfirmVisible, setIsConfirmVisible] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isConfirmVisible, setIsConfirmVisible] = useState(false);
+
+  // si viene valor controlado, lo usamos
+  const password = value ?? internalPassword;
+
+  useEffect(() => {
+    if (value !== undefined) setInternalPassword(value);
+  }, [value]);
 
   const toggleVisibility = () => setIsVisible((prev) => !prev);
   const toggleConfirmVisibility = () => setIsConfirmVisible((prev) => !prev);
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInternalPassword(e.target.value);
+    if (onChange) onChange(e.target.value);
+  };
+
+  const handleConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirm(e.target.value);
+    if (onConfirmChange) onConfirmChange(e.target.value);
+  };
 
   const checkStrength = (pass: string) => {
     const requirements = [
@@ -28,9 +61,10 @@ function InputPassword() {
 
   const strength = checkStrength(password);
 
-  const strengthScore = useMemo(() => {
-    return strength.filter((req) => req.met).length;
-  }, [strength]);
+  const strengthScore = useMemo(
+    () => strength.filter((r) => r.met).length,
+    [strength]
+  );
 
   const getStrengthColor = (score: number) => {
     if (score === 0) return "bg-border";
@@ -53,30 +87,24 @@ function InputPassword() {
     <div className="min-w-[300px] space-y-4">
       {/* Campo contraseña */}
       <div className="space-y-2">
-        <Label htmlFor="password">Contraseña</Label>
+        <Label htmlFor={name || "password"}>Contraseña</Label>
         <div className="relative">
           <Input
-            id="password"
+            id={name || "password"}
+            name={name}
             className="pe-9"
             placeholder="Ingrese una contraseña"
             type={isVisible ? "text" : "password"}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            aria-invalid={strengthScore < 4}
+            onChange={handlePasswordChange}
+            onBlur={onBlur}
           />
           <button
-            className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-ring/70 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
             type="button"
             onClick={toggleVisibility}
-            aria-label={isVisible ? "Hide password" : "Show password"}
-            aria-pressed={isVisible}
-            aria-controls="password"
+            className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-ring/70"
           >
-            {isVisible ? (
-              <EyeOff size={16} strokeWidth={2} aria-hidden="true" />
-            ) : (
-              <Eye size={16} strokeWidth={2} aria-hidden="true" />
-            )}
+            {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
       </div>
@@ -95,7 +123,7 @@ function InputPassword() {
             strengthScore
           )} transition-all duration-500 ease-out`}
           style={{ width: `${(strengthScore / 4) * 100}%` }}
-        ></div>
+        />
       </div>
 
       <p className="text-sm font-medium text-foreground">
@@ -103,20 +131,12 @@ function InputPassword() {
       </p>
 
       <ul className="space-y-1.5" aria-label="Password requirements">
-        {strength.map((req, index) => (
-          <li key={index} className="flex items-center gap-2">
+        {strength.map((req, idx) => (
+          <li key={idx} className="flex items-center gap-2">
             {req.met ? (
-              <Check
-                size={16}
-                className="text-emerald-500"
-                aria-hidden="true"
-              />
+              <Check size={16} className="text-emerald-500" />
             ) : (
-              <X
-                size={16}
-                className="text-muted-foreground/80"
-                aria-hidden="true"
-              />
+              <X size={16} className="text-muted-foreground/80" />
             )}
             <span
               className={`text-xs ${
@@ -124,49 +144,39 @@ function InputPassword() {
               }`}
             >
               {req.text}
-              <span className="sr-only">
-                {req.met ? " - Requirement met" : " - Requirement not met"}
-              </span>
             </span>
           </li>
         ))}
       </ul>
 
       {/* Confirmar contraseña */}
-      <div className="space-y-2">
-        <Label htmlFor="confirm">Confirmar contraseña</Label>
-        <div className="relative">
-          <Input
-            id="confirm"
-            className={`pe-9 ${
-              confirm.length > 0 && !passwordsMatch
-                ? "border border-red-700"
-                : ""
-            }`}
-            placeholder="Repita la contraseña"
-            type={isConfirmVisible ? "text" : "password"}
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            aria-invalid={confirm.length > 0 && !passwordsMatch}
-          />
-          <button
-            className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-ring/70"
-            type="button"
-            onClick={toggleConfirmVisibility}
-            aria-label={isConfirmVisible ? "Hide password" : "Show password"}
-            aria-pressed={isConfirmVisible}
-            aria-controls="confirm"
-          >
-            {isConfirmVisible ? (
-              <EyeOff size={16} strokeWidth={2} aria-hidden="true" />
-            ) : (
-              <Eye size={16} strokeWidth={2} aria-hidden="true" />
-            )}
-          </button>
+      {showConfirm && (
+        <div className="space-y-2">
+          <Label htmlFor="confirm">Confirmar contraseña</Label>
+          <div className="relative">
+            <Input
+              id="confirm"
+              className={`pe-9 ${
+                confirm.length > 0 && !passwordsMatch
+                  ? "border border-red-700"
+                  : ""
+              }`}
+              placeholder="Repita la contraseña"
+              type={isConfirmVisible ? "text" : "password"}
+              value={confirm}
+              onChange={handleConfirmChange}
+              aria-invalid={confirm.length > 0 && !passwordsMatch}
+            />
+            <button
+              type="button"
+              onClick={toggleConfirmVisibility}
+              className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-ring/70"
+            >
+              {isConfirmVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
-
-export { InputPassword };

@@ -1,18 +1,70 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
-import { GoogleIcon } from "@/assets/Icons/google";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { loginUser } from "@/api";
+import { useBackendErrors } from "@/hooks/useBackendErrors";
+import { DataValidationEmail } from "@/types/auth.types";
+import { EmailConfirm } from "@/components/user/auth/EmailConfirm";
 
-// --- MAIN COMPONENT ---
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
 
 const LoginPage = () => {
-  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { setUser } = useAuth(); // guarda usuario globalmente
+  const { setBackendErrorMessage, getGeneralErrors, clearErrors } =
+    useBackendErrors();
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState<DataValidationEmail>();
+  const { register, handleSubmit, formState } = useForm<LoginFormValues>();
+  const { errors } = formState;
 
-  const toggleVisibility = () => setIsVisible((prevState) => !prevState);
+  const toggleVisibility = () => setIsVisible((prev) => !prev);
+
+  const onSubmit = async (data: LoginFormValues) => {
+    setLoading(true);
+    setUserData({
+      firstName: data.email.split("@")[0],
+      email: data.email,
+    });
+    try {
+      const result = await loginUser(data);
+      if (!result.success && result.message) {
+        setBackendErrorMessage(result.message);
+        return;
+      }
+
+      clearErrors();
+
+      if (result.success) {
+        localStorage.setItem("token", result.data.token);
+        setUser(result.data.user); // guardamos usuario global
+        navigate("/");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Ocurrió un error al iniciar sesión");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (
+    getGeneralErrors().includes(
+      "Por favor verifica tu email antes de iniciar sesión"
+    )
+  ) {
+    return <EmailConfirm userData={userData!} />;
+  }
 
   return (
     <section className="flex-1 flex items-center justify-center p-8">
@@ -27,14 +79,19 @@ const LoginPage = () => {
             Accede a tu cuenta para continuar
           </p>
 
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
             <div className="animate-element animate-delay-300">
               <Label htmlFor="email">Correo electrónico</Label>
               <Input
-                name="email"
-                type="email"
+                id="email"
                 placeholder="Ingrese su correo electrónico"
+                {...register("email", { required: "El email es obligatorio" })}
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="animate-element animate-delay-400">
@@ -45,6 +102,9 @@ const LoginPage = () => {
                   className="pe-9"
                   placeholder="Ingrese su contraseña"
                   type={isVisible ? "text" : "password"}
+                  {...register("password", {
+                    required: "La contraseña es obligatoria",
+                  })}
                 />
                 <button
                   className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-ring/70 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
@@ -61,6 +121,11 @@ const LoginPage = () => {
                   )}
                 </button>
               </div>
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
             <div className="animate-element animate-delay-500 flex items-center justify-between text-sm">
@@ -68,17 +133,23 @@ const LoginPage = () => {
                 Olvidé mi contraseña
               </a>
             </div>
+            {getGeneralErrors().map((msg, i) => (
+              <p key={i} className="text-red-600 text-sm mb-2">
+                {msg}
+              </p>
+            ))}
 
-            <Button type="submit" className="w-full">
-              Ingresar
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Ingresando..." : "Ingresar"}
             </Button>
           </form>
 
-          <div className="animate-element animate-delay-700 relative flex items-center justify-center">
-            <span className="w-full border-t border-border"></span>
-            <span className="px-4 text-sm text-muted-foreground bg-background absolute">
+          <div className="animate-delay-700 flex items-center gap-2">
+            <span className="flex-1 border-t border-border"></span>
+            <span className="text-sm text-muted-foreground">
               O continúa con
             </span>
+            <span className="flex-1 border-t border-border"></span>
           </div>
 
           <GoogleLoginButton />

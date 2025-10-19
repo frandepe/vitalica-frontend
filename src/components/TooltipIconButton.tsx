@@ -5,7 +5,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ButtonProps } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 
 export type TooltipIconButtonProps = ButtonProps & {
@@ -16,15 +16,23 @@ export type TooltipIconButtonProps = ButtonProps & {
 export const TooltipIconButton = forwardRef<
   HTMLButtonElement,
   TooltipIconButtonProps
->(({ children, tooltip, side = "bottom", className }) => {
+>(({ children, tooltip, side = "bottom", className, ...props }, ref) => {
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className={cn("size-6 p-1", className)}>
+          <Button
+            variant="link"
+            ref={ref}
+            className={cn(
+              "size-8 p-1 flex items-center justify-center cursor-help",
+              className
+            )}
+            {...props}
+          >
             {children}
             <span className="sr-only">{tooltip}</span>
-          </div>
+          </Button>
         </TooltipTrigger>
         <TooltipContent side={side}>{tooltip}</TooltipContent>
       </Tooltip>

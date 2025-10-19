@@ -1,6 +1,5 @@
 import { AnalyticsData } from "@/components/instructor/AnalyticsData";
 import { MarketingDashboard } from "@/components/instructor/AnalyticsData2";
-import { Separator } from "@/components/ui/separator";
 
 export const Analytics = () => {
   const sampleCta = {

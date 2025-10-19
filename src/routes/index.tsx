@@ -22,6 +22,7 @@ const ContactPage = lazy(() => import("@/pages/public/ContactPage"));
 // Páginas de autenticación
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage"));
+const VerifyEmailPage = lazy(() => import("@/pages/auth/VerifyEmailPage"));
 
 // Páginas protegidas
 const ProfilePage = lazy(() => import("@/pages/protected/ProfilePage"));
@@ -87,6 +88,10 @@ export const router = createBrowserRouter([
       {
         path: "register",
         element: <RegisterPage />,
+      },
+      {
+        path: "verificar-email",
+        element: <VerifyEmailPage />,
       },
     ],
   },

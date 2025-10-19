@@ -109,3 +109,30 @@ export interface AuthContextType {
   logout: () => void;
   register: (email: string, password: string, name: string) => Promise<void>;
 }
+
+export interface RegisterFormValues {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  // acceptPrivacy: boolean;
+}
+
+export interface DataValidationEmail {
+  email: string;
+  firstName: string;
+}
+
+export interface EmailVerification {
+  id: string;
+  token: string;
+  expires?: string; // normalmente viene como ISO string desde la API
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    email: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}

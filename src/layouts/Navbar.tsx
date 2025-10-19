@@ -15,6 +15,8 @@ import DropdownMenuProfile from "@/components/user/DropdownMenuProfile";
 import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 import { Menu } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export function Navbar() {
   const navigationItems = [
@@ -41,7 +43,9 @@ export function Navbar() {
   ];
 
   const showNavbar = useHideOnScroll(50);
-  const user = null;
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  console.log("user en el nav", user);
 
   return (
     <header
@@ -98,14 +102,18 @@ export function Navbar() {
         </div>
 
         {/* USER AREA */}
-        {user ? (
+        {!user ? (
           <div className="flex justify-end w-full gap-4">
             <Button variant="ghost" className="hidden md:inline">
               Ver demo
             </Button>
             <div className="border-r hidden md:inline"></div>
-            <Button variant="outline">Iniciar sesión</Button>
-            <Button>Regístrate</Button>
+            <Button variant="outline" onClick={() => navigate("/auth/login")}>
+              Iniciar sesión
+            </Button>
+            <Button onClick={() => navigate("/auth/register")}>
+              Regístrate
+            </Button>
           </div>
         ) : (
           <div className="flex justify-end w-full gap-4">
