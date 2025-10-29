@@ -90,7 +90,7 @@ export const Step1 = ({ register, watch, control }: Step1Props) => {
         render={({ field }) => (
           <FormItem className="mt-4">
             <Label>Categoría del curso</Label>
-            <Select onValueChange={field.onChange}>
+            <Select value={String(field.value)} onValueChange={field.onChange}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={"Selecciona una categoria"} />
@@ -119,7 +119,7 @@ export const Step1 = ({ register, watch, control }: Step1Props) => {
         render={({ field }) => (
           <FormItem>
             <Label>Nivel del curso</Label>
-            <Select onValueChange={field.onChange}>
+            <Select value={field.value} onValueChange={field.onChange}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={"Selecciona el nivel del curso"} />

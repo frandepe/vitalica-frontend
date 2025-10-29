@@ -1,3 +1,5 @@
+import { ICreateCourse } from "@/types/course.types";
+import { ApiResponse } from "./authEndpoints";
 import { apiRequest } from "./configEndpoint";
 
 export interface GetProductsParams {
@@ -13,3 +15,22 @@ export const getProducts = async (params: GetProductsParams) => {
     params,
   });
 };
+
+export const createCourse = async (
+  data: ICreateCourse
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: "/api/course",
+    method: "POST",
+    data,
+  });
+};
+// export const upsertCourse = async (
+//   data: NewCourseFormValues
+// ): Promise<ApiResponse> => {
+//   return apiRequest({
+//     url: "/api/course/upsert",
+//     method: "POST",
+//     data,
+//   });
+// };

@@ -11,6 +11,7 @@ import { BasicInformationForm } from "@/components/user/Forms/BasicInformationFo
 
 import { Activity, CalendarHeart, RefreshCw, UserCheck } from "lucide-react";
 import { AnimatedGradientDemo } from "@/components/CardsAnimated/DemoCardsAnimatedGradient";
+import { useAuth } from "@/hooks/useAuth";
 
 const isInstructor = false;
 
@@ -57,10 +58,13 @@ const features = [
 ];
 
 const ProfilePage = () => {
+  const { user } = useAuth();
   return (
     <div className="container mx-auto">
       <ProfileBg defaultImage="https://originui.com/profile-bg.jpg" />
-      <Avatar defaultImage="https://originui.com/avatar-72-01.jpg" />
+      <Avatar
+        defaultImage={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
+      />
       <div className="px-6 pb-6 pt-4">
         <div className="space-y-4">
           <div className="flex flex-col gap-4 lg:flex-row">

@@ -35,6 +35,8 @@ export interface User {
   emailNotifications: boolean;
   pushNotifications: boolean;
 
+  application?: InstructorApplication | null;
+
   isActive: boolean;
   lastLoginAt?: Date | null;
   deletedAt?: Date | null;
@@ -42,6 +44,31 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export const EMPTY_USER: User = {
+  id: "",
+  email: "",
+  role: "USER",
+  slug: "",
+  password: undefined,
+  firstName: null,
+  lastName: null,
+  avatarUrl: null,
+  avatarUrlId: null,
+  phoneCountryCode: null,
+  phoneNumber: null,
+  emailVerifiedAt: null,
+  phoneVerifiedAt: null,
+  language: null,
+  timezone: null,
+  emailNotifications: false,
+  pushNotifications: false,
+  isActive: false,
+  lastLoginAt: null,
+  deletedAt: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
 
 // Instructor profile
 export interface InstructorProfile {

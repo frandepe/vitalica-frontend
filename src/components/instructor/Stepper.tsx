@@ -15,6 +15,7 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   onStepChange?: (step: number) => void;
   onFinalStepCompleted?: () => void;
   onSaveToDraft?: () => void;
+  onCreateInDraft: () => void;
   stepCircleContainerClassName?: string;
   stepContainerClassName?: string;
   contentClassName?: string;
@@ -24,6 +25,7 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   backButtonText?: string;
   nextButtonText?: string;
   disableStepIndicators?: boolean;
+  isDraftEnabled: boolean;
   renderStepIndicator?: (props: {
     step: number;
     currentStep: number;
@@ -37,6 +39,7 @@ const StepperComponent = ({
   onStepChange = () => {},
   onFinalStepCompleted = () => {},
   onSaveToDraft = () => {},
+  onCreateInDraft = () => {},
   stepCircleContainerClassName = "",
   stepContainerClassName = "",
   contentClassName = "",
@@ -45,6 +48,7 @@ const StepperComponent = ({
   nextButtonProps = {},
   backButtonText = "Back",
   nextButtonText = "Continue",
+  isDraftEnabled,
   disableStepIndicators = false,
   renderStepIndicator,
   ...rest
@@ -55,6 +59,9 @@ const StepperComponent = ({
   const totalSteps = stepsArray.length;
   const isCompleted = currentStep > totalSteps;
   const isLastStep = currentStep === totalSteps;
+
+  // Ref para trackear si ya se ejecutó onSaveToDraft
+  const firstStepSavedRef = useRef(false);
 
   const updateStep = (newStep: number) => {
     setCurrentStep(newStep);
@@ -74,6 +81,11 @@ const StepperComponent = ({
   };
 
   const handleNext = () => {
+    if (currentStep === 1 && !firstStepSavedRef.current) {
+      firstStepSavedRef.current = true;
+      onCreateInDraft(); // se dispara onSubmitDraft vía handleSubmit
+    }
+
     if (!isLastStep) {
       setDirection(1);
       updateStep(currentStep + 1);
@@ -88,6 +100,7 @@ const StepperComponent = ({
   return (
     <div {...rest}>
       <div className={`rounded-lg ${stepCircleContainerClassName}`}>
+        {/* Step indicators */}
         <div className={`${stepContainerClassName} flex w-full items-center`}>
           {stepsArray.map((_, index) => {
             const stepNumber = index + 1;
@@ -122,6 +135,7 @@ const StepperComponent = ({
           })}
         </div>
 
+        {/* Step content */}
         <StepContentWrapper
           isCompleted={isCompleted}
           currentStep={currentStep}
@@ -131,6 +145,7 @@ const StepperComponent = ({
           {stepsArray[currentStep - 1]}
         </StepContentWrapper>
 
+        {/* Footer */}
         {!isCompleted && (
           <div className={`pb-6 sm:pb-8 ${footerClassName}`}>
             <div className={`mt-8 sm:mt-10 flex justify-start gap-4`}>
@@ -150,6 +165,7 @@ const StepperComponent = ({
               <Button
                 onClick={isLastStep ? handleComplete : handleNext}
                 {...nextButtonProps}
+                disabled={isDraftEnabled}
               >
                 {isLastStep ? "Finalizar" : nextButtonText}
               </Button>
@@ -161,6 +177,7 @@ const StepperComponent = ({
             </div>
           </div>
         )}
+
         {isCompleted && (
           <div className="p-6 sm:p-8 text-center">
             <h3 className="text-xl font-semibold text-green-600 dark:text-green-400">

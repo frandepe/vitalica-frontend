@@ -17,7 +17,7 @@ export const Step2 = () => {
         name="thumbnail"
         control={control}
         rules={{
-          required: "La imagen es obligatoria",
+          // required: "La imagen es obligatoria",
           validate: (files) => {
             const file = files?.[0];
             if (!file) return true;

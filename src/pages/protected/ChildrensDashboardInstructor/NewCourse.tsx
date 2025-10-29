@@ -3,7 +3,7 @@ import { Step1 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step1";
 import { Step, Stepper } from "@/components/instructor/Stepper";
 import { Form } from "@/components/ui/form";
 import { LessonFormValues, NewCourseFormValues } from "@/types/course.types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import banner1 from "/Banners/banner4.jpg";
 import mask01 from "@/assets/Masks/mask-20.svg";
@@ -13,6 +13,10 @@ import { Step4 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step4";
 import { Step5 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step5";
 import { Step6 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step6";
 import { BookOpenCheck, FileText, HandCoins } from "lucide-react";
+import { CourseLevel, Specialty } from "@/constants";
+import { useParams } from "react-router-dom";
+import { createCourse } from "@/api";
+import { useBackendErrors } from "@/hooks/useBackendErrors";
 
 interface LessonTypes {
   [sectionIndex: number]: {
@@ -23,10 +27,28 @@ interface LessonTypes {
 const NewCourse = () => {
   const [lessonTypes, setLessonTypes] = useState<LessonTypes>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [picture, setPicture] = useState<any>(null);
-  const [enabledDraft, setEnabledDraft] = useState(false);
+  const { courseId } = useParams();
+  const { setBackendErrors, getGeneralErrors, clearErrors } =
+    useBackendErrors();
 
-  const form = useForm<NewCourseFormValues>();
+  const defaultValues: NewCourseFormValues = {
+    title: "",
+    description: "",
+    tags: [],
+    specialty: Specialty.CPR,
+    promoVideoFile: undefined,
+    level: CourseLevel.BEGINNER,
+    duration: undefined,
+    price: 0,
+    currency: "ARS",
+    modules: [],
+    quizzes: [],
+  };
+
+  // Inicializamos el form
+  const form = useForm<NewCourseFormValues>({
+    defaultValues,
+  });
   const {
     register,
     formState: { errors },
@@ -34,6 +56,7 @@ const NewCourse = () => {
     control,
     setValue,
     watch,
+    reset,
   } = form;
 
   const {
@@ -44,6 +67,28 @@ const NewCourse = () => {
     control,
     name: "modules",
   });
+
+  useEffect(() => {
+    if (!courseId) return;
+
+    const fetchCourse = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/course/${courseId}`);
+        if (!res.ok) throw new Error("Error al cargar curso");
+        const data: NewCourseFormValues = await res.json();
+
+        // Setear valores en RHF
+        reset(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourse();
+  }, [courseId, reset]);
 
   const handleLessonTypeChange = (
     sectionIndex: number,
@@ -67,88 +112,154 @@ const NewCourse = () => {
     setValue(`modules.${moduleIndex}.lessons`, updatedLessons);
   };
 
-  const title = watch("title");
-  const description = watch("description");
-  const tags = watch("tags");
-  const specialty = watch("specialty");
-  const level = watch("level");
+  const values = watch();
+  const isDraftEnabled = Boolean(
+    values.title?.trim()?.length >= 3 &&
+      values.title?.trim()?.length <= 150 &&
+      values.description?.trim()?.length >= 10 &&
+      values.description?.trim()?.length <= 5000 &&
+      values.tags?.length > 0 &&
+      values.specialty &&
+      values.level?.trim()
+  );
 
-  const isDraftEnabled =
-    title?.trim() &&
-    description?.trim() &&
-    tags?.length > 0 &&
-    specialty?.trim() &&
-    level?.trim();
-
-  const onSubmit = async (values: any) => {
+  // Esto se va a ejecutar cuando el usuario pase al step 2 por primera vez
+  const onCreateInDraft = async () => {
     setIsLoading(true);
-    // const newData = {
-    //   ...data,
-    //   thumbnail: picture || '',
-    // };
+    const data = form.getValues([
+      "title",
+      "description",
+      "tags",
+      "specialty",
+      "level",
+    ]); // obtiene los datos actuales del form
+
+    if (!isDraftEnabled) {
+      alert("No se puede guardar todavía"); // TODO: hacer un toast copado
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const promoVideoFile = values.promoVideoFile; // viene de RHF
+      console.log("Curso creado:", data);
 
-      if (promoVideoFile) {
-        // 1️⃣ Pedir al backend la URL de subida directa
-        const res = await fetch("/api/course/direct-upload", {
-          method: "POST",
-        });
-        const { data } = await res.json();
-
-        const uploadUrl = data.uploadUrl;
-        const uploadId = data.uploadId;
-
-        // 2️⃣ Subir el archivo a Mux
-        await fetch(uploadUrl, {
-          method: "PUT",
-          body: promoVideoFile, // el File
-        });
-
-        // 3️⃣ Preguntar a Mux por el asset final
-        // Esto se puede hacer llamando a tu backend que ya tenga la lógica con mux.video.uploads.get(uploadId)
-        const assetRes = await fetch(`/api/course/mux-asset/${uploadId}`);
-        const { muxAssetId, muxPlaybackId } = await assetRes.json();
-
-        // 4️⃣ Crear o actualizar el curso en tu backend
-        await fetch("/api/course/upsert", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...values,
-            muxPromoAssetId: muxAssetId,
-            muxPlaybacktId: muxPlaybackId,
-          }),
-        });
-
-        console.log("Curso guardado con Mux asset:", muxAssetId, muxPlaybackId);
-      } else {
-        // Si no hay video, solo guardamos el curso sin promoVideo
-        await fetch("/api/course/upsert", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        });
+      const result = await createCourse(values);
+      if (result.errors && result.errors.length > 0) {
+        setBackendErrors(result.errors);
+        return;
       }
-    } catch (err) {
-      console.error("Error subiendo el video:", err);
+
+      clearErrors();
+      // if (!result.success) throw new Error(result.message);
+
+      console.log("result", result);
+
+      alert(result.message);
+    } catch (error) {
+      console.error("Error guardando borrador:", error);
+      // acá podrías mostrar un mensaje de error al usuario
     } finally {
       setIsLoading(false);
     }
   };
 
-  const onSubmitDraft = async (data: NewCourseFormValues) => {
+  const onSubmit = async (values: NewCourseFormValues) => {
     setIsLoading(true);
+
     try {
-      if (isDraftEnabled) {
-        setEnabledDraft(true);
-        console.log("Guardado en borrador:", data);
-      } else {
-        alert("no se puede guardar todavia"); // TODO: hacer un sonner copado
-      }
-      // await saveDraft(data);
+      // Si tenemos un courseId, lo incluimos para que el backend actualice
+      const payload = courseId ? { ...values, courseId } : values;
+
+      // const result = await upsertCourse(payload);
+
+      // if (!result.success) throw new Error(result.message);
+
+      // console.log(result.message, result.data);
+      // alert(result.message);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Error al guardar el curso");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // const onSubmit = async (values: NewCourseFormValues) => {
+  //   setIsLoading(true);
+  //   // const newData = {
+  //   //   ...data,
+  //   //   thumbnail: picture || '',
+  //   // };
+  //   try {
+  //     const promoVideoFile = values.promoVideoFile; // viene de RHF
+
+  //     if (promoVideoFile) {
+  //       // 1️⃣ Pedir al backend la URL de subida directa
+  //       const res = await fetch("/api/course/direct-upload", {
+  //         method: "POST",
+  //       });
+  //       const { data } = await res.json();
+
+  //       const uploadUrl = data.uploadUrl;
+  //       const uploadId = data.uploadId;
+
+  //       // 2️⃣ Subir el archivo a Mux
+  //       await fetch(uploadUrl, {
+  //         method: "PUT",
+  //         body: promoVideoFile, // el File
+  //       });
+
+  //       // 3️⃣ Preguntar a Mux por el asset final
+  //       // Esto se puede hacer llamando a tu backend que ya tenga la lógica con mux.video.uploads.get(uploadId)
+  //       const assetRes = await fetch(`/api/course/mux-asset/${uploadId}`);
+  //       const { muxAssetId, muxPlaybackId } = await assetRes.json();
+
+  //       // 4️⃣ Crear o actualizar el curso en tu backend
+  //       await fetch("/api/course/upsert", {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           ...values,
+  //           muxPromoAssetId: muxAssetId,
+  //           muxPlaybacktId: muxPlaybackId,
+  //         }),
+  //       });
+
+  //       console.log("Curso guardado con Mux asset:", muxAssetId, muxPlaybackId);
+  //     } else {
+  //       // Si no hay video, solo guardamos el curso sin promoVideo
+  //       await fetch("/api/course/upsert", {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify(values),
+  //       });
+  //     }
+  //   } catch (err) {
+  //     console.error("Error subiendo el video:", err);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const onSubmitDraft = async () => {
+    setIsLoading(true);
+    const data = form.getValues(); // obtiene los datos actuales del form
+
+    try {
+      console.log("Guardado en borrador:", data);
+
+      // Si tenemos un courseId, lo incluimos para que el backend actualice
+      const payload = courseId ? { ...values, courseId } : values;
+
+      // const result = await createCourse(payload);
+
+      // if (!result.success) throw new Error(result.message);
+
+      // console.log(result.message, result.data);
+      // alert(result.message);
     } catch (error) {
-      console.error("Error al guardar borrador:", error);
+      console.error("Error guardando borrador:", error);
+      // acá podrías mostrar un mensaje de error al usuario
     } finally {
       setIsLoading(false);
     }
@@ -160,12 +271,14 @@ const NewCourse = () => {
       <Form {...form}>
         <Stepper
           className="mt-8"
+          isDraftEnabled={!isDraftEnabled}
           initialStep={1}
           onStepChange={(step) => {
             console.log("Current step:", step);
           }}
           onFinalStepCompleted={handleSubmit(onSubmit)}
-          onSaveToDraft={handleSubmit(onSubmitDraft)}
+          onSaveToDraft={onSubmitDraft}
+          onCreateInDraft={onCreateInDraft}
           backButtonText="Atrás"
           nextButtonText="Siguiente"
         >

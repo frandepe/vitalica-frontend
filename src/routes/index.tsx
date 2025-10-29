@@ -13,11 +13,15 @@ import { Analytics } from "@/pages/protected/ChildrensDashboardInstructor/Analyt
 import { InstructorProfile } from "@/pages/protected/ChildrensDashboardInstructor/InstructorProfile";
 import { Courses } from "@/pages/protected/ChildrensDashboardInstructor/Courses";
 import NewCourse from "@/pages/protected/ChildrensDashboardInstructor/NewCourse";
+import ErrorFallback from "@/components/ErrorFallback";
 
 // Páginas públicas
 const HomePage = lazy(() => import("@/pages/public/HomePage"));
 const AboutPage = lazy(() => import("@/pages/public/AboutPage"));
 const ContactPage = lazy(() => import("@/pages/public/ContactPage"));
+const ApplyToBeInstructor = lazy(
+  () => import("@/pages/public/ApplyToBeInstructor")
+);
 
 // Páginas de autenticación
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
@@ -31,6 +35,7 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <PublicLayout />,
+    errorElement: <ErrorFallback />,
     children: [
       {
         index: true,
@@ -39,6 +44,10 @@ export const router = createBrowserRouter([
       {
         path: "about",
         element: <AboutPage />,
+      },
+      {
+        path: "solicitar-ser-instructor",
+        element: <ApplyToBeInstructor />,
       },
       {
         path: "contacto",

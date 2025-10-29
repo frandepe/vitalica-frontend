@@ -13,7 +13,7 @@ import {
 import DropdownMenuNotifications from "@/components/user/DropdownMenuNotifications";
 import DropdownMenuProfile from "@/components/user/DropdownMenuProfile";
 import { useHideOnScroll } from "@/hooks/useHideOnScroll";
-import { Menu } from "lucide-react";
+import { Activity, Menu } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -43,9 +43,8 @@ export function Navbar() {
   ];
 
   const showNavbar = useHideOnScroll(50);
-  const { user, logout } = useAuth();
+  const { user, isActive } = useAuth();
   const navigate = useNavigate();
-  console.log("user en el nav", user);
 
   return (
     <header
@@ -98,11 +97,18 @@ export function Navbar() {
 
         {/* LOGO */}
         <div className="flex lg:justify-center">
-          <p className="font-semibold">TWBlocks</p>
+          <p className="font-semibold flex">
+            <img
+              src="/Logo/logoVitalica.png"
+              alt="Logotipo de Vitalica con la letra V en forma de pulso de actividad, completando el nombre de la marca"
+              height={100}
+              width={180}
+            />
+          </p>
         </div>
 
         {/* USER AREA */}
-        {!user ? (
+        {!isActive ? (
           <div className="flex justify-end w-full gap-4">
             <Button variant="ghost" className="hidden md:inline">
               Ver demo

@@ -15,11 +15,13 @@ import {
 import { CreditCard, Crown, LogOut, Settings, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMedia } from "@/hooks/useMedia";
+import { useAuth } from "@/hooks/useAuth";
+import RoleBadge from "./RoleBadge";
 
 export default function ProfileMenu() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const isMobile = useMedia();
-  const rol = "INSTRUCTOR";
 
   if (isMobile) {
     // 👉 Drawer en mobile
@@ -27,7 +29,7 @@ export default function ProfileMenu() {
       <Drawer>
         <DrawerTrigger asChild>
           <img
-            src="https://patrickprunty.com/icon.webp"
+            src={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
             alt="User avatar"
             className="h-10 w-10 rounded-full border-2 border-border hover:border-primary transition-colors cursor-pointer"
           />
@@ -39,13 +41,13 @@ export default function ProfileMenu() {
 
           <div className="flex items-center gap-3 p-4 border-b">
             <img
-              src="https://patrickprunty.com/icon.webp"
+              src={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
               alt="User avatar"
               className="h-12 w-12 rounded-full"
             />
             <div className="flex flex-col gap-1">
               <p className="text-sm font-medium text-foreground">
-                patrick@example.com
+                {user?.email}
               </p>
               <div className="flex items-center gap-1">
                 <Crown className="h-3 w-3 text-amber-500" />
@@ -71,7 +73,7 @@ export default function ProfileMenu() {
               <Settings className="h-4 w-4" />
               Settings
             </button>
-            {rol === "INSTRUCTOR" && (
+            {user?.role === "INSTRUCTOR" && (
               <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent">
                 <Settings
                   className="h-4 w-4"
@@ -97,7 +99,7 @@ export default function ProfileMenu() {
     <Dropdown>
       <DropdownTrigger className="cursor-pointer">
         <img
-          src="https://patrickprunty.com/icon.webp"
+          src={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
           alt="User avatar"
           className="h-10 w-10 rounded-full border-2 border-border hover:border-primary transition-colors"
         />
@@ -106,18 +108,13 @@ export default function ProfileMenu() {
         {/* Profile Section */}
         <div className="flex items-center gap-3 p-3">
           <img
-            src="https://patrickprunty.com/icon.webp"
+            src={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
             alt="User avatar"
             className="h-10 w-10 rounded-full"
           />
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium text-foreground">
-              patrick@example.com
-            </p>
-            <div className="flex items-center gap-1">
-              <Crown className="h-3 w-3 text-amber-500" />
-              <p className="text-xs text-muted-foreground">Instructor</p>
-            </div>
+            <p className="text-sm font-medium text-foreground">{user?.email}</p>
+            <RoleBadge role={user?.role} createdAt={user?.createdAt} />
           </div>
         </div>
         <DropdownSeparator />
@@ -131,7 +128,7 @@ export default function ProfileMenu() {
           <CreditCard className="h-4 w-4" />
           Billing
         </DropdownItem>
-        {rol === "INSTRUCTOR" && (
+        {user?.role === "INSTRUCTOR" && (
           <DropdownItem
             className="gap-2"
             onClick={() => navigate("/perfil/panel-administrativo")}

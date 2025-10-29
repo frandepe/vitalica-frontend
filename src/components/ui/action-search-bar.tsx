@@ -173,7 +173,7 @@ function ActionSearchBar() {
         {/* Input */}
         <Input
           type="text"
-          placeholder="What's up?"
+          placeholder="¿Qué estás buscando?"
           value={query}
           onChange={handleInputChange}
           onFocus={handleFocus}

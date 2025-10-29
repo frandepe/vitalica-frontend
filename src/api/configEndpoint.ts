@@ -82,6 +82,7 @@ export const apiRequest = async ({
     // Extraer datos del backend si existen
     const status = error?.response?.status;
     const backendData = error?.response?.data;
+    console.log("error", error);
 
     if (status === 401) {
       const isAuthRoute =

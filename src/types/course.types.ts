@@ -1,3 +1,5 @@
+import { Specialty } from "@/constants";
+
 export interface Course {
   id: string;
   instructorId: string;
@@ -12,7 +14,7 @@ export interface Course {
   level: CourseLevel;
   duration?: number; // en minutos
   price: number;
-  currency?: string;
+  currency?: "ARSs";
 
   // Multimedia
   thumbnailUrl?: string;
@@ -97,7 +99,6 @@ export interface CourseQuiz {
 
 // --------- Enums ---------
 
-export type Specialty = "PROGRAMMING" | "DESIGN" | "MARKETING" | "OTHERS"; // adaptar según tu backend
 export type CourseLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
 export type CourseStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 export type QuizStatus = "PENDING" | "APPROVED" | "REJECTED";
@@ -171,7 +172,15 @@ export interface NewCourseFormValues {
   level: CourseLevel;
   duration?: number;
   price: number;
-  currency?: string;
+  currency?: "ARS";
   modules?: CourseModuleFormValues[]; // opcional
   quizzes?: CourseQuizFormValues[]; // opcional
+}
+
+export interface ICreateCourse {
+  title: string;
+  description: string;
+  tags: string[];
+  specialty: Specialty;
+  level: CourseLevel;
 }

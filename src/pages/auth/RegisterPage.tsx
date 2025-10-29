@@ -100,7 +100,7 @@ const RegisterPage = () => {
                   id="firstName"
                   placeholder="Ingrese su nombre"
                   {...register("firstName", {
-                    required: "El nombre es obligatorio",
+                    // required: "El nombre es obligatorio",
                     minLength: {
                       value: 2,
                       message: "El nombre debe tener al menos 2 caracteres",
