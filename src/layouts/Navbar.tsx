@@ -97,14 +97,14 @@ export function Navbar() {
 
         {/* LOGO */}
         <div className="flex lg:justify-center">
-          <p className="font-semibold flex">
-            <img
-              src="/Logo/logoVitalica.png"
-              alt="Logotipo de Vitalica con la letra V en forma de pulso de actividad, completando el nombre de la marca"
-              height={100}
-              width={180}
-            />
-          </p>
+          <img
+            src="/Logo/logoVitalica.png"
+            alt="Logotipo de Vitalica con la letra V en forma de pulso de actividad, completando el nombre de la marca"
+            height={100}
+            width={180}
+            onClick={() => navigate("/")}
+            className="cursor-pointer"
+          />
         </div>
 
         {/* USER AREA */}

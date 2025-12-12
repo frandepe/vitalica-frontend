@@ -1,7 +1,7 @@
 import { AnalyticsData } from "@/components/instructor/AnalyticsData";
 import { MarketingDashboard } from "@/components/instructor/AnalyticsData2";
 
-export const Analytics = () => {
+export default function Analytics() {
   const sampleCta = {
     text: "Manage your activities and team members",
     buttonText: "See All",
@@ -79,4 +79,4 @@ export const Analytics = () => {
       </section>
     </div>
   );
-};
+}

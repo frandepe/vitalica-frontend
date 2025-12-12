@@ -19,7 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import RoleBadge from "./RoleBadge";
 
 export default function ProfileMenu() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const isMobile = useMedia();
 
@@ -85,7 +85,10 @@ export default function ProfileMenu() {
           </div>
 
           {/* Footer fijo */}
-          <button className="flex items-center gap-2 w-full px-4 py-3 text-left text-red-500 hover:bg-accent border-t">
+          <button
+            className="flex items-center gap-2 w-full px-4 py-3 text-left text-red-500 hover:bg-accent border-t"
+            onClick={logout}
+          >
             <LogOut className="h-4 w-4" />
             Cerrar sesión
           </button>
@@ -138,7 +141,7 @@ export default function ProfileMenu() {
           </DropdownItem>
         )}
         <DropdownSeparator />
-        <DropdownItem className="gap-2" destructive>
+        <DropdownItem className="gap-2" destructive onClick={logout}>
           <LogOut className="h-4 w-4" />
           Cerrar sesión
         </DropdownItem>

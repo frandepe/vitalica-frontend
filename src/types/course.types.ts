@@ -1,20 +1,21 @@
 import { Specialty } from "@/constants";
+import { InstructorProfile } from "./instructor.types";
 
-export interface Course {
+export interface ICourse {
   id: string;
   instructorId: string;
   instructor?: InstructorProfile;
 
-  title: string;
+  title?: string;
   slug: string;
-  description: string;
-  tags: string[];
+  description?: string;
+  tags?: string[];
 
-  specialty: Specialty;
-  level: CourseLevel;
+  specialty?: Specialty;
+  level?: CourseLevel;
   duration?: number; // en minutos
-  price: number;
-  currency?: "ARSs";
+  price?: number;
+  currency?: "ARS";
 
   // Multimedia
   thumbnailUrl?: string;
@@ -41,10 +42,19 @@ export interface Course {
   quizzes?: CourseQuiz[];
 }
 
+export interface CourseModuleFormValues {
+  id: string;
+  title: string;
+  description?: string;
+  order: number; // posición
+  lessons?: LessonFormValues[];
+  quizzes?: QuizzesFormValues[];
+}
+
 export interface CourseModule {
   id: string;
   courseId: string;
-  course?: Course;
+  course?: ICourse;
 
   title: string;
   description?: string;
@@ -80,7 +90,7 @@ export interface Lesson {
 export interface CourseQuiz {
   id: string;
   courseId: string;
-  course?: Course;
+  course?: ICourse;
 
   moduleId?: string;
   module?: CourseModule;
@@ -106,13 +116,6 @@ export type LessonMaterialType = "PDF" | "IMAGE";
 export type LessonType = "content" | "videoFile";
 
 // --------- Extras ---------
-
-export interface InstructorProfile {
-  id: string;
-  name: string;
-  bio?: string;
-  avatarUrl?: string;
-}
 
 export interface CourseReview {
   id: string;
@@ -148,15 +151,6 @@ export interface QuizzesFormValues {
   status: QuizStatus;
 }
 
-export interface CourseModuleFormValues {
-  id: string;
-  title: string;
-  description?: string;
-  order: number; // posición
-  lessons?: LessonFormValues[];
-  quizzes?: QuizzesFormValues[];
-}
-
 export interface CourseQuizFormValues {
   question: string;
   options: string[];
@@ -169,10 +163,13 @@ export interface NewCourseFormValues {
   tags: string[];
   specialty: Specialty;
   promoVideoFile?: string;
+  thumbnailUrl?: string;
   level: CourseLevel;
   duration?: number;
   price: number;
   currency?: "ARS";
+  muxPromoAssetId?: string;
+  muxPlaybackId?: string;
   modules?: CourseModuleFormValues[]; // opcional
   quizzes?: CourseQuizFormValues[]; // opcional
 }

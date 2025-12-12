@@ -15,19 +15,37 @@ const secondaryVariant = {
 
 export const FileUpload = ({
   onChange,
+  onThumbnailReady,
+  existingUrl,
 }: {
   onChange?: (files: File[]) => void;
+  onThumbnailReady?: (base64: string) => void;
+  existingUrl?: string | null;
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [isDragActive, setIsDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (newFiles: File[]) => {
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileChange = async (newFiles: File[]) => {
     const firstImage = newFiles[0];
     if (!firstImage) return;
 
     setFiles([firstImage]);
     onChange?.([firstImage]);
+
+    if (onThumbnailReady) {
+      const base64 = await convertToBase64(firstImage);
+      onThumbnailReady(base64);
+    }
   };
 
   const handleClick = () => {
@@ -83,66 +101,66 @@ export const FileUpload = ({
         <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]">
           <GridPattern />
         </div>
-        <div className="flex flex-col items-center justify-center">
-          <p className="relative z-20 text-lg font-semibold">
-            Imágen de portada
-          </p>
-          <p className="relative z-20 text-sm text-muted-foreground  mt-2">
-            Arrastra y suelta tu imagen aquí o haz clic para subirla
-          </p>
+        <div className="relative w-full mt-10 max-w-xl mx-auto">
+          {/* SI SUBIÓ UNA IMAGEN → mostrar esa */}
+          {files.length > 0 && (
+            <motion.div
+              key={"file-preview"}
+              layoutId="file-upload"
+              className={cn(
+                "relative overflow-hidden z-40 bg-white dark:bg-neutral-900 flex flex-col items-start justify-start p-4 mt-4 w-full mx-auto rounded-md",
+                "shadow-sm"
+              )}
+            >
+              <div className="flex justify-center w-full items-center">
+                <motion.img
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  src={URL.createObjectURL(files[0])}
+                  alt="Preview"
+                  width={150}
+                  height={150}
+                  className="rounded-lg"
+                />
+              </div>
 
-          <div className="relative w-full mt-10 max-w-xl mx-auto">
-            {files.length > 0 && (
-              <motion.div
-                key={"file-preview"}
-                layoutId="file-upload"
-                className={cn(
-                  "relative overflow-hidden z-40 bg-white dark:bg-neutral-900 flex flex-col items-start justify-start md:h-24 p-4 mt-4 w-full mx-auto rounded-md",
-                  "shadow-sm"
-                )}
-              >
-                <div className="flex justify-between w-full items-center gap-4">
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    layout
-                    className="text-base text-neutral-700 dark:text-neutral-300 truncate max-w-xs"
-                  >
-                    {files[0].name}
-                  </motion.p>
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    layout
-                    className="rounded-lg px-2 py-1 w-fit flex-shrink-0 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-white shadow-input"
-                  >
-                    {(files[0].size / (1024 * 1024)).toFixed(2)} MB
-                  </motion.p>
-                </div>
+              <div className="flex text-sm md:flex-row flex-col items-start md:items-center w-full mt-2 justify-between text-neutral-600 dark:text-neutral-400">
+                <motion.p className="text-base truncate max-w-xs">
+                  {files[0].name}
+                </motion.p>
+                <motion.p className="px-1 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800">
+                  {files[0].type}
+                </motion.p>
+                <motion.p className="rounded-lg px-2 py-1 w-fit flex-shrink-0 text-sm">
+                  {(files[0].size / (1024 * 1024)).toFixed(2)} MB
+                </motion.p>
+              </div>
+            </motion.div>
+          )}
 
-                <div className="flex text-sm md:flex-row flex-col items-start md:items-center w-full mt-2 justify-between text-neutral-600 dark:text-neutral-400">
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    layout
-                    className="px-1 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 "
-                  >
-                    {files[0].type}
-                  </motion.p>
+          {/* SI NO SUBIÓ nada pero EXISTE en DB → mostrar existingUrl */}
+          {!files.length && existingUrl && (
+            <motion.div
+              layoutId="file-upload"
+              className="relative overflow-hidden z-40 bg-white dark:bg-neutral-900 p-4 mt-4 w-full mx-auto rounded-md shadow-sm"
+            >
+              <div className="flex justify-center w-full items-center">
+                <motion.img
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  src={existingUrl}
+                  alt="Thumbnail guardado"
+                  width={150}
+                  height={150}
+                  className="rounded-lg"
+                />
+              </div>
+            </motion.div>
+          )}
 
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    layout
-                  >
-                    modified{" "}
-                    {new Date(files[0].lastModified).toLocaleDateString()}
-                  </motion.p>
-                </div>
-              </motion.div>
-            )}
-
-            {!files.length && (
+          {/* SI NO SUBIÓ nada y NO HAY existingUrl → placeholder */}
+          {!files.length && !existingUrl && (
+            <>
               <motion.div
                 layoutId="file-upload"
                 variants={mainVariant}
@@ -154,26 +172,23 @@ export const FileUpload = ({
               >
                 {isDragActive ? (
                   <motion.p
-                    initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="text-neutral-600 flex flex-col items-center"
                   >
                     Drop it
-                    <UploadIcon className="h-4 w-4 text-neutral-600 dark:text-neutral-400" />
+                    <UploadIcon className="h-4 w-4" />
                   </motion.p>
                 ) : (
-                  <UploadIcon className="h-4 w-4 text-neutral-600 dark:text-neutral-300" />
+                  <UploadIcon className="h-4 w-4" />
                 )}
               </motion.div>
-            )}
 
-            {!files.length && (
               <motion.div
                 variants={secondaryVariant}
                 className="absolute opacity-0 border border-dashed border-sky-400 inset-0 z-30 bg-transparent flex items-center justify-center h-32 mt-4 w-full max-w-[8rem] mx-auto rounded-md"
               />
-            )}
-          </div>
+            </>
+          )}
         </div>
       </motion.div>
     </div>

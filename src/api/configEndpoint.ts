@@ -59,7 +59,7 @@ interface PropsApiRequest {
   url: string;
   data?: any; // body para POST/PUT
   params?: any; // query params para GET
-  method: "GET" | "POST" | "PUT" | "DELETE";
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 }
 
 // Función genérica para llamadas a la API

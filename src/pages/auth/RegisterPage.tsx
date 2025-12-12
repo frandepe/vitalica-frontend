@@ -27,7 +27,6 @@ const RegisterPage = () => {
     formState: { errors },
   } = useForm<RegisterFormValues>();
   const { showToast } = useToast();
-  console.log("errors", errors);
 
   const onSubmit = async (data: RegisterFormValues) => {
     if (data.password !== confirmPassword) {

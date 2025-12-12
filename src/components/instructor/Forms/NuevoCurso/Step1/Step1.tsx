@@ -8,6 +8,7 @@ import {
   UseFormWatch,
   Control,
   Controller,
+  FieldErrors,
 } from "react-hook-form";
 import { NewCourseFormValues } from "@/types/course.types";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -20,13 +21,16 @@ import {
 } from "@/components/ui/select";
 import { TooltipIconButton } from "@/components/TooltipIconButton";
 import { InfoIcon } from "lucide-react";
+import { ErrorResponse } from "react-router-dom";
+import { cn } from "@/utils/cn";
 
 interface Step1Props {
   register: UseFormRegister<NewCourseFormValues>;
   watch: UseFormWatch<NewCourseFormValues>;
   control?: Control<NewCourseFormValues>;
+  errors: FieldErrors<NewCourseFormValues>;
 }
-export const Step1 = ({ register, watch, control }: Step1Props) => {
+export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
   return (
     <div className="w-full">
       <Label>Título</Label>
@@ -44,12 +48,21 @@ export const Step1 = ({ register, watch, control }: Step1Props) => {
           },
         })}
         name="title"
-        className="mb-4"
+        className={cn(
+          "mb-4",
+          errors.title && "border-red-500 focus-visible:ring-red-500"
+        )}
       />
+      {errors.title && (
+        <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+      )}
       <Label>Descripción</Label>
       <Textarea
         placeholder="Comparte una descripción detallada sobre el curso"
-        className="resize-y w-full h-[200px] dark:bg-card bg-background rounded-[13px]"
+        className={cn(
+          "resize-y w-full h-[200px] dark:bg-card bg-background rounded-[13px]",
+          errors.description && "border-red-500 focus-visible:ring-red-500"
+        )}
         {...register("description", {
           minLength: {
             value: 10,
@@ -61,10 +74,18 @@ export const Step1 = ({ register, watch, control }: Step1Props) => {
           },
         })}
       />
+
       <span className="text-sm text-muted-foreground">
         {descriptionCourseLimit - (watch("description")?.length || 0)}{" "}
         caracteres restantes
       </span>
+
+      {errors.description && (
+        <p className="text-red-500 text-sm mt-1">
+          {errors.description.message}
+        </p>
+      )}
+
       <div className="mt-4">
         <div className="flex gap-1 items-center">
           <Label>Etiquetas</Label>
@@ -83,12 +104,20 @@ export const Step1 = ({ register, watch, control }: Step1Props) => {
             <TagsInputBasic value={field.value} onChange={field.onChange} />
           )}
         />
+        {errors.tags && (
+          <p className="text-red-500 text-sm mt-1">{errors.tags.message}</p>
+        )}
       </div>
       <FormField
         control={control}
         name="specialty"
         render={({ field }) => (
-          <FormItem className="mt-4">
+          <FormItem
+            className={cn(
+              "mt-4",
+              errors.specialty && "border-red-500 focus-visible:ring-red-500"
+            )}
+          >
             <Label>Categoría del curso</Label>
             <Select value={String(field.value)} onValueChange={field.onChange}>
               <FormControl>
@@ -113,11 +142,19 @@ export const Step1 = ({ register, watch, control }: Step1Props) => {
           </FormItem>
         )}
       />
+      {errors.specialty && (
+        <p className="text-red-500 text-sm mt-1">{errors.specialty.message}</p>
+      )}
       <FormField
         control={control}
         name="level"
         render={({ field }) => (
-          <FormItem>
+          <FormItem
+            className={cn(
+              "mt-4",
+              errors.level && "border-red-500 focus-visible:ring-red-500"
+            )}
+          >
             <Label>Nivel del curso</Label>
             <Select value={field.value} onValueChange={field.onChange}>
               <FormControl>
@@ -142,6 +179,9 @@ export const Step1 = ({ register, watch, control }: Step1Props) => {
           </FormItem>
         )}
       />
+      {errors.level && (
+        <p className="text-red-500 text-sm mt-1">{errors.level.message}</p>
+      )}
     </div>
   );
 };

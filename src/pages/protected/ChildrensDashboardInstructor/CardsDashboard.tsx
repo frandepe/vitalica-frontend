@@ -32,7 +32,7 @@ const features = [
   },
   {
     title: "Nuevo curso",
-    href: "/perfil/nuevo-curso",
+    href: "/perfil/editar-curso",
     description:
       "Crea un curso desde cero y compártelo con tu comunidad de estudiantes.",
     icon: <BookPlus />,
@@ -46,7 +46,7 @@ const features = [
   },
 ];
 
-export const CardsDashboard = () => {
+export default function DashboardInstructor() {
   return (
     <div className="flex flex-wrap justify-center md:justify-start relative z-10 py-10 md:max-w-7xl gap-10">
       {features.map((feature) => (
@@ -59,7 +59,7 @@ export const CardsDashboard = () => {
       ))}
     </div>
   );
-};
+}
 
 const Feature = ({
   title,

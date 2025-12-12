@@ -9,7 +9,7 @@ interface TextImageProps {
   imageSrc: string;
   buttonPrimary: {
     label: string;
-    href: string;
+    onSubmit: () => void;
   };
   buttonSecondary: {
     label: string;
@@ -23,7 +23,7 @@ export const TextImage = ({
   imageSrc = "https://shadcnblocks.com/images/block/placeholder-1.svg",
   buttonPrimary = {
     label: "Get Started",
-    href: "https://shadcnblocks.com",
+    onSubmit: () => {},
   },
   buttonSecondary = {
     label: "Learn More",
@@ -42,7 +42,7 @@ export const TextImage = ({
             {description}
           </p>
           <div className="flex w-full flex-col justify-center gap-2 sm:flex-row lg:justify-start">
-            <Button onClick={() => navigate(buttonPrimary.href)}>
+            <Button onClick={buttonPrimary.onSubmit}>
               {buttonPrimary.label}
             </Button>
             <Button

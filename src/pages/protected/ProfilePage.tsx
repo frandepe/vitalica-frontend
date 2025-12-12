@@ -12,8 +12,7 @@ import { BasicInformationForm } from "@/components/user/Forms/BasicInformationFo
 import { Activity, CalendarHeart, RefreshCw, UserCheck } from "lucide-react";
 import { AnimatedGradientDemo } from "@/components/CardsAnimated/DemoCardsAnimatedGradient";
 import { useAuth } from "@/hooks/useAuth";
-
-const isInstructor = false;
+import { useFormattedDate } from "@/hooks/useFormattedDate";
 
 const grid = [
   {
@@ -28,56 +27,59 @@ const grid = [
   },
 ];
 
-const features = [
-  {
-    icon: CalendarHeart,
-    title: "Último acceso",
-    description: "Fecha y hora de tu último inicio de sesión.",
-    date: "17/09/2025 21:00",
-  },
-  {
-    icon: UserCheck,
-    title: "Cuenta creada",
-    description: "Fecha en la que se creó tu cuenta de usuario.",
-    date: "05/06/2023 10:30",
-  },
-  {
-    icon: RefreshCw,
-    title: "Última actualización",
-    description:
-      "Última vez que se modificó tu información de perfil o datos importantes.",
-    date: "12/09/2025 14:45",
-  },
-  {
-    icon: Activity,
-    title: "Actividad reciente",
-    description:
-      "Resumen de acciones recientes que realizaste dentro de la plataforma.",
-    date: "Hoy 21:00",
-  },
-];
-
 const ProfilePage = () => {
   const { user } = useAuth();
+  const isInstructor = user?.role.includes("INSTRUCTOR");
+
+  const features = [
+    {
+      icon: CalendarHeart,
+      title: "Último acceso",
+      description: "Fecha y hora de tu último inicio de sesión.",
+      date: "17/09/2025 21:00",
+    },
+    {
+      icon: UserCheck,
+      title: "Cuenta creada",
+      description: "Fecha en la que se creó tu cuenta de usuario.",
+      date: useFormattedDate(user.createdAt, { showTime: false }),
+    },
+    {
+      icon: RefreshCw,
+      title: "Última actualización",
+      description:
+        "Última vez que se modificó tu información de perfil o datos importantes.",
+      date: useFormattedDate(user.updatedAt),
+    },
+    {
+      icon: Activity,
+      title: "Actividad reciente",
+      description:
+        "Resumen de acciones recientes que realizaste dentro de la plataforma.",
+      date: "Hoy 21:00",
+    },
+  ];
   return (
     <div className="container mx-auto">
-      <ProfileBg defaultImage="https://originui.com/profile-bg.jpg" />
+      <ProfileBg />
       <Avatar
         defaultImage={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
       />
       <div className="px-6 pb-6 pt-4">
         <div className="space-y-4">
-          <div className="flex flex-col gap-4 lg:flex-row">
-            {/* Columna de formularios */}
-            <BasicInformationForm />
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Formulario */}
+            <div className="flex-1 h-1/2 lg:h-full">
+              <BasicInformationForm />
+            </div>
 
-            {/* Columna de cards */}
-            <div className="flex-1">
+            {/* Cards */}
+            <div className="flex-1 h-1/2 lg:h-full">
               <FeaturesSectionWithCardGradient grid={grid} />
             </div>
           </div>
 
-          <Separator className="my-10" />
+          <Separator className="my-20 bg-gray-800" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto relative">
             <div className="absolute inset-0 isolate z-0 contain-strict">
@@ -110,10 +112,10 @@ const ProfilePage = () => {
             ))}
           </div>
 
-          <Separator className="my-10" />
+          <Separator className="my-20  bg-gray-800" />
 
           <div>
-            {isInstructor ? (
+            {!isInstructor ? (
               <PromoteInstructor />
             ) : (
               <div>

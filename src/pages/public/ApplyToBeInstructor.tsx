@@ -1,42 +1,63 @@
+import { getInstructorApplication, upsertInstructorApplication } from "@/api";
 import BannerTop from "@/components/Banners/BannerTop";
 import { DotsCard } from "@/components/CardsAnimated/DotsCard";
 import { Button } from "@/components/ui/button";
 import DateTimePicker from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/toast";
 import ImageUpload from "@/components/UploadFiles/UploadFiles";
-
-import type { IApplyInstructor } from "@/types/instructor.types";
+import { t } from "@/constants/statusTranslations";
+import { useBackendErrors } from "@/hooks/useBackendErrors";
+import type {
+  IApplyInstructor,
+  InstructorApplication,
+} from "@/types/instructor.types";
 import { filesToBase64Array, fileToBase64 } from "@/utils/file-utils";
 import { Star } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-
-interface FileData {
-  file: File;
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  preview: string | null;
-}
-
-interface FormData {
-  dniNumber: string;
-  dniCountry: string;
-  certificateType: string;
-  enrollmentNumber: string;
-  issuedBy: string;
-  issueDate: string;
-  expiryDate: string;
-  urlDni: File | null;
-  urlCertificate: File[];
-}
+import { useNavigate } from "react-router-dom";
 
 const ApplyToBeInstructor = () => {
+  const { showToast } = useToast();
+  const { setBackendErrors, getGeneralErrors, clearErrors } =
+    useBackendErrors();
   const [isLoading, setIsLoading] = useState(false);
+  const [applicationData, setApplicationData] =
+    useState<InstructorApplication | null>(null);
+  const navigate = useNavigate();
+  const [dniImages, setDniImages] = useState<{
+    existing: string[];
+    new: File[];
+  }>({
+    existing: [],
+    new: [],
+  });
+  const [certificateImages, setCertificateImages] = useState<{
+    existing: string[];
+    new: File[];
+  }>({
+    existing: [],
+    new: [],
+  });
 
-  const defaultValues: FormData = {
+  const getApplication = async () => {
+    try {
+      const response = await getInstructorApplication();
+      if (response.success && response.data) {
+        setApplicationData(response.data as InstructorApplication);
+      }
+    } catch (error) {
+      console.error("Error fetching instructor application:", error);
+    }
+  };
+
+  useEffect(() => {
+    getApplication();
+  }, []);
+
+  const defaultValues: IApplyInstructor = {
     dniNumber: "",
     dniCountry: "",
     certificateType: "",
@@ -48,54 +69,110 @@ const ApplyToBeInstructor = () => {
     urlCertificate: [],
   };
 
-  const form = useForm<FormData>({
-    defaultValues,
-  });
+  const form = useForm<IApplyInstructor>({ defaultValues });
+  const { register, control, handleSubmit, watch, reset, formState } = form;
+  const { errors } = formState;
 
-  const {
-    register,
-    formState: { errors },
-    handleSubmit,
-    control,
-    watch,
-    reset,
-  } = form;
+  // ✅ Prellenar formulario si ya hay datos
+  useEffect(() => {
+    if (applicationData) {
+      reset({
+        dniNumber: applicationData.dniNumber || "",
+        dniCountry: applicationData.dniCountry || "",
+        certificateType: applicationData.certificateType || "",
+        enrollmentNumber: applicationData.enrollmentNumber || "",
+        issuedBy: applicationData.issuedBy || "",
+        issueDate: applicationData.issueDate
+          ? new Date(applicationData.issueDate).toISOString()
+          : "",
+        expiryDate: applicationData.expiryDate
+          ? new Date(applicationData.expiryDate).toISOString()
+          : "",
+        urlDni: null,
+        urlCertificate: [],
+      });
 
-  const dniNumber = watch("dniNumber");
-  const certificateType = watch("certificateType");
-  const issuedBy = watch("issuedBy");
-  const issueDate = watch("issueDate");
-  const expiryDate = watch("expiryDate");
+      setDniImages({
+        existing: applicationData.documents?.[0]?.urlDni
+          ? [applicationData.documents[0].urlDni]
+          : [],
+        new: [],
+      });
 
-  const onSubmit = async (data: FormData) => {
+      setCertificateImages({
+        existing: applicationData.documents?.[0]?.urlCertificate || [],
+        new: [],
+      });
+    }
+  }, [applicationData, reset]);
+
+  const onSubmit = async (data: IApplyInstructor) => {
     try {
       setIsLoading(true);
 
-      // Convert files to base64
-      const urlDniBase64 = data.urlDni ? await fileToBase64(data.urlDni) : "";
-      const urlCertificateBase64 = await filesToBase64Array(
-        data.urlCertificate
-      );
+      let finalDniUrl = "";
+      if (dniImages.existing.length > 0) {
+        // Si hay una imagen existente y no hay nuevas, mantener la existente
+        finalDniUrl = dniImages.existing[0];
+      } else if (dniImages.new.length > 0) {
+        // Si hay una imagen nueva, convertirla a base64
+        finalDniUrl = await fileToBase64(dniImages.new[0]);
+      }
 
-      // Prepare data for backend
+      // Para certificados, combinar existentes y nuevos
+      const existingCertificates = certificateImages.existing;
+      const newCertificatesBase64 = await filesToBase64Array(
+        certificateImages.new
+      );
+      const finalCertificates = [
+        ...existingCertificates,
+        ...newCertificatesBase64,
+      ];
+
       const instructorData: IApplyInstructor = {
         dniNumber: data.dniNumber,
-        dniCountry: data.dniCountry,
+        dniCountry: "AR",
         certificateType: data.certificateType,
         enrollmentNumber: data.enrollmentNumber,
         issuedBy: data.issuedBy,
         issueDate: data.issueDate,
         expiryDate: data.expiryDate,
-        urlDni: urlDniBase64,
-        urlCertificate: urlCertificateBase64,
+        urlDni: finalDniUrl,
+        urlCertificate: finalCertificates,
       };
 
-      // Call the API
-      // const response = await upsertInstructor(instructorData)
-      console.log("[v0] Sending data to backend:", instructorData);
+      console.log("[v0] Datos a enviar:", instructorData);
+      console.log(
+        "[v0] DNI - Existentes:",
+        dniImages.existing.length,
+        "Nuevas:",
+        dniImages.new.length
+      );
+      console.log(
+        "[v0] Certificados - Existentes:",
+        certificateImages.existing.length,
+        "Nuevos:",
+        certificateImages.new.length
+      );
 
-      // TODO: Handle success response
-      alert("Solicitud enviada exitosamente");
+      const response = await upsertInstructorApplication(instructorData);
+      console.log("response", response);
+      if (response.errors && response.errors.length > 0) {
+        setBackendErrors(response.errors);
+        return;
+      }
+      clearErrors();
+      if (response.success) {
+        showToast(
+          applicationData
+            ? "Solicitud actualizada exitosamente"
+            : "Solicitud enviada exitosamente",
+          "success",
+          "top-right"
+        );
+
+        getApplication(); // refresca la data
+      }
     } catch (error) {
       console.error("[v0] Error submitting form:", error);
       alert("Error al enviar la solicitud");
@@ -104,17 +181,40 @@ const ApplyToBeInstructor = () => {
     }
   };
 
+  const dniNumber = watch("dniNumber");
+  const certificateType = watch("certificateType");
+  const issuedBy = watch("issuedBy");
+  const issueDate = watch("issueDate");
+  const expiryDate = watch("expiryDate");
+
   return (
     <div className="py-8">
       <div className="container mx-auto">
-        {/* Header */}
         <BannerTop />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 mt-8">
-          {/* DNI Information Section */}
+          {/* ======= DNI ======= */}
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">
-              Información de Identificación
+              Información de Identificación{" "}
+              {applicationData && (
+                <span className="text-sm font-bold text-primary">
+                  Estado: {t("application", applicationData.status)}
+                </span>
+              )}
+              {applicationData && (
+                <p className="text-sm mt-2 text-foreground/70 bg-primary/50 p-2 rounded">
+                  Haz{" "}
+                  <span
+                    className="underline cursor-pointer text-secondary hover:text-secondary/80"
+                    onClick={() => navigate("/estado-aplicacion")}
+                  >
+                    click aquí
+                  </span>{" "}
+                  para obtener más información sobre el seguimiento de tu
+                  solicitud
+                </p>
+              )}
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -125,111 +225,49 @@ const ApplyToBeInstructor = () => {
                 <Input
                   id="dni-number"
                   placeholder="12345678"
-                  type="text"
                   {...register("dniNumber", {
                     required: "Este campo es obligatorio",
                     pattern: {
-                      value: /^\d{7,8}$/, // solo números, 7 u 8 dígitos
+                      value: /^\d{7,8}$/,
                       message:
                         "Debe ser un número de DNI válido (7 u 8 dígitos)",
                     },
-                    maxLength: {
-                      value: 8,
-                      message: "Máximo 8 dígitos",
-                    },
-                    minLength: {
-                      value: 7,
-                      message: "Mínimo 7 dígitos",
-                    },
                   })}
                 />
-
                 {errors.dniNumber && (
                   <p className="text-destructive text-sm">
                     {errors.dniNumber.message}
                   </p>
                 )}
               </div>
-
-              {/* <div className="space-y-2">
-                <Label htmlFor="dni-country">
-                  País de emisión <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="dni-country"
-                  placeholder="Argentina"
-                  type="text"
-                  {...register("dniCountry", {
-                    required: "Este campo es obligatorio",
-                  })}
-                />
-                {errors.dniCountry && (
-                  <p className="text-destructive text-sm">
-                    {errors.dniCountry.message}
-                  </p>
-                )}
-              </div> */}
             </div>
 
             <div className="space-y-2">
               <Label>
                 Imagen del DNI <span className="text-destructive">*</span>
               </Label>
-              <p className="text-sm text-muted-foreground">
-                Subí una foto clara de tu documento
-              </p>
-              <Controller
-                name="urlDni"
-                control={control}
-                rules={{
-                  required: "Debes subir una imagen del DNI",
-                  validate: (file) => {
-                    if (!file) {
-                      return "Debes subir una imagen del DNI";
-                    }
-                    return true;
-                  },
-                }}
-                render={({ field: { onChange }, fieldState: { error } }) => (
-                  <div className="space-y-2">
-                    <ImageUpload
-                      accept="image/*"
-                      multiple={false}
-                      maxSize={10 * 1024 * 1024}
-                      maxFiles={1}
-                      onFilesSelect={(files: FileData[]) => {
-                        onChange(files[0]?.file || null);
-                      }}
-                      onFilesRemove={(files: FileData[]) => {
-                        onChange(files[0]?.file || null);
-                      }}
-                    />
-                    {error && (
-                      <p className="text-destructive text-sm">
-                        {error.message}
-                      </p>
-                    )}
-                  </div>
-                )}
+              <ImageUpload
+                value={dniImages.existing}
+                onChange={(data) => setDniImages(data)}
+                multiple={false}
+                maxFiles={1}
               />
             </div>
           </div>
 
-          {/* Certificate Section */}
+          {/* ======= CERTIFICADOS ======= */}
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Certificaciones</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Inputs */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="certificate-type">
-                    Tipo de Certificado{" "}
-                    <span className="text-destructive">*</span>
+                    Tipo de Certificado *
                   </Label>
                   <Input
                     id="certificate-type"
-                    placeholder="Ej: RCP, DEA, Primeros Auxilios, etc."
-                    type="text"
                     {...register("certificateType", {
                       required: "Este campo es obligatorio",
                     })}
@@ -242,13 +280,9 @@ const ApplyToBeInstructor = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="issued-by">
-                    Emitido por <span className="text-destructive">*</span>
-                  </Label>
+                  <Label htmlFor="issued-by">Emitido por *</Label>
                   <Input
                     id="issued-by"
-                    placeholder="Institución certificadora"
-                    type="text"
                     {...register("issuedBy", {
                       required: "Este campo es obligatorio",
                     })}
@@ -259,50 +293,47 @@ const ApplyToBeInstructor = () => {
                     </p>
                   )}
                 </div>
+
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="enrollment-number">Número de matrícula</Label>
+                  <Input
+                    id="enrollment-number"
+                    {...register("enrollmentNumber")}
+                  />
+                </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="issue-date">Fecha de emisión</Label>
+                  <Label htmlFor="issue-date">Fecha de emisión *</Label>
                   <Controller
                     name="issueDate"
                     control={control}
-                    rules={{ required: "Este campo es obligatorio" }}
                     render={({ field }) => (
                       <DateTimePicker
                         showTime={false}
-                        value={field.value ? new Date(field.value) : null} // RHF maneja string o Date
-                        onChange={(val) => field.onChange(val)} // guardar en RHF
+                        value={field.value ? new Date(field.value) : null}
+                        onChange={(val) => field.onChange(val?.toISOString())}
                       />
                     )}
                   />
-                  {errors.issueDate && (
-                    <p className="text-destructive text-sm">
-                      {errors.issueDate.message}
-                    </p>
-                  )}
                 </div>
-                {/* <DateTimePicker /> */}
 
                 <div className="space-y-2">
-                  <Label htmlFor="expiry-date">Fecha de vencimiento</Label>
-
+                  <Label htmlFor="expiry-date">Fecha de vencimiento *</Label>
                   <Controller
                     name="expiryDate"
                     control={control}
-                    rules={{ required: "Este campo es obligatorio" }}
                     render={({ field }) => (
                       <DateTimePicker
                         showTime={false}
-                        value={field.value ? new Date(field.value) : null} // RHF maneja string o Date
-                        onChange={(val) => field.onChange(val)} // guardar en RHF
+                        value={field.value ? new Date(field.value) : null}
+                        onChange={(val) => field.onChange(val?.toISOString())}
                       />
                     )}
                   />
-                  {errors.expiryDate && (
-                    <p className="text-destructive text-sm">
-                      {errors.expiryDate.message}
-                    </p>
-                  )}
                 </div>
               </div>
+
+              {/* DotsCard */}
               <DotsCard
                 title={certificateType || "Tipo de Certificado"}
                 description={`Emitido por ${issuedBy || "-"}`}
@@ -336,55 +367,28 @@ const ApplyToBeInstructor = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>
-                Imágenes del Certificado{" "}
-                <span className="text-destructive">*</span>
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Sube imágenes claras de tus certificaciones profesionales
-                (máximo 10)
-              </p>
-              <Controller
-                name="urlCertificate"
-                control={control}
-                rules={{
-                  required: "Debes subir al menos una imagen del certificado",
-                  validate: (files) => {
-                    if (!files || files.length === 0) {
-                      return "Debes subir al menos una imagen del certificado";
-                    }
-                    return true;
-                  },
-                }}
-                render={({ field: { onChange }, fieldState: { error } }) => (
-                  <div className="space-y-2">
-                    <ImageUpload
-                      accept="image/*"
-                      multiple={true}
-                      maxSize={10 * 1024 * 1024}
-                      maxFiles={10}
-                      onFilesSelect={(files: FileData[]) => {
-                        onChange(files.map((f) => f.file));
-                      }}
-                      onFilesRemove={(files: FileData[]) => {
-                        onChange(files.map((f) => f.file));
-                      }}
-                    />
-                    {error && (
-                      <p className="text-destructive text-sm">
-                        {error.message}
-                      </p>
-                    )}
-                  </div>
-                )}
+              <Label>Imágenes del Certificado *</Label>
+              <ImageUpload
+                value={certificateImages.existing}
+                onChange={(data) => setCertificateImages(data)}
+                multiple={true}
+                maxFiles={10}
               />
             </div>
           </div>
-
-          {/* Submit Button */}
+          {getGeneralErrors().map((msg, i) => (
+            <p key={i} className="text-red-600 text-sm mb-2">
+              {msg}
+            </p>
+          ))}
+          {/* ======= SUBMIT ======= */}
           <div className="flex gap-3 pt-4">
             <Button type="submit" className="flex-1" disabled={isLoading}>
-              {isLoading ? "Enviando..." : "Enviar Solicitud"}
+              {isLoading
+                ? "Guardando..."
+                : applicationData
+                ? "Actualizar Solicitud"
+                : "Enviar Solicitud"}
             </Button>
           </div>
         </form>

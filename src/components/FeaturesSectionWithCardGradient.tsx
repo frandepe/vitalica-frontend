@@ -12,7 +12,8 @@ export function FeaturesSectionWithCardGradient({
 
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-3xl mx-auto">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-3xl mx-auto"> */}
+      <div className="space-y-4">
         {grid.map((feature, index) => (
           <div
             key={feature.title}

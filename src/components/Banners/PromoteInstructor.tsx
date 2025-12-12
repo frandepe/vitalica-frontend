@@ -53,7 +53,7 @@ const PromoteInstructor = ({
   },
 }: Hero7Props) => {
   return (
-    <section className="py-32">
+    <section className="">
       <div className="container text-center">
         <div className="mx-auto flex max-w-screen-lg flex-col gap-6">
           <h1 className="text-3xl font-extrabold lg:text-6xl">{heading}</h1>

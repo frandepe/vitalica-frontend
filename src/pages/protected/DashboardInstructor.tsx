@@ -52,12 +52,6 @@ const navigationItems: NavigationItem[] = [
     badge: "12",
   },
   {
-    id: "nuevo-curso",
-    name: "Nuevo curso",
-    icon: BookPlus,
-    href: "/perfil/nuevo-curso",
-  },
-  {
     id: "resenas",
     name: "Reseñas y Calificaciones",
     icon: Star,
@@ -65,10 +59,10 @@ const navigationItems: NavigationItem[] = [
   },
 ];
 
-export function DashboardInstructor() {
+export default function DashboardInstructor() {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeItem, setActiveItem] = useState("dashboard");
+  const [activeItem, setActiveItem] = useState("panel-administrativo");
   const location = useLocation();
 
   useEffect(() => {
@@ -77,7 +71,6 @@ export function DashboardInstructor() {
       "/perfil/perfil-de-instructor": "perfil-de-instructor",
       "/perfil/analiticas": "analiticas",
       "/perfil/cursos": "cursos",
-      "/perfil/nuevo-curso": "nuevo-curso",
       "/perfil/resenas": "resenas",
     };
 

@@ -1,191 +1,194 @@
-import { ImageUp } from "lucide-react";
+import { ImageUp, X } from "lucide-react";
 import type React from "react";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 interface FileData {
-  file: File;
+  file?: File;
   id: string;
-  name: string;
-  size: number;
-  type: string;
-  preview: string | null;
+  name?: string;
+  size?: number;
+  type?: string;
+  preview: string; // Puede ser base64 o una URL existente
+  isExisting?: boolean; // Flag para distinguir imágenes existentes de nuevas
 }
 
 interface ImageUploadProps {
+  value?: string[]; // URLs existentes o base64
+  onChange?: (data: { existing: string[]; new: File[] }) => void; // Retorna URLs existentes y archivos nuevos separados
   accept?: string;
   multiple?: boolean;
   maxSize?: number;
   maxFiles?: number;
-  onFilesSelect?: (files: FileData[]) => void;
-  onFilesRemove?: (files: FileData[]) => void;
   disabled?: boolean;
   className?: string;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
+  value = [],
+  onChange = () => {},
   accept = "image/*",
   multiple = true,
-  maxSize = 5 * 1024 * 1024, // 5MB
+  maxSize = 5 * 1024 * 1024,
   maxFiles = 10,
-  onFilesSelect = () => {},
-  onFilesRemove = () => {},
   disabled = false,
   className = "",
 }) => {
   const [files, setFiles] = useState<FileData[]>([]);
-  const [isDragOver, setIsDragOver] = useState<boolean>(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isInternalUpdate = useRef(false);
+  const initializedRef = useRef(false);
 
-  const validateFile = (file: File): string[] => {
-    const errors: string[] = [];
+  useEffect(() => {
+    // Si es una actualización interna, no hacer nada
+    if (isInternalUpdate.current) {
+      isInternalUpdate.current = false;
+      return;
+    }
 
-    if (file.size > maxSize) {
-      errors.push(
-        `File size exceeds ${(maxSize / (1024 * 1024)).toFixed(1)}MB limit`
+    // Solo inicializar si no se ha hecho antes o si value cambió significativamente
+    if (!initializedRef.current || value.length > 0) {
+      initializedRef.current = true;
+      setFiles(
+        value.map((url, i) => ({
+          id: `existing-${i}-${url.substring(0, 10)}`,
+          preview: url,
+          isExisting: true,
+          name: `Imagen existente ${i + 1}`,
+        }))
       );
     }
+  }, [value]);
 
-    if (!file.type.startsWith("image/")) {
-      errors.push(`Only image files are allowed`);
-    }
-
-    return errors;
+  const validateFile = (file: File): string[] => {
+    const errs: string[] = [];
+    if (file.size > maxSize)
+      errs.push(
+        `El archivo ${file.name} supera ${(maxSize / 1024 / 1024).toFixed(
+          1
+        )} MB`
+      );
+    if (!file.type.startsWith("image/"))
+      errs.push(`El archivo ${file.name} no es una imagen`);
+    return errs;
   };
+
+  const notifyChanges = useCallback(
+    (updatedFiles: FileData[]) => {
+      const existingUrls = updatedFiles
+        .filter((f) => f.isExisting)
+        .map((f) => f.preview);
+
+      const newFiles = updatedFiles
+        .filter((f) => !f.isExisting && f.file)
+        .map((f) => f.file!);
+
+      isInternalUpdate.current = true;
+      onChange({ existing: existingUrls, new: newFiles });
+    },
+    [onChange]
+  );
 
   const processFiles = useCallback(
     (newFiles: FileList | File[]) => {
       const fileArray = Array.from(newFiles);
       const validFiles: FileData[] = [];
       const fileErrors: string[] = [];
-
       const remainingSlots = maxFiles - files.length;
 
-      if (remainingSlots <= 0) {
-        fileErrors.push(
-          `Maximum of ${maxFiles} images allowed. Please remove some images first.`
-        );
+      fileArray.forEach((file) => {
+        const validationErrors = validateFile(file);
+        if (validationErrors.length > 0) {
+          fileErrors.push(...validationErrors);
+        }
+      });
+
+      // Si hay errores de validación de archivos, mostrarlos y no continuar
+      if (fileErrors.length > 0) {
         setErrors(fileErrors);
         return;
       }
 
-      const filesToProcess = fileArray.slice(0, remainingSlots);
+      // Ahora verificar la cantidad de archivos
+      if (remainingSlots <= 0) {
+        setErrors([`Máximo de ${maxFiles} imágenes alcanzado.`]);
+        return;
+      }
 
+      const filesToProcess = fileArray.slice(0, remainingSlots);
       if (fileArray.length > remainingSlots) {
-        fileErrors.push(
-          `Only ${remainingSlots} more image(s) can be added (maximum ${maxFiles} total).`
-        );
+        fileErrors.push(`Solo puedes agregar ${remainingSlots} más.`);
       }
 
       filesToProcess.forEach((file) => {
-        const fileValidationErrors = validateFile(file);
-        if (fileValidationErrors.length === 0) {
-          validFiles.push({
-            file,
-            id: Math.random().toString(36).substr(2, 9),
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            preview: file.type.startsWith("image/")
-              ? URL.createObjectURL(file)
-              : null,
-          });
-        } else {
-          fileErrors.push(`${file.name}: ${fileValidationErrors.join(", ")}`);
-        }
+        validFiles.push({
+          file,
+          id: Math.random().toString(36).substr(2, 9),
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          preview: URL.createObjectURL(file),
+          isExisting: false,
+        });
       });
 
-      if (!multiple) {
-        setFiles(validFiles.slice(0, 1));
-        onFilesSelect(validFiles.slice(0, 1));
-      } else {
-        const updatedFiles = [...files, ...validFiles];
-        setFiles(updatedFiles);
-        onFilesSelect(updatedFiles);
-      }
-
+      const updated = [...files, ...validFiles];
+      setFiles(updated);
       setErrors(fileErrors);
+      notifyChanges(updated);
     },
-    [files, multiple, maxSize, maxFiles, onFilesSelect]
+    [files, maxFiles, notifyChanges, maxSize]
   );
 
-  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!disabled) setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!disabled) setIsDragOver(false);
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return;
+    const selectedFiles = e.target.files;
+    if (selectedFiles && selectedFiles.length > 0) processFiles(selectedFiles);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     if (disabled) return;
-
     setIsDragOver(false);
-    const droppedFiles = e.dataTransfer.files;
-    if (droppedFiles.length > 0) {
-      processFiles(droppedFiles);
-    }
+    const dropped = e.dataTransfer.files;
+    if (dropped.length > 0) processFiles(dropped);
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (disabled) return;
-    const selectedFiles = e.target.files;
-    if (selectedFiles && selectedFiles.length > 0) {
-      processFiles(selectedFiles);
-    }
-  };
-
-  const removeFile = (fileId: string) => {
-    const updatedFiles = files.filter((f) => f.id !== fileId);
-    setFiles(updatedFiles);
-    onFilesRemove(updatedFiles);
-
-    // Clean up preview URL
-    const fileToRemove = files.find((f) => f.id === fileId);
-    if (fileToRemove && fileToRemove.preview) {
+  const removeFile = (id: string) => {
+    const updated = files.filter((f) => f.id !== id);
+    const fileToRemove = files.find((f) => f.id === id);
+    if (fileToRemove?.preview && fileToRemove.preview.startsWith("blob:")) {
       URL.revokeObjectURL(fileToRemove.preview);
     }
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return (
-      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-    );
+    setFiles(updated);
+    setErrors([]);
+    notifyChanges(updated);
   };
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Upload Area */}
+      {/* Área de subida */}
       <div
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          setIsDragOver(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setIsDragOver(false);
+        }}
+        onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
         onClick={() => !disabled && fileInputRef.current?.click()}
-        className={`
-          border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-200
+        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-200
           ${disabled ? "cursor-not-allowed opacity-50" : ""}
           ${
             isDragOver
-              ? "border-ring bg-muted/50"
+              ? "border-primary bg-muted/50"
               : "border-input hover:border-border hover:bg-muted/20"
-          }
-        `}
+          }`}
       >
         <input
           ref={fileInputRef}
@@ -204,77 +207,58 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           <div className="space-y-1">
             <p className="text-sm font-medium text-foreground">
               {isDragOver
-                ? "Suelta las imágenes para subirlas"
-                : "Haz clic o arrastra y suelta imágenes para subirlas"}
+                ? "Suelta las imágenes aquí"
+                : "Haz clic o arrastra y suelta imágenes para subir"}
             </p>
             <p className="text-xs text-muted-foreground">
-              Solo imágenes • Máx. {(maxSize / (1024 * 1024)).toFixed(1)} MB por
-              imagen
-              {multiple
-                ? ` • Hasta ${maxFiles} imágenes (${files.length}/${maxFiles} subidas)`
-                : " • Solo una imagen"}
+              Máx. {(maxSize / (1024 * 1024)).toFixed(1)} MB • {files.length}/
+              {maxFiles}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Error Messages */}
+      {/* Errores */}
       {errors.length > 0 && (
         <div className="space-y-1">
-          {errors.map((error, index) => (
-            <p key={index} className="text-xs text-destructive">
-              {error}
+          {errors.map((err, i) => (
+            <p key={i} className="text-xs text-destructive">
+              {err}
             </p>
           ))}
         </div>
       )}
 
-      {/* File List */}
+      {/* Vista previa */}
       {files.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-foreground">
-            Selected images ({files.length}/{maxFiles})
-          </h4>
-          <div className="space-y-2">
-            {files.map((file) => (
-              <div
-                key={file.id}
-                className="flex items-center gap-3 p-3 rounded-md border bg-muted/20"
-              >
-                <div className="text-lg">🖼️</div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {file.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatFileSize(file.size)}
-                  </p>
+        <div className="flex flex-wrap gap-3">
+          {files.map((f) => (
+            <div
+              key={f.id}
+              className="relative w-28 h-28 rounded-md border overflow-hidden group"
+            >
+              <img
+                src={f.preview || "/placeholder.svg"}
+                alt={f.name || "imagen"}
+                className="object-cover w-full h-full"
+              />
+              {f.isExisting && (
+                <div className="absolute bottom-1 left-1 bg-primary/80 text-primary-foreground text-[10px] px-1.5 py-0.5 rounded">
+                  Guardada
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeFile(file.id);
-                  }}
-                  disabled={disabled}
-                  className="text-muted-foreground hover:text-destructive transition-colors duration-200 disabled:opacity-50"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            ))}
-          </div>
+              )}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeFile(f.id);
+                }}
+                className="absolute top-1 right-1 bg-destructive text-destructive-foreground p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))}
         </div>
       )}
     </div>

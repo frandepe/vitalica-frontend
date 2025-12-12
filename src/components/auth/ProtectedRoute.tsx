@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
+import { EMPTY_USER } from "@/types/auth.types";
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
@@ -8,8 +9,8 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const location = useLocation();
-  const isLoading = false; // Simulando estado de carga
-  const { isActive } = useAuth();
+  const { isActive, user } = useAuth();
+  const isLoading = user === EMPTY_USER;
   // Mostrar loading mientras se verifica la autenticación
   if (isLoading) {
     return (

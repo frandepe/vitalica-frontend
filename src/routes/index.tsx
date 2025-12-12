@@ -5,15 +5,9 @@ import ProtectedRoute from "../components/auth/ProtectedRoute";
 
 // Lazy loading de páginas para mejor performance
 import { lazy } from "react";
-import { DashboardInstructor } from "@/pages/protected/DashboardInstructor";
-import { CardsDashboard } from "@/pages/protected/ChildrensDashboardInstructor/CardsDashboard";
 import { Illustration, NotFound } from "@/pages/public/404Page";
-
-import { Analytics } from "@/pages/protected/ChildrensDashboardInstructor/Analytics";
-import { InstructorProfile } from "@/pages/protected/ChildrensDashboardInstructor/InstructorProfile";
-import { Courses } from "@/pages/protected/ChildrensDashboardInstructor/Courses";
-import NewCourse from "@/pages/protected/ChildrensDashboardInstructor/NewCourse";
 import ErrorFallback from "@/components/ErrorFallback";
+import AdminRoute from "@/components/auth/AdminRoute";
 
 // Páginas públicas
 const HomePage = lazy(() => import("@/pages/public/HomePage"));
@@ -28,8 +22,45 @@ const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage"));
 const VerifyEmailPage = lazy(() => import("@/pages/auth/VerifyEmailPage"));
 
-// Páginas protegidas
+// Páginas protegidas por autenticación
 const ProfilePage = lazy(() => import("@/pages/protected/ProfilePage"));
+const ApplicationStatus = lazy(
+  () => import("@/pages/protected/ApplicationStatus")
+);
+
+// Paginas protegicas - Dashboard
+const DashboardInstructor = lazy(
+  () => import("@/pages/protected/DashboardInstructor")
+);
+const CardsDashboard = lazy(
+  () => import("@/pages/protected/ChildrensDashboardInstructor/CardsDashboard")
+);
+const Analytics = lazy(
+  () => import("@/pages/protected/ChildrensDashboardInstructor/Analytics")
+);
+const InstructorProfile = lazy(
+  () =>
+    import("@/pages/protected/ChildrensDashboardInstructor/InstructorProfile")
+);
+const Courses = lazy(
+  () => import("@/pages/protected/ChildrensDashboardInstructor/Courses")
+);
+const EditCourse = lazy(
+  () => import("@/pages/protected/ChildrensDashboardInstructor/EditCourse")
+);
+
+// Páginas del admin
+const DashboardAdmin = lazy(() => import("@/pages/admin/DashboardAdmin"));
+const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
+const CardsDashboardAdmin = lazy(
+  () => import("@/pages/admin/ChildrensDashboardAdmin/CardsDashboard")
+);
+const InstructorsApplications = lazy(
+  () => import("@/pages/admin/ChildrensDashboardAdmin/InstructorsApplications")
+);
+const InstructorApplication = lazy(
+  () => import("@/pages/admin/ChildrensDashboardAdmin/InstructorApplication")
+);
 
 export const router = createBrowserRouter([
   {
@@ -62,6 +93,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "estado-aplicacion",
+        element: (
+          <ProtectedRoute>
+            <ApplicationStatus />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "perfil",
         element: (
           <ProtectedRoute>
@@ -76,12 +115,13 @@ export const router = createBrowserRouter([
           },
           { path: "analiticas", element: <Analytics /> },
           { path: "cursos", element: <Courses /> },
-          { path: "nuevo-curso", element: <NewCourse /> },
+          { path: "editar-curso/:courseId", element: <EditCourse /> },
           { path: "resenas", element: <div>Reviews</div> },
         ],
       },
     ],
   },
+  // Rutas autenticación
   {
     path: "/auth",
     element: <AuthLayout />,
@@ -101,6 +141,27 @@ export const router = createBrowserRouter([
       {
         path: "verificar-email",
         element: <VerifyEmailPage />,
+      },
+    ],
+  },
+  // Rutas admin
+  {
+    path: "admin",
+    element: <PublicLayout />,
+    errorElement: <ErrorFallback />,
+    children: [
+      {
+        element: (
+          <AdminRoute>
+            <DashboardAdmin />
+          </AdminRoute>
+        ),
+        children: [
+          { path: "panel-administrativo", element: <CardsDashboardAdmin /> },
+          { path: "usuarios", element: <AdminUsers /> },
+          { path: "aplicaciones", element: <InstructorsApplications /> },
+          { path: "aplicacion/:id", element: <InstructorApplication /> },
+        ],
       },
     ],
   },

@@ -110,7 +110,7 @@ const ToastContainer: React.FC<ToastContainerProps> = ({
 
   return (
     <div
-      className={`fixed ${getPositionClasses()} w-full max-w-full sm:max-w-sm px-4 sm:px-0 space-y-2`}
+      className={`fixed ${getPositionClasses()} w-full max-w-full sm:max-w-sm px-4 sm:px-0 space-y-2 z-50`}
     >
       <AnimatePresence>
         {toasts.map(({ toast }) => (

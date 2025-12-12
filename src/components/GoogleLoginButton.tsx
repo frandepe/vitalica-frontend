@@ -51,8 +51,10 @@
 import { googleLogin } from "@/api";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function GoogleLoginButton() {
+  const navigate = useNavigate()
   const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
@@ -74,6 +76,7 @@ export default function GoogleLoginButton() {
             if (data.success) {
               localStorage.setItem("token", data.data.token);
               setUser(data.data.user);
+              navigate("/");
             } else {
               console.error("Error al loguear con Google:", data.message);
             }

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Upload, X, Play, Pause } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { Button } from "./ui/button";
 
 interface VideoUploadCardProps {
   className?: string;
@@ -111,7 +112,7 @@ const VideoComponent = ({
     <AnimatePresence>
       {shouldShow && (
         <motion.div
-          className="absolute z-10"
+          className={cn(isAnimating ? "absolute" : "relative", "z-10")}
           initial={{
             left: "50%",
             top: "-300px",
@@ -382,7 +383,10 @@ export function VideoUploadCard({
 
   return (
     <motion.div
-      className={cn("relative w-full max-w-lg mx-auto", className)}
+      className={cn(
+        "relative w-full max-w-lg mx-auto overflow-visible",
+        className
+      )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -434,6 +438,10 @@ export function VideoUploadCard({
             <p className="text-sm text-muted-foreground text-left">
               {description}
             </p>
+            {/* TODO: Esto debe redirigir a un blog _blank */}
+            <Button size="sm" variant="link" className="p-0">
+              ¿Cómo hago un buen video promocional?
+            </Button>
           </div>
         </div>
       </div>
