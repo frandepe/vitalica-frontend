@@ -40,8 +40,14 @@ export function WebPresentation() {
       <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--background))]">
         <SocialLinks
           links={[
-            { platform: "facebook", href: "https://facebook.com" },
-            { platform: "instagram", href: "https://instagram.com" },
+            {
+              platform: "facebook",
+              href: "https://www.facebook.com/profile.php?id=61584928899736",
+            },
+            {
+              platform: "instagram",
+              href: "https://www.instagram.com/vitalicaofficial/",
+            },
             { platform: "mail", href: "mailto:vitalicaofficial@gmail.com" },
           ]}
           floatingButtonColor="bg-slate-700"
