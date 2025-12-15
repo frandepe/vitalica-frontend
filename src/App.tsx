@@ -1,7 +1,7 @@
-import { RouterProvider } from "react-router-dom";
 import "./App.css";
 import { Suspense } from "react";
-import { router } from "./routes";
+
+import { WebPresentation } from "./pages/public/WebPresentation";
 
 const GlobalLoading = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -15,7 +15,8 @@ const GlobalLoading = () => (
 function App() {
   return (
     <Suspense fallback={<GlobalLoading />}>
-      <RouterProvider router={router} />
+      {/* <RouterProvider router={router} /> */}
+      <WebPresentation />
     </Suspense>
   );
 }
