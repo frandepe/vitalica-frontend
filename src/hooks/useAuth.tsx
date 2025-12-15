@@ -39,7 +39,7 @@ export const useAuthProvider = (): AuthContextType => {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string) => {
     setIsLoading(true);
     try {
       // Aquí harías la llamada real a tu API
@@ -58,7 +58,7 @@ export const useAuthProvider = (): AuthContextType => {
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, name: string) => {
     setIsLoading(true);
     try {
       // Aquí harías la llamada real a tu API
