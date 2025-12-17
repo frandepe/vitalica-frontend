@@ -54,9 +54,11 @@ export default function EditCourse() {
     description: "",
     tags: [],
     specialty: Specialty.CPR,
-    promoVideoFile: undefined,
+    // promoVideoFile: undefined,
     level: CourseLevel.BEGINNER,
-    duration: undefined,
+    // duration: undefined,
+    durationHours: 0,
+    durationMinutes: 0,
     price: 0,
     currency: "ARS",
     modules: [],
@@ -178,10 +180,18 @@ export default function EditCourse() {
   const onSubmitDraft = handleSubmit(async (data) => {
     setIsLoading(true);
 
+    const { durationHours, durationMinutes, ...rest } = data;
+
+    const payload = {
+      ...rest,
+      duration: durationHours * 60 + durationMinutes,
+    };
+
     try {
       console.log("Guardado en borrador:", data);
 
-      const res = await saveCourseAsDraft(data);
+      const res = await saveCourseAsDraft(payload);
+      console.log("res", res);
 
       if (res.errors && res.errors.length > 0) {
         setBackendErrors(res.errors);
@@ -383,7 +393,7 @@ export default function EditCourse() {
 
   //   console.log("Video listo y guardado!");
   // };
-  // TODO: cambiar el nombre muxPlaybacktId por muxPlaybackId (sin la t extra)
+  // TODO: cambiar el nombre muxPlaybackId por muxPlaybackId (sin la t extra)
   return (
     <div className="my-8">
       <h2 className="text-2xl font-semibold">Crea un nuevo curso</h2>
@@ -507,7 +517,7 @@ export default function EditCourse() {
 //         body: JSON.stringify({
 //           ...values,
 //           muxPromoAssetId: muxAssetId,
-//           muxPlaybacktId: muxPlaybackId,
+//           muxPlaybackId: muxPlaybackId,
 //         }),
 //       });
 

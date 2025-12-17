@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/select";
 import { TooltipIconButton } from "@/components/TooltipIconButton";
 import { InfoIcon } from "lucide-react";
-import { ErrorResponse } from "react-router-dom";
 import { cn } from "@/utils/cn";
 
 interface Step1Props {
@@ -36,7 +35,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
       <Label>Título</Label>
       <Input
         type="text"
-        placeholder="Título del curso"
+        placeholder="Ej: Toxicología: evaluación y manejo inicial"
         {...register("title", {
           maxLength: {
             value: 150,
@@ -58,7 +57,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
       )}
       <Label>Descripción</Label>
       <Textarea
-        placeholder="Comparte una descripción detallada sobre el curso"
+        placeholder="Describí de qué trata el curso, a quién está dirigido y qué va a aprender el alumno."
         className={cn(
           "resize-y w-full h-[200px] dark:bg-card bg-background rounded-[13px]",
           errors.description && "border-red-500 focus-visible:ring-red-500"
@@ -118,7 +117,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
               errors.specialty && "border-red-500 focus-visible:ring-red-500"
             )}
           >
-            <Label>Categoría del curso</Label>
+            <Label>Categoría</Label>
             <Select value={String(field.value)} onValueChange={field.onChange}>
               <FormControl>
                 <SelectTrigger>
@@ -155,7 +154,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
               errors.level && "border-red-500 focus-visible:ring-red-500"
             )}
           >
-            <Label>Nivel del curso</Label>
+            <Label>Nivel</Label>
             <Select value={field.value} onValueChange={field.onChange}>
               <FormControl>
                 <SelectTrigger>

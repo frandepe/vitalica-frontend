@@ -1,4 +1,4 @@
-import { NewCourseFormValues } from "@/types/course.types";
+import { SaveCourseDraftPayload } from "@/types/course.types";
 import { apiRequest } from "./configEndpoint";
 import { ApiResponse, PromoUploadStatus } from "@/types/endpoints.types";
 
@@ -38,7 +38,7 @@ export const getCourseById = async (courseId: string): Promise<ApiResponse> => {
 };
 
 export const saveCourseAsDraft = async (
-  data: NewCourseFormValues
+  data: SaveCourseDraftPayload
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: "/api/course/save-draft",

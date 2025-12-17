@@ -93,6 +93,7 @@ export const LevelLabels: Record<keyof typeof Levels, string> = {
 };
 
 export const descriptionCourseLimit = 5000;
+export const requirementsAndMaterialsCourseLimit = 2000;
 
 // -------------------------------
 // Listas finales para selects

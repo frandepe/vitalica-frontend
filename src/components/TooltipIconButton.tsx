@@ -9,7 +9,7 @@ import { Button, ButtonProps } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 
 export type TooltipIconButtonProps = ButtonProps & {
-  tooltip: string;
+  tooltip: React.ReactNode;
   side?: "top" | "bottom" | "left" | "right";
 };
 

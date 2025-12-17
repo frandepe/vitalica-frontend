@@ -20,7 +20,7 @@ const PublicLayout = () => {
       </main>
 
       {/* Footer */}
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

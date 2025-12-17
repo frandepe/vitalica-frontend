@@ -162,17 +162,26 @@ export interface NewCourseFormValues {
   description: string;
   tags: string[];
   specialty: Specialty;
-  promoVideoFile?: string;
   thumbnailUrl?: string;
   level: CourseLevel;
-  duration?: number;
+  // duration?: number;
+  durationHours: number;
+  durationMinutes: number;
   price: number;
   currency?: "ARS";
+  requirementsAndMaterials?: string;
   muxPromoAssetId?: string;
   muxPlaybackId?: string;
   modules?: CourseModuleFormValues[]; // opcional
   quizzes?: CourseQuizFormValues[]; // opcional
 }
+
+export type SaveCourseDraftPayload = Omit<
+  NewCourseFormValues,
+  "durationHours" | "durationMinutes"
+> & {
+  duration: number;
+};
 
 export interface ICreateCourse {
   title: string;

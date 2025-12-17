@@ -7,7 +7,6 @@ import { TextImage } from "@/components/TextImage";
 import { createCourse, getInstructorCourses } from "@/api";
 import { useNavigate } from "react-router-dom";
 import { ICourse } from "@/types/course.types";
-import { Skeleton } from "@/components/ui/skeleton";
 import { InstructorMyCoursesSkeleton } from "@/components/Skeletons/InstructorMyCoursesSkeleton";
 import { Button } from "@/components/ui/button";
 
@@ -75,6 +74,7 @@ export default function Courses() {
   // ===============================
   // 2) SIN CURSOS
   // ===============================
+  // TODO: Si el usuario todavia no completo su perfil de instructor, va a salir un error al intentar Crear curso
   if (!loading && coursesData.length === 0) {
     return (
       <div className="flex xl:flex-row flex-col w-full items-start">

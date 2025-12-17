@@ -157,6 +157,7 @@ const StepperComponent = ({
                 {isLastStep ? "Finalizar" : nextButtonText}
               </Button>
               {!isLastStep && (
+                // TODO: Agregar un useIntervalClicks para evitar múltiples clicks rápidos
                 <Button variant="outline" onClick={onSaveToDraft}>
                   Guardar en borrador
                 </Button>
