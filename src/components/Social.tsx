@@ -1,67 +1,129 @@
 import * as React from "react";
-import { Facebook, Instagram, Mail, Share2, X } from "lucide-react";
+import {
+  Facebook,
+  Linkedin,
+  Share2,
+  X,
+  MessageCircle,
+  Copy,
+} from "lucide-react";
 
-type Platform = "instagram" | "mail" | "facebook";
+type Platform = "whatsapp" | "linkedin" | "facebook" | "copy";
 
 export interface SocialLink {
   platform: Platform;
-  href: string;
+  href: string; // para copy: el texto/link a copiar
 }
 
 export interface SocialLinksProps {
   links: SocialLink[];
   showOnMobile?: boolean;
   /**
-   * Custom Tailwind color class or raw CSS color
-   * Example: "bg-slate-700" | "#00ff00" | "rgb(0,255,0)"
+   * Tailwind class para el botón flotante (mobile)
+   * Ej: "bg-slate-700"
    */
   floatingButtonColor?: string;
 }
 
-const PLATFORM_STYLES: any = {
-  instagram: {
-    label: "Instagram",
-    icon: Instagram,
-    gradient: "from-pink-600 via-purple-600 to-orange-500",
-    hoverGradient: "from-pink-500 via-purple-500 to-orange-400",
+const PLATFORM_STYLES: Record<Platform, any> = {
+  whatsapp: {
+    label: "Compartir WhatsApp",
+    icon: MessageCircle,
+    gradient: "from-green-600 to-green-500",
+    hoverGradient: "from-green-500 to-green-400",
   },
-
-  mail: {
-    label: "Mail",
-    icon: Mail,
-    gradient: "from-cyan-600 to-blue-500",
-    hoverGradient: "from-cyan-500 to-blue-400",
+  linkedin: {
+    label: "Compartir en LinkedIn",
+    icon: Linkedin,
+    gradient: "from-sky-700 to-sky-600",
+    hoverGradient: "from-sky-600 to-sky-500",
   },
   facebook: {
-    label: "Facebook",
+    label: "Compartir en Facebook",
     icon: Facebook,
-    gradient: "from-blue-700 to-blue-500",
-    hoverGradient: "from-blue-600 to-blue-400",
+    gradient: "from-blue-700 to-blue-600",
+    hoverGradient: "from-blue-600 to-blue-500",
+  },
+  copy: {
+    label: "Copiar link",
+    icon: Copy,
+    gradient: "from-slate-700 to-slate-600",
+    hoverGradient: "from-slate-600 to-slate-500",
   },
 };
 
 export const SocialLinks: React.FC<SocialLinksProps> = ({
   links,
   showOnMobile = true,
-  floatingButtonColor = "bg-muted",
+  floatingButtonColor = "bg-slate-700",
 }) => {
   const [hoveredPlatform, setHoveredPlatform] = React.useState<Platform | null>(
     null
   );
   const [mobileDockOpen, setMobileDockOpen] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error("No se pudo copiar el link", err);
+    }
+  };
+
+  const renderAction = (
+    platform: Platform,
+    href: string,
+    className: string,
+    Icon: any,
+    style: any
+  ) => {
+    if (platform === "copy") {
+      return (
+        <button
+          onClick={() => handleCopy(href)}
+          className={className}
+          type="button"
+        >
+          <div
+            className={`absolute inset-0 bg-gradient-to-r ${
+              hoveredPlatform === platform
+                ? style.hoverGradient
+                : style.gradient
+            } opacity-90 transition-all duration-500`}
+          />
+          <span className="relative z-10 text-white font-semibold text-sm">
+            {copied ? "Copiado ✓" : style.label}
+          </span>
+          <Icon size={22} className="relative z-10 text-white" />
+        </button>
+      );
+    }
+
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={className}>
+        <div
+          className={`absolute inset-0 bg-gradient-to-r ${
+            hoveredPlatform === platform ? style.hoverGradient : style.gradient
+          } opacity-90 transition-all duration-500`}
+        />
+        <span className="relative z-10 text-white font-semibold text-sm">
+          {style.label}
+        </span>
+        <Icon size={22} className="relative z-10 text-white" />
+      </a>
+    );
+  };
 
   return (
     <>
-      {/* ===== Desktop View ===== */}
-      <div
-        className={`${
-          showOnMobile ? "hidden lg:flex" : "hidden md:flex"
-        } flex-col fixed top-[35%] left-0 z-40`}
-      >
+      {/* ===== Desktop ===== */}
+      <div className="hidden lg:flex flex-col fixed top-[35%] left-0 z-40">
         <ul className="space-y-3">
           {links.map(({ platform, href }) => {
             const style = PLATFORM_STYLES[platform];
-            if (!style) return null;
             const Icon = style.icon;
 
             return (
@@ -71,53 +133,30 @@ export const SocialLinks: React.FC<SocialLinksProps> = ({
                 onMouseLeave={() => setHoveredPlatform(null)}
                 className="group"
               >
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-between w-44 h-14 px-4 ml-[-120px]
-                             group-hover:ml-[-10px] transition-all duration-500 ease-out
-                             rounded-r-xl relative overflow-hidden border border-border
-                             bg-[hsl(var(--card))] shadow-md hover:shadow-lg"
-                >
-                  {/* Gradient Overlay */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-r ${
-                      hoveredPlatform === platform
-                        ? style.hoverGradient
-                        : style.gradient
-                    } opacity-90 transition-all duration-500`}
-                  />
-
-                  {/* Label */}
-                  <span className="relative z-10 text-white font-semibold tracking-wide text-sm group-hover:tracking-widest transition-all duration-300">
-                    {style.label}
-                  </span>
-
-                  {/* Icon */}
-                  <Icon
-                    size={22}
-                    className="relative z-10 text-white drop-shadow-sm group-hover:scale-125 transition-transform duration-500"
-                  />
-                </a>
+                {renderAction(
+                  platform,
+                  href,
+                  "relative flex items-center justify-between w-56 h-14 px-4 ml-[-170px] group-hover:ml-[-10px] transition-all duration-500 ease-out rounded-r-xl overflow-hidden border border-border bg-[hsl(var(--card))] shadow-md hover:shadow-lg",
+                  Icon,
+                  style
+                )}
               </li>
             );
           })}
         </ul>
       </div>
 
-      {/* ===== Mobile Floating Dock ===== */}
+      {/* ===== Mobile ===== */}
       {showOnMobile && (
         <div className="lg:hidden fixed bottom-6 right-6 z-50">
           {mobileDockOpen && (
             <div
-              className="fixed inset-0 bg-[hsl(var(--background)/0.6)] backdrop-blur-sm"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm"
               onClick={() => setMobileDockOpen(false)}
             />
           )}
 
           <div className="relative">
-            {/* Floating Icons */}
             <div
               className={`absolute bottom-20 right-0 flex flex-col-reverse gap-3 transition-all duration-500 ${
                 mobileDockOpen
@@ -127,59 +166,44 @@ export const SocialLinks: React.FC<SocialLinksProps> = ({
             >
               {links.map(({ platform, href }, index) => {
                 const style = PLATFORM_STYLES[platform];
-                if (!style) return null;
                 const Icon = style.icon;
+
                 return (
-                  <a
+                  <button
                     key={platform}
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group relative ml-auto"
+                    onClick={() =>
+                      platform === "copy"
+                        ? handleCopy(href)
+                        : window.open(href, "_blank")
+                    }
+                    className={`w-14 h-14 rounded-full bg-gradient-to-br ${style.gradient}
+                                flex items-center justify-center shadow-lg hover:scale-110
+                                transition-transform duration-300 border border-border`}
                     style={{
                       transitionDelay: mobileDockOpen
                         ? `${index * 50}ms`
                         : "0ms",
                     }}
+                    type="button"
                   >
-                    <div
-                      className={`w-14 h-14 rounded-full bg-gradient-to-br ${style.gradient}
-                                 flex items-center justify-center shadow-lg hover:scale-110
-                                 transition-transform duration-300 border border-border`}
-                    >
-                      <Icon size={22} className="text-white" />
-                    </div>
-
-                    {/* Tooltip */}
-                    <div
-                      className="absolute top-1/2 -translate-y-1/2 right-16
-                                    bg-[hsl(var(--popover))] text-[hsl(var(--popover-foreground))]
-                                    text-xs font-medium px-3 py-1.5 rounded-md shadow-md
-                                    opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      {style.label}
-                      <div className="absolute top-1/2 -translate-y-1/2 -right-1 w-2 h-2 bg-[hsl(var(--popover))] rotate-45" />
-                    </div>
-                  </a>
+                    <Icon size={22} className="text-white" />
+                  </button>
                 );
               })}
             </div>
 
-            {/* Floating Button */}
             <button
               onClick={() => setMobileDockOpen(!mobileDockOpen)}
-              className={`relative flex items-center justify-center w-16 h-16 rounded-full shadow-2xl active:scale-95
-                         transition-all duration-300 border border-border overflow-hidden ${floatingButtonColor}`}
-              aria-label="Toggle social links"
+              className={`flex items-center justify-center w-16 h-16 rounded-full shadow-2xl active:scale-95
+                          transition-all duration-300 border border-border ${floatingButtonColor}`}
+              aria-label="Compartir"
+              type="button"
             >
-              <div className="relative z-10">
-                {mobileDockOpen ? (
-                  <X size={24} className="text-white" />
-                ) : (
-                  <Share2 size={24} className="text-white" />
-                )}
-              </div>
-              <div className="absolute inset-0 bg-[hsl(var(--muted))] opacity-10" />
+              {mobileDockOpen ? (
+                <X size={24} className="text-white" />
+              ) : (
+                <Share2 size={24} className="text-white" />
+              )}
             </button>
           </div>
         </div>

@@ -39,18 +39,25 @@ export function WebPresentation() {
       {/* Top-left orb */}
       <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--background))]">
         <SocialLinks
+          floatingButtonColor="bg-slate-700"
           links={[
             {
-              platform: "facebook",
-              href: "https://www.facebook.com/profile.php?id=61584928899736",
+              platform: "whatsapp",
+              href: "https://wa.me/?text=Te%20comparto%20Vitalica,%20plataforma%20de%20formación%20en%20primeros%20auxilios:%20https://vitalica.com.ar",
             },
             {
-              platform: "instagram",
-              href: "https://www.instagram.com/vitalicaofficial/",
+              platform: "linkedin",
+              href: "https://www.linkedin.com/sharing/share-offsite/?url=https://vitalica.com.ar",
             },
-            { platform: "mail", href: "mailto:vitalicaofficial@gmail.com" },
+            {
+              platform: "facebook",
+              href: "https://www.facebook.com/sharer/sharer.php?u=https://vitalica.com.ar",
+            },
+            {
+              platform: "copy",
+              href: "https://vitalica.com.ar",
+            },
           ]}
-          floatingButtonColor="bg-slate-700"
         />
       </div>
       <div
