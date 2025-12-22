@@ -45,6 +45,7 @@ export interface ICourse {
 export interface CourseModuleFormValues {
   id: string;
   title: string;
+  formId?: string;
   description?: string;
   order: number; // posición
   lessons?: LessonFormValues[];
@@ -112,7 +113,7 @@ export interface CourseQuiz {
 export type CourseLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
 export type CourseStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 export type QuizStatus = "PENDING" | "APPROVED" | "REJECTED";
-export type LessonMaterialType = "PDF" | "IMAGE";
+export type LessonMaterialType = "PDF" | "IMAGE" | "VIDEO" | "OTHER";
 export type LessonType = "content" | "videoFile";
 
 // --------- Extras ---------
@@ -130,16 +131,20 @@ export interface CourseReview {
 
 export interface LessonMaterial {
   type: LessonMaterialType;
-  url: string;
+  key: string;
+  mimeType: string;
 }
 
 export interface LessonFormValues {
+  id: string;
   title?: string;
   type?: LessonType;
   content?: string;
-  videoFile?: string; // este campo solo existe en front. Al back va a pasar como muxAssetId y muxPlaybackId
+  // videoFile?: string; // este campo solo existe en front. Al back va a pasar como muxAssetId y muxPlaybackId
   order: number;
   isFree: boolean;
+  muxAssetId?: string;
+  muxPlaybackId?: string | null | undefined;
   lessonMaterial?: LessonMaterial[];
 }
 
@@ -190,3 +195,8 @@ export interface ICreateCourse {
   specialty: Specialty;
   level: CourseLevel;
 }
+
+export type LessonUploadState = {
+  progress: number;
+  status: string;
+};

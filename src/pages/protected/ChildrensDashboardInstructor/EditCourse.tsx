@@ -23,7 +23,7 @@ import {
   confirmPromoUpload,
   createPromoDirectUpload,
   getCourseById,
-  getPromoUploadStatus,
+  getMuxUploadStatus,
   saveCourseAsDraft,
   saveCourseThumbnail,
 } from "@/api";
@@ -55,13 +55,32 @@ export default function EditCourse() {
     tags: [],
     specialty: Specialty.CPR,
     // promoVideoFile: undefined,
+    modules: [
+      {
+        id: "",
+        title: "",
+        description: "",
+        order: 0,
+        lessons: [
+          {
+            id: "",
+            title: "",
+            content: "",
+            type: "videoFile", // o null si preferís
+            isFree: false,
+            order: 0,
+            muxPlaybackId: null, // 👈 CLAVE
+          },
+        ],
+      },
+    ],
     level: CourseLevel.BEGINNER,
     // duration: undefined,
     durationHours: 0,
     durationMinutes: 0,
     price: 0,
     currency: "ARS",
-    modules: [],
+    // modules: [],
     quizzes: [],
   };
 
@@ -81,11 +100,12 @@ export default function EditCourse() {
 
   const {
     fields: modules,
-    append: addModule,
+    // append: addModule,
     remove: removeModule,
   } = useFieldArray({
     control,
     name: "modules",
+    keyName: "formId",
   });
 
   useEffect(() => {
@@ -115,18 +135,6 @@ export default function EditCourse() {
       reset({
         ...courseData,
       });
-
-      // setDniImages({
-      //   existing: applicationData.documents?.[0]?.urlDni
-      //     ? [applicationData.documents[0].urlDni]
-      //     : [],
-      //   new: [],
-      // });
-
-      // setCertificateImages({
-      //   existing: applicationData.documents?.[0]?.urlCertificate || [],
-      //   new: [],
-      // });
     }
   }, [courseData, reset]);
 
@@ -292,7 +300,7 @@ export default function EditCourse() {
     let assetId: string | null = null;
 
     while (!assetId) {
-      const statusRes = await getPromoUploadStatus(uploadId);
+      const statusRes = await getMuxUploadStatus(uploadId);
 
       if (!statusRes.success) {
         console.error(statusRes.message);
@@ -332,68 +340,6 @@ export default function EditCourse() {
     console.log("Video listo y guardado!");
   };
 
-  // const handlePromoVideoUpload = async (file: File) => {
-  //   if (!courseId) return;
-
-  //   // 1️⃣ pedir URL de subida a Mux
-  //   const res1 = await createPromoDirectUpload(courseId);
-  //   console.log("res1", res1);
-
-  //   if (!res1.success) {
-  //     console.error(res1.message);
-  //     return;
-  //   }
-
-  //   const { uploadUrl, uploadId } = res1.data;
-
-  //   // 2️⃣ subir archivo a Mux
-  //   await fetch(uploadUrl, {
-  //     method: "PUT",
-  //     headers: { "Content-Type": file.type },
-  //     body: file,
-  //   });
-
-  //   // 3️⃣ consultar estado del upload hasta que Mux cree el asset
-  //   let playbackId: string | null = null;
-  //   let assetId: string | null = null;
-
-  //   while (!assetId) {
-  //     const statusRes = await getPromoUploadStatus(uploadId);
-  //     console.log("status", statusRes);
-
-  //     if (!statusRes.success) {
-  //       console.error(statusRes.message);
-  //       return;
-  //     }
-
-  //     if (statusRes.status === "asset_created") {
-  //       assetId = statusRes.assetId;
-  //       playbackId = statusRes.playbackId;
-  //     } else {
-  //       // esperar 2 segundos antes de volver a consultar
-  //       await new Promise((r) => setTimeout(r, 2000));
-  //     }
-  //   }
-
-  //   // 4️⃣ ahora sí, avisamos al backend para guardar el asset en BD
-  //   const res2 = await confirmPromoUpload(courseId, uploadId);
-  //   console.log("res2", res2);
-
-  //   if (!res2.success) {
-  //     console.error(res2.message);
-  //     return;
-  //   }
-
-  //   // 5️⃣ actualizar formulario con assetId y playbackId
-  //   form.setValue("muxPromoAssetId", assetId, { shouldDirty: true });
-
-  //   if (playbackId) {
-  //     form.setValue("muxPlaybackId", playbackId, { shouldDirty: true });
-  //   }
-
-  //   console.log("Video listo y guardado!");
-  // };
-  // TODO: cambiar el nombre muxPlaybackId por muxPlaybackId (sin la t extra)
   return (
     <div className="my-8">
       <h2 className="text-2xl font-semibold">Crea un nuevo curso</h2>
@@ -446,7 +392,8 @@ export default function EditCourse() {
               Módulos y lecciones
             </h2>
             <Step4
-              addModule={addModule}
+              courseId={courseId!}
+              // addModule={addModule}
               handleLessonTypeChange={handleLessonTypeChange}
               handleRemoveLesson={handleRemoveLesson}
               lessonTypes={lessonTypes}

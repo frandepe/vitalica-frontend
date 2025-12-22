@@ -8,6 +8,8 @@ import { lazy } from "react";
 import { Illustration, NotFound } from "@/pages/public/404Page";
 import ErrorFallback from "@/components/ErrorFallback";
 import AdminRoute from "@/components/auth/AdminRoute";
+import SubirPageTest from "@/pages/public/upload-test";
+import DownloadPageTest from "@/pages/public/download-test";
 
 // Páginas públicas
 const HomePage = lazy(() => import("@/pages/public/HomePage"));
@@ -83,6 +85,14 @@ export const router = createBrowserRouter([
       {
         path: "contacto",
         element: <ContactPage />,
+      },
+      {
+        path: "upload-test",
+        element: <SubirPageTest />,
+      },
+      {
+        path: "download-test",
+        element: <DownloadPageTest />,
       },
       {
         path: "perfil",
