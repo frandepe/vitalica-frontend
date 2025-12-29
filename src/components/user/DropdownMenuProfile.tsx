@@ -82,6 +82,15 @@ export default function ProfileMenu() {
                 Panel de Instructor
               </button>
             )}
+            {user?.role === "ADMIN" && (
+              <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent">
+                <Settings
+                  className="h-4 w-4"
+                  onClick={() => navigate("/admin/panel-administrativo")}
+                />
+                Panel de administrador
+              </button>
+            )}
           </div>
 
           {/* Footer fijo */}
@@ -138,6 +147,15 @@ export default function ProfileMenu() {
           >
             <Settings className="h-4 w-4" />
             Panel de Instructor
+          </DropdownItem>
+        )}
+        {user?.role === "ADMIN" && (
+          <DropdownItem
+            className="gap-2"
+            onClick={() => navigate("/admin/panel-administrativo")}
+          >
+            <Settings className="h-4 w-4" />
+            Panel de Administrador
           </DropdownItem>
         )}
         <DropdownSeparator />

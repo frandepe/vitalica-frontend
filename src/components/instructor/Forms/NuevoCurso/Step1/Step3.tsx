@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { requirementsAndMaterialsCourseLimit } from "@/constants";
 import { NewCourseFormValues } from "@/types/course.types";
 import { cn } from "@/utils/cn";
+import { formatDuration } from "@/utils/formatDuration";
 import { ClockFading, InfoIcon } from "lucide-react";
 import { useFormContext, UseFormRegister } from "react-hook-form";
 
@@ -27,12 +28,7 @@ export const Step3 = ({ register }: Step3Props) => {
     control,
   } = useFormContext();
 
-  const durationRaw = watch("duration");
-  const duration = Number(durationRaw);
-
-  const formattedDuration = Number.isFinite(duration)
-    ? `${Math.floor(duration / 60)}:${String(duration % 60).padStart(2, "0")}`
-    : "--:--";
+  const duration = watch("duration");
 
   return (
     <div className="space-y-4">
@@ -71,7 +67,10 @@ export const Step3 = ({ register }: Step3Props) => {
           $
         </span>
         <Input
-          className="-me-px z-10 rounded-e-none ps-6 shadow-none"
+          className={cn(
+            "-me-px z-10 rounded-e-none ps-6 shadow-none",
+            errors.price && "border-red-500 focus-visible:ring-red-500"
+          )}
           placeholder="0.00"
           type="number"
           step="0.01"
@@ -79,7 +78,7 @@ export const Step3 = ({ register }: Step3Props) => {
             valueAsNumber: true,
             validate: {
               maxValue: (value) =>
-                value <= 500000 || "El precio no puede superar $500.000",
+                value <= 1000000 || "El precio no puede superar $1.000.000",
               positive: (value) =>
                 value >= 0 || "El precio no puede ser negativo",
             },
@@ -89,6 +88,12 @@ export const Step3 = ({ register }: Step3Props) => {
           AR
         </span>
       </div>
+      {/* mensaje de error si no valida price */}
+      <p className="text-red-500 text-sm mt-1">
+        {typeof errors.price?.message === "string"
+          ? errors.price.message
+          : null}
+      </p>
       <div>
         <div className="flex items-center gap-1">
           <Label>Duración aproximada</Label>
@@ -161,7 +166,8 @@ export const Step3 = ({ register }: Step3Props) => {
             />
           </div>
           <Badge variant="info">
-            Duración total estimada: {formattedDuration} hs <ClockFading />
+            Duración total estimada: {formatDuration(duration)} hs{" "}
+            <ClockFading />
           </Badge>
         </div>
       </div>

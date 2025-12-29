@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { ChevronRight, School, Users } from "lucide-react";
+import { ChevronRight, PenBox, School, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 const features = [
   {
@@ -13,6 +13,12 @@ const features = [
     href: "/admin/aplicaciones",
     description: "Ver y dar feedback a las aplicación de posibles instructores",
     icon: <School />,
+  },
+  {
+    title: "Cursos",
+    href: "/admin/cursos",
+    description: "Ver, modificar estado y dar feedback a los cursos enviados",
+    icon: <PenBox />,
   },
 ];
 

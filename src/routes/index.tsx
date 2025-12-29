@@ -10,6 +10,7 @@ import ErrorFallback from "@/components/ErrorFallback";
 import AdminRoute from "@/components/auth/AdminRoute";
 import SubirPageTest from "@/pages/public/upload-test";
 import DownloadPageTest from "@/pages/public/download-test";
+import CourseStatus from "@/pages/protected/CourseStatus";
 
 // Páginas públicas
 const HomePage = lazy(() => import("@/pages/public/HomePage"));
@@ -53,7 +54,12 @@ const EditCourse = lazy(
 
 // Páginas del admin
 const DashboardAdmin = lazy(() => import("@/pages/admin/DashboardAdmin"));
-const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
+const AdminUsers = lazy(
+  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminUsers")
+);
+const AdminCourses = lazy(
+  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminCourses")
+);
 const CardsDashboardAdmin = lazy(
   () => import("@/pages/admin/ChildrensDashboardAdmin/CardsDashboard")
 );
@@ -62,6 +68,9 @@ const InstructorsApplications = lazy(
 );
 const InstructorApplication = lazy(
   () => import("@/pages/admin/ChildrensDashboardAdmin/InstructorApplication")
+);
+const AdminCourse = lazy(
+  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminCourse")
 );
 
 export const router = createBrowserRouter([
@@ -107,6 +116,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <ApplicationStatus />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "estado-curso/:courseId",
+        element: (
+          <ProtectedRoute>
+            <CourseStatus />
           </ProtectedRoute>
         ),
       },
@@ -169,8 +186,10 @@ export const router = createBrowserRouter([
         children: [
           { path: "panel-administrativo", element: <CardsDashboardAdmin /> },
           { path: "usuarios", element: <AdminUsers /> },
+          { path: "cursos", element: <AdminCourses /> },
           { path: "aplicaciones", element: <InstructorsApplications /> },
           { path: "aplicacion/:id", element: <InstructorApplication /> },
+          { path: "curso/:id", element: <AdminCourse /> },
         ],
       },
     ],

@@ -7,6 +7,7 @@ import {
   ArrowLeftFromLine,
   Users,
   School,
+  Video,
 } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ScrollToTop } from "@/utils/scroll-top";
@@ -34,6 +35,12 @@ const navigationItems: NavigationItem[] = [
     href: "/admin/usuarios",
   },
   {
+    id: "cursos",
+    name: "Cursos",
+    icon: Video,
+    href: "/admin/cursos",
+  },
+  {
     id: "aplicaciones",
     name: "Aplicaciones",
     icon: School,
@@ -51,6 +58,7 @@ export default function DashboardAdmin() {
     const pathToIdMap: Record<string, string> = {
       "/admin/panel-administrativo": "panel-administrativo",
       "/admin/usuarios": "usuarios",
+      "/admin/cursos": "cursos",
       "/admin/aplicaciones": "aplicaciones",
     };
 

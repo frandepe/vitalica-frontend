@@ -42,7 +42,7 @@ export const AppModal = ({
         >
           <motion.div
             className={cn(
-              "relative w-full max-w-lg mx-4 bg-white dark:bg-neutral-900 rounded-2xl shadow-lg p-6"
+              "relative w-full max-w-4xl mx-4 bg-white dark:bg-neutral-900 rounded-2xl shadow-lg p-6"
             )}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}

@@ -5,6 +5,7 @@ import {
   createLessonDirectUpload,
   deleteCourseLesson,
   deleteCourseModule,
+  deleteLessonVideo,
   getMuxUploadStatus,
 } from "@/api";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,17 @@ import {
   NewCourseFormValues,
 } from "@/types/course.types";
 import MuxPlayer from "@mux/mux-player-react";
-import { ClipboardPenLine, Loader2, Plus, Trash } from "lucide-react";
+import {
+  CheckCircle,
+  ClipboardPenLine,
+  FileText,
+  Loader2,
+  Plus,
+  Trash,
+  Trash2,
+  Upload,
+  Video,
+} from "lucide-react";
 import { useState } from "react";
 import {
   Control,
@@ -41,6 +52,20 @@ import {
 } from "react-hook-form";
 import UploadMaterial from "../../UploadMaterial";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/utils/cn";
+import { RichTextEditor } from "@/components/TextEditor/RichTextEditor";
+import { ModuleQuizzes } from "@/components/Quizzes/ModuleQuizzes";
 
 interface Props {
   courseId: string;
@@ -67,10 +92,14 @@ export const Step4 = ({
 }: Props) => {
   const [isCreatingModule, setIsCreatingModule] = useState(false);
   const [deletingModuleId, setDeletingModuleId] = useState<string | null>(null);
+  const [confirmText, setConfirmText] = useState("");
   const [creatingLessonModuleId, setCreatingLessonModuleId] = useState<
     string | null
   >(null);
   const [deletingLessonId, setDeletingLessonId] = useState<string | null>(null);
+  const [deletingVideoLesson, setDeletingVideoLesson] = useState<string | null>(
+    null
+  );
   const [lessonUploads, setLessonUploads] = useState<
     Record<string, LessonUploadState>
   >({});
@@ -119,6 +148,7 @@ export const Step4 = ({
       // opcional: toast
     } finally {
       setDeletingModuleId(null);
+      setConfirmText("");
     }
   };
 
@@ -159,12 +189,6 @@ export const Step4 = ({
     lessonIndex: number,
     lessonId: string
   ) => {
-    const confirmDelete = window.confirm(
-      "¿Seguro que querés eliminar esta lección?\nSe perderá todo su contenido."
-    );
-
-    if (!confirmDelete) return;
-
     try {
       setDeletingLessonId(lessonId);
 
@@ -293,6 +317,28 @@ export const Step4 = ({
     }));
   };
 
+  const handleDeleteLessonVideo = async (
+    lessonId: string,
+    moduleIndex: number,
+    lessonIndex: number
+  ) => {
+    try {
+      setDeletingVideoLesson(lessonId);
+      const res = await deleteLessonVideo(lessonId);
+      setValue(
+        `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
+        null,
+        { shouldDirty: true }
+      );
+      if (!res.success) return false;
+      return true;
+    } catch (error) {
+      console.error("Error eliminando video de la lección", error);
+    } finally {
+      setDeletingVideoLesson(null);
+    }
+  };
+
   return (
     <div>
       <ScrollArea className="flex-grow">
@@ -304,7 +350,7 @@ export const Step4 = ({
             return (
               <Card
                 key={section.formId}
-                className="dark:bg-[#1A1A23] bg-white dark:text-white text-black"
+                className="bg-white text-black border-slate-400"
               >
                 <div
                   className={`flex flex-col ${sectionBgColor} px-2 md:px-3 rounded-[13px]`}
@@ -326,24 +372,88 @@ export const Step4 = ({
                         })}
                         placeholder="Ingrese el título del módulo"
                       />
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            type="button"
+                            disabled={deletingModuleId === section.id}
+                            className="ml-2"
+                          >
+                            {deletingModuleId === section.id ? (
+                              <span className="text-sm text-muted-foreground">
+                                Eliminando…
+                              </span>
+                            ) : (
+                              <Trash2 className="text-red-500 w-4 h-4" />
+                            )}
+                          </Button>
+                        </AlertDialogTrigger>
 
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={deletingModuleId === section.id}
-                        onClick={() =>
-                          handleDeleteModule(section.id, moduleIndex)
-                        }
-                        className="ml-2"
-                      >
-                        {deletingModuleId === section.id ? (
-                          <span className="text-sm text-muted-foreground">
-                            Eliminando…
-                          </span>
-                        ) : (
-                          <Trash className="text-red-500 hover:text-red-600 w-4 h-4 md:w-5 md:h-5" />
-                        )}
-                      </Button>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              ¿Eliminar este módulo completo?
+                            </AlertDialogTitle>
+
+                            <AlertDialogDescription>
+                              Este módulo y todas las lecciones que contiene
+                              serán eliminadas de forma permanente.
+                              <br />
+                              Incluye videos, materiales y todo su contenido.
+                              <br />
+                              <strong>Esta acción no se puede deshacer.</strong>
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+
+                          {/* Confirmación por texto */}
+                          <div className="space-y-2">
+                            <p className="text-sm">
+                              Escribí <strong>ELIMINAR</strong> para confirmar
+                            </p>
+
+                            <Input
+                              type="text"
+                              value={confirmText}
+                              onChange={(e) => setConfirmText(e.target.value)}
+                              placeholder="ELIMINAR"
+                              className="w-full rounded-md border px-3 py-2 text-sm"
+                              disabled={deletingModuleId === section.id}
+                            />
+                          </div>
+
+                          <AlertDialogFooter>
+                            <AlertDialogCancel
+                              disabled={deletingModuleId === section.id}
+                            >
+                              Cancelar
+                            </AlertDialogCancel>
+
+                            <AlertDialogAction
+                              variant="destructive"
+                              disabled={
+                                confirmText !== "ELIMINAR" ||
+                                deletingModuleId === section.id
+                              }
+                              onClick={async () => {
+                                setDeletingModuleId(section.id);
+                                try {
+                                  await handleDeleteModule(
+                                    section.id,
+                                    moduleIndex
+                                  );
+                                } finally {
+                                  setDeletingModuleId(null);
+                                }
+                              }}
+                            >
+                              {deletingModuleId === section.id
+                                ? "Eliminando…"
+                                : "Eliminar módulo"}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                     <div className="space-y-3 md:space-y-4">
                       {watch(`modules.${moduleIndex}.lessons`)?.map(
@@ -369,31 +479,72 @@ export const Step4 = ({
                                   placeholder="Ingrese el título de la lección"
                                   className="flex-1 dark:bg-background bg-white text-sm md:text-base"
                                 />
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  disabled={deletingLessonId === lesson.id}
-                                  onClick={() =>
-                                    handleDeleteLesson(
-                                      moduleIndex,
-                                      lessonIndex,
-                                      lesson.id
-                                    )
-                                  }
-                                  className="ml-2"
-                                >
-                                  {deletingLessonId === lesson.id ? (
-                                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                                  ) : (
-                                    <Trash className="text-red-500 hover:text-red-600 w-4 h-4 md:w-5 md:h-5" />
-                                  )}
-                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      disabled={deletingLessonId === lesson.id}
+                                      className="ml-2"
+                                    >
+                                      {deletingLessonId === lesson.id ? (
+                                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                                      ) : (
+                                        <Trash2 className="text-red-500 w-4 h-4" />
+                                      )}
+                                    </Button>
+                                  </AlertDialogTrigger>
+
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>
+                                        ¿Eliminar esta lección?
+                                      </AlertDialogTitle>
+
+                                      <AlertDialogDescription>
+                                        La lección se eliminará de forma
+                                        permanente.
+                                        <br />
+                                        Esto incluye el video y cualquier
+                                        material asociado.
+                                        <br />
+                                        Esta acción no se puede deshacer.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel
+                                        disabled={
+                                          deletingLessonId === lesson.id
+                                        }
+                                      >
+                                        Cancelar
+                                      </AlertDialogCancel>
+
+                                      <AlertDialogAction
+                                        variant="destructive"
+                                        disabled={
+                                          deletingLessonId === lesson.id
+                                        }
+                                        onClick={() =>
+                                          handleDeleteLesson(
+                                            moduleIndex,
+                                            lessonIndex,
+                                            lesson.id
+                                          )
+                                        }
+                                      >
+                                        Eliminar lección
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
                               </div>
 
                               {/* ========= SELECT SOLO SI NO HAY TIPO ========= */}
 
-                              <div className="py-2">
-                                <Select
+                              <div className="">
+                                {/* <Select
                                   onValueChange={(value: LessonType) => {
                                     setValue(
                                       `modules.${moduleIndex}.lessons.${lessonIndex}.type`,
@@ -423,17 +574,96 @@ export const Step4 = ({
                                       Texto
                                     </SelectItem>
                                   </SelectContent>
-                                </Select>
+                                </Select> */}
+                                <Separator className="my-4 bg-slate-400" />
+                                <div className="space-y-3 max-w-lg mb-2">
+                                  <p className="text-sm font-medium">
+                                    Seleccioná una opción
+                                  </p>
+
+                                  <div className="grid grid-cols-2 gap-3">
+                                    {/* VIDEO */}
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setValue(
+                                          `modules.${moduleIndex}.lessons.${lessonIndex}.type`,
+                                          "videoFile"
+                                        );
+                                        handleLessonTypeChange(
+                                          moduleIndex,
+                                          lessonIndex,
+                                          "videoFile"
+                                        );
+                                      }}
+                                      className={cn(
+                                        "relative flex flex-col items-center justify-center gap-2 rounded-lg border border-slate-400 p-4 text-sm transition cursor-pointer",
+                                        lesson.type === "videoFile"
+                                          ? "border-primary bg-primary/10 ring-2 ring-primary"
+                                          : "hover:border-muted-foreground/40"
+                                      )}
+                                    >
+                                      {lesson.type === "videoFile" && (
+                                        <CheckCircle className="absolute top-2 right-2 w-4 h-4 text-primary" />
+                                      )}
+
+                                      <Video className="w-6 h-6" />
+                                      <span className="font-medium">Video</span>
+                                    </button>
+
+                                    {/* TEXTO */}
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setValue(
+                                          `modules.${moduleIndex}.lessons.${lessonIndex}.type`,
+                                          "content"
+                                        );
+                                        handleLessonTypeChange(
+                                          moduleIndex,
+                                          lessonIndex,
+                                          "content"
+                                        );
+                                      }}
+                                      className={cn(
+                                        "relative flex flex-col items-center justify-center gap-2 rounded-lg border border-slate-400 p-4 text-sm transition cursor-pointer",
+                                        lesson.type === "content"
+                                          ? "border-primary bg-primary/10 ring-2 ring-primary"
+                                          : "hover:border-muted-foreground/40"
+                                      )}
+                                    >
+                                      {lesson.type === "content" && (
+                                        <CheckCircle className="absolute top-2 right-2 w-4 h-4 text-primary" />
+                                      )}
+
+                                      <FileText className="w-6 h-6" />
+                                      <span className="font-medium">Texto</span>
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
 
                               {/* ========= CONTENT ========= */}
                               {lesson.type === "content" && (
-                                <Input
-                                  {...register(
-                                    `modules.${moduleIndex}.lessons.${lessonIndex}.content`
-                                  )}
-                                  placeholder="Ingresar texto"
-                                  className="mb-3"
+                                // <Input
+                                //   {...register(
+                                //     `modules.${moduleIndex}.lessons.${lessonIndex}.content`
+                                //   )}
+                                //   placeholder="Ingresar texto"
+                                //   className="mb-3"
+                                // />
+                                <RichTextEditor
+                                  value={
+                                    watch(
+                                      `modules.${moduleIndex}.lessons.${lessonIndex}.content`
+                                    ) as string
+                                  }
+                                  onChange={(html) =>
+                                    setValue(
+                                      `modules.${moduleIndex}.lessons.${lessonIndex}.content`,
+                                      html
+                                    )
+                                  }
                                 />
                               )}
 
@@ -484,17 +714,57 @@ export const Step4 = ({
                                             Reemplazar video
                                           </Button>
 
-                                          <Button
-                                            type="button"
-                                            variant="destructive"
-                                            onClick={() =>
-                                              alert(
-                                                "TODO: eliminar video (endpoint + mux)"
-                                              )
-                                            }
-                                          >
-                                            Eliminar video
-                                          </Button>
+                                          <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                              <Button
+                                                variant="destructive"
+                                                type="button"
+                                                disabled={
+                                                  deletingVideoLesson ===
+                                                  lesson.id
+                                                }
+                                              >
+                                                {deletingVideoLesson ===
+                                                lesson.id ? (
+                                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : (
+                                                  "Eliminar video"
+                                                )}
+                                              </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                              <AlertDialogHeader>
+                                                <AlertDialogTitle>
+                                                  ¿Eliminar el video de esta
+                                                  lección?
+                                                </AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                  El video se eliminará de forma
+                                                  permanente de esta lección.
+                                                  <br />
+                                                  Esta acción no se puede
+                                                  deshacer.
+                                                </AlertDialogDescription>
+                                              </AlertDialogHeader>
+                                              <AlertDialogFooter>
+                                                <AlertDialogCancel>
+                                                  Cancel
+                                                </AlertDialogCancel>
+                                                <AlertDialogAction
+                                                  variant="destructive"
+                                                  onClick={() =>
+                                                    handleDeleteLessonVideo(
+                                                      lesson.id,
+                                                      moduleIndex,
+                                                      lessonIndex
+                                                    )
+                                                  }
+                                                >
+                                                  Sí, eliminar video
+                                                </AlertDialogAction>
+                                              </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                          </AlertDialog>
                                         </div>
                                       </>
                                     )}
@@ -502,9 +772,11 @@ export const Step4 = ({
                                   {/* ===== SUBIDA ===== */}
                                   {(!playbackId ||
                                     replacingLessonId === lesson.id) && (
-                                    <>
+                                    <div className="flex">
                                       <Button
                                         type="button"
+                                        variant="outline"
+                                        className="flex items-center gap-2"
                                         onClick={() =>
                                           document
                                             .getElementById(
@@ -513,6 +785,7 @@ export const Step4 = ({
                                             ?.click()
                                         }
                                       >
+                                        <Upload className="w-4 h-4" />
                                         Subir video
                                       </Button>
 
@@ -546,14 +819,14 @@ export const Step4 = ({
                                           }
                                           className="ml-2"
                                         >
-                                          Cancelar
+                                          Cancelar reemplazo
                                         </Button>
                                       )}
-                                    </>
+                                    </div>
                                   )}
                                 </div>
                               )}
-                              <Separator className="mt-4" />
+                              <Separator className="mt-4 bg-slate-400" />
                               <div className="py-4">
                                 {/* lessonMaterial */}
                                 <UploadMaterial
@@ -612,18 +885,7 @@ export const Step4 = ({
                   </div>
                   <div className="pb-3">
                     {/* quizzes */}
-                    <Button
-                      variant="ghost"
-                      className="flex items-center gap-2"
-                      onClick={() =>
-                        alert(
-                          "subir quizzes para el modulo. Se va a abrir un modal para ahorrar espacio. Nuevo endpoint"
-                        )
-                      }
-                    >
-                      <ClipboardPenLine size={16} />
-                      Agregar preguntas de evaluación para este módulo
-                    </Button>
+                    <ModuleQuizzes moduleId={section.id} />
                   </div>
                 </div>
               </Card>

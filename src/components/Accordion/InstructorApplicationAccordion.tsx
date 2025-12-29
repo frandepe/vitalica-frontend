@@ -4,7 +4,7 @@ import { ChevronDown, User } from "lucide-react";
 import { useState, FC, MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormattedDate } from "@/hooks/useFormattedDate";
-import { t } from "@/constants/statusTranslations";
+import { t } from "@/utils/translations";
 
 interface ProjectCardsProps {
   projects: InstructorApplication[];

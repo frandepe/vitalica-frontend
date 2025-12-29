@@ -1,12 +1,12 @@
-import type { InstructorApplication } from "@/types/instructor.types";
 import type React from "react";
 import { useEffect, useState } from "react";
-
 import { AnimatedSignalBadge } from "@/components/AnimatedSignalBadge";
-import { getInstructorApplication } from "@/api";
+import { getCourseStatus } from "@/api";
 import { cn } from "@/utils/cn";
 import { t } from "@/utils/translations";
-import { statusColorsInstructorApplication } from "@/constants";
+import { statusColorsCourse } from "@/constants";
+import { useParams } from "react-router-dom";
+import { ICourse } from "@/types/course.types";
 
 interface Faq {
   question: string;
@@ -16,49 +16,54 @@ interface Faq {
 
 const faqs: Faq[] = [
   {
-    question: "¿Qué sucede después de enviar mi aplicación?",
+    question: "¿Cuándo comienza la revisión del curso?",
     answer:
-      "Una vez enviada, tu aplicación pasa a estado 'En revisión'. Un administrador evaluará tus documentos y experiencia antes de aprobarte como instructor.",
+      "Una vez enviado, el curso queda en espera (En cola de revisión). Cuando un administrador lo toma, el estado cambia a En revisión.",
+    meta: "Proceso",
+  },
+  {
+    question: "¿Qué significa que mi curso esté en revisión?",
+    answer:
+      "El curso fue enviado y está siendo evaluado por el equipo de moderación. Se revisa el contenido, la estructura, la calidad del material y que cumpla con las políticas de la plataforma.",
     meta: "Revisión",
   },
   {
-    question: "¿Cuánto tarda la aprobación de mi aplicación?",
+    question: "¿Cuánto tarda la revisión de un curso?",
     answer:
-      "El tiempo de revisión puede variar según la carga de aplicaciones y la disponibilidad de los administradores, pero generalmente no supera los 5 días hábiles.",
+      "La revisión suele demorar entre 2 y 5 días hábiles, dependiendo de la complejidad del curso y la carga de revisiones pendientes.",
     meta: "Revisión",
   },
   {
-    question: "¿Qué pasa si mi aplicación es rechazada?",
+    question: "¿Qué pasa si mi curso es rechazado?",
     answer:
-      "Si tu aplicación no cumple con los requisitos, será rechazada y recibirás notas del administrador indicando las razones. Podrás corregir la información y volver a enviar tu solicitud.",
-    meta: "Revisión",
+      "Si el curso no cumple con los criterios de calidad o políticas, será rechazado. Recibirás observaciones claras indicando qué puntos debés corregir para poder reenviarlo.",
+    meta: "Rechazo",
   },
   {
-    question:
-      "¿Puedo actualizar mis documentos después de enviar la aplicación?",
+    question: "¿Puedo editar un curso que está en revisión?",
     answer:
-      "Sí, mientras tu aplicación esté en estado 'Borrador' o 'En revisión', puedes actualizar tus documentos y certificados para mejorar tus posibilidades de aprobación.",
-    meta: "Documentación",
+      "No. Mientras el curso esté en revisión no puede modificarse. Si necesitás hacer cambios, deberás esperar a que sea rechazado o aprobado.",
+    meta: "Edición",
   },
   {
-    question: "¿Cómo sé el estado de mi aplicación?",
+    question: "¿Qué significa que un curso esté aprobado?",
     answer:
-      "Podrás ver el estado de tu aplicación en tu perfil de usuario. Los estados posibles son: Borrador, Enviado, En revisión, Aprobado y Rechazado.",
-    meta: "Estado",
+      "El curso cumple con todos los requisitos y queda habilitado para su publicación o venta dentro de la plataforma.",
+    meta: "Aprobación",
   },
   {
-    question: "¿Qué criterios usan los administradores para aprobarme?",
+    question: "¿Quién revisa los cursos y qué se evalúa?",
     answer:
-      "Los administradores revisan que tus certificados y experiencia sean válidos y estén respaldados por instituciones reconocidas, como ACES, AIDER, FAC, entre otras. La intención es garantizar que todos los instructores tengan formación profesional y práctica en primeros auxilios y emergencias médicas; cursos gratuitos o no certificados, como los de YouTube, no son suficientes para aprobar la aplicación.",
+      "Los cursos son revisados por administradores de la plataforma. Se evalúa la estructura (módulos y lecciones), claridad del contenido, calidad del material multimedia y coherencia general del curso.",
     meta: "Evaluación",
   },
 ];
 
-function ApplicationStatus() {
+function CourseStatus() {
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [hasEntered, setHasEntered] = useState(false);
-  const [applicationData, setApplicationData] =
-    useState<InstructorApplication | null>(null);
+  const [statusData, setStatusData] = useState<ICourse | null>(null);
+  const { courseId } = useParams();
 
   const toggleQuestion = (index: number) =>
     setActiveIndex((prev) => (prev === index ? -1 : index));
@@ -101,12 +106,12 @@ function ApplicationStatus() {
 
   const getApplication = async () => {
     try {
-      const response = await getInstructorApplication();
+      const response = await getCourseStatus(courseId!);
       if (response.success && response.data) {
-        setApplicationData(response.data as InstructorApplication);
+        setStatusData(response.data);
       }
     } catch (error) {
-      console.error("Error fetching instructor application:", error);
+      console.error("Error fetching course status:", error);
     }
   };
 
@@ -114,32 +119,35 @@ function ApplicationStatus() {
     getApplication();
   }, []);
 
-  if (!applicationData) {
+  if (!statusData) {
     return null;
   }
 
   return (
     <div className="container mx-auto text-neutral-900 transition-colors duration-700">
       <section
-        className={`relative z-10  flex  flex-col gap-12 px-6 py-24  lg:px-12 ${
+        className={`relative z-10 flex flex-col gap-12 px-6 py-24 lg:px-12 ${
           hasEntered ? "faq1-fade--ready" : "faq1-fade"
         }`}
       >
-        <AnimatedSignalBadge text={t("application", applicationData.status)} />
+        <AnimatedSignalBadge text={t("statusCourse", statusData.status)} />
 
         <header className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="space-y-4">
             <p className="text-xs uppercase tracking-[0.35em] text-neutral-600">
-              Solicitud de instructor
+              Estado del curso
             </p>
             <h1 className="text-4xl font-semibold leading-tight text-neutral-900 md:text-5xl">
-              Preguntas frecuentes sobre el proceso de revisión
+              Estado y revisión del curso - {statusData.title}
             </h1>
             <p className="max-w-xl text-base text-neutral-600">
-              Aquí encontrarás respuestas a las preguntas más comunes sobre el
-              proceso de revisión de solicitudes para convertirte en instructor.
-              Si tienes alguna otra duda, no dudes en contactarnos.
+              Consultá el estado actual de tu curso y encontrá respuestas a las
+              preguntas más comunes sobre el proceso de revisión, aprobación y
+              publicación.
             </p>
+            <span className="max-w-xl text-base text-neutral-600">
+              {t("courseStatusDescription", statusData.status)}
+            </span>
           </div>
 
           <div className="inline-flex h-11 items-center gap-3 rounded-full border border-neutral-200 bg-white px-5 text-sm font-medium text-neutral-900">
@@ -148,13 +156,11 @@ function ApplicationStatus() {
               <span
                 className={cn(
                   "h-3 w-3 rounded-full transition-all duration-500",
-                  statusColorsInstructorApplication[applicationData.status]
+                  statusColorsCourse[statusData.status]
                 )}
               />
             </span>
-            <span className="w-18">
-              {t("application", applicationData.status)}
-            </span>
+            <span className="w-18">{t("statusCourse", statusData.status)}</span>
           </div>
         </header>
 
@@ -255,4 +261,4 @@ function ApplicationStatus() {
   );
 }
 
-export default ApplicationStatus;
+export default CourseStatus;

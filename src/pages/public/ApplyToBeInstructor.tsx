@@ -7,13 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
 import ImageUpload from "@/components/UploadFiles/UploadFiles";
-import { t } from "@/constants/statusTranslations";
+
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import type {
   IApplyInstructor,
   InstructorApplication,
 } from "@/types/instructor.types";
 import { filesToBase64Array, fileToBase64 } from "@/utils/file-utils";
+import { t } from "@/utils/translations";
 import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";

@@ -10,7 +10,7 @@ import {
   Controller,
   FieldErrors,
 } from "react-hook-form";
-import { NewCourseFormValues } from "@/types/course.types";
+import { CourseLevel, NewCourseFormValues } from "@/types/course.types";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import {
   Select,
@@ -155,7 +155,10 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
             )}
           >
             <Label>Nivel</Label>
-            <Select value={field.value} onValueChange={field.onChange}>
+            <Select
+              value={field.value ?? undefined}
+              onValueChange={(value) => field.onChange(value as CourseLevel)}
+            >
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={"Selecciona el nivel del curso"} />

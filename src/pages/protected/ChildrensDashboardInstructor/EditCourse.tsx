@@ -16,9 +16,13 @@ import { Step3 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step3";
 import { Step4 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step4";
 import { Step5 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step5";
 import { Step6 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step6";
-import { BookOpenCheck, FileText, HandCoins } from "lucide-react";
-import { CourseLevel, Specialty } from "@/constants";
-import { useParams } from "react-router-dom";
+import {
+  BookOpenCheck,
+  ClipboardCheck,
+  FileText,
+  HandCoins,
+} from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   confirmPromoUpload,
   createPromoDirectUpload,
@@ -26,10 +30,13 @@ import {
   getMuxUploadStatus,
   saveCourseAsDraft,
   saveCourseThumbnail,
+  submitCourseForReview,
 } from "@/api";
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import { useToast } from "@/components/ui/toast";
 import { GlobalLoading } from "@/components/GlobalLoading";
+import { getValidationIssues } from "@/utils/courseValidations";
+import { Badge } from "@/components/ui/badge";
 
 interface LessonTypes {
   [sectionIndex: number]: {
@@ -47,14 +54,13 @@ export default function EditCourse() {
   const { setBackendErrors, getGeneralErrors, clearErrors } =
     useBackendErrors();
   const { showToast } = useToast();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const defaultValues: NewCourseFormValues = {
     title: "",
     description: "",
     tags: [],
-    specialty: Specialty.CPR,
-    // promoVideoFile: undefined,
+    specialty: null,
     modules: [
       {
         id: "",
@@ -66,25 +72,22 @@ export default function EditCourse() {
             id: "",
             title: "",
             content: "",
-            type: "videoFile", // o null si preferís
+            type: null,
             isFree: false,
             order: 0,
-            muxPlaybackId: null, // 👈 CLAVE
+            muxPlaybackId: null,
           },
         ],
       },
     ],
-    level: CourseLevel.BEGINNER,
-    // duration: undefined,
+    level: null,
     durationHours: 0,
     durationMinutes: 0,
     price: 0,
     currency: "ARS",
-    // modules: [],
     quizzes: [],
   };
 
-  // Inicializamos el form
   const form = useForm<NewCourseFormValues>({
     defaultValues,
   });
@@ -98,11 +101,7 @@ export default function EditCourse() {
     reset,
   } = form;
 
-  const {
-    fields: modules,
-    // append: addModule,
-    remove: removeModule,
-  } = useFieldArray({
+  const { fields: modules, remove: removeModule } = useFieldArray({
     control,
     name: "modules",
     keyName: "formId",
@@ -129,7 +128,7 @@ export default function EditCourse() {
     fetchCourse();
   }, [courseId, reset]);
 
-  // ✅ Prellenar formulario si ya hay datos
+  // Prellenar formulario si ya hay datos
   useEffect(() => {
     if (courseData) {
       reset({
@@ -160,21 +159,32 @@ export default function EditCourse() {
     setValue(`modules.${moduleIndex}.lessons`, updatedLessons);
   };
 
-  const values = watch();
-
-  const onSubmit = async (values: NewCourseFormValues) => {
+  const onSubmit = async () => {
     setIsLoading(true);
-
     try {
-      // Si tenemos un courseId, lo incluimos para que el backend actualice
-      const payload = courseId ? { ...values, courseId } : values;
+      const res = await submitCourseForReview(courseId!);
 
-      // const result = await upsertCourse(payload);
+      console.log("resultado de submit", res);
+      if (res.errors && res.errors.length > 0) {
+        setBackendErrors(res.errors);
+        return;
+      }
 
-      // if (!result.success) throw new Error(result.message);
+      if (
+        res.message ===
+        "El curso ya fue enviado a revisión y no puede modificarse ni reenviarse hasta que finalice el proceso"
+      ) {
+        showToast(
+          "El curso ya fue enviado a revisión y no puede modificarse ni reenviarse hasta que finalice el proceso",
+          "info",
+          "top-right"
+        );
+      }
 
-      // console.log(result.message, result.data);
-      // alert(result.message);
+      if (res.success) {
+        navigate(`/estado-curso/${courseId}`);
+      }
+      clearErrors();
     } catch (err: any) {
       console.error(err);
       alert(err.message || "Error al guardar el curso");
@@ -196,8 +206,6 @@ export default function EditCourse() {
     };
 
     try {
-      console.log("Guardado en borrador:", data);
-
       const res = await saveCourseAsDraft(payload);
       console.log("res", res);
 
@@ -216,13 +224,22 @@ export default function EditCourse() {
     }
   });
 
+  const validationIssues = getValidationIssues(courseData!);
+  const errorCount = validationIssues.filter((i) => i.type === "error").length;
+  const warningCount = validationIssues.filter(
+    (i) => i.type === "warning"
+  ).length;
+  const totalLessons = courseData?.modules!.reduce(
+    (acc, module) => acc + module.lessons!.length,
+    0
+  );
+  const completionPercentage = Math.round(
+    ((14 - validationIssues.length) / 14) * 100
+  ); // 14 possible fields to complete
+
   const handleThumbnailReady = async (fileBase64: string) => {
     try {
-      console.log("fileBase64", courseId);
-
-      // 1. Llamar al backend y que él suba la miniatura
       const res = await saveCourseThumbnail(courseId!, fileBase64);
-      console.log("res", res);
 
       // 2. El backend debe devolver { thumbnailUrl }
       form.setValue("thumbnailUrl", res.data.thumbnailUrl, {
@@ -236,9 +253,7 @@ export default function EditCourse() {
   const handlePromoVideoUpload = async (file: File) => {
     if (!courseId) return;
 
-    // -------------------------
     // 1) Crear Direct Upload
-    // -------------------------
     const res1 = await createPromoDirectUpload(courseId);
 
     if (!res1.success) {
@@ -248,9 +263,7 @@ export default function EditCourse() {
 
     const { uploadUrl, uploadId } = res1.data;
 
-    // -------------------------
     // 2) Subir archivo a Mux con barra de progreso
-    // -------------------------
     await new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
@@ -282,18 +295,14 @@ export default function EditCourse() {
     });
 
     // El paso dos se puede reemplazar con esto:
-
     // await fetch(uploadUrl, {
     //   method: "PUT",
     //   headers: { "Content-Type": file.type },
     //   body: file,
     // });
-
     // pero no me permite trackear el progreso fácilmente.
 
-    // -------------------------
     // 3) Mostrar feedback mientras Mux procesa
-    // -------------------------
     setUploadStatus("Por favor, no cierre la página…");
 
     let playbackId: string | null = null;
@@ -315,9 +324,7 @@ export default function EditCourse() {
       }
     }
 
-    // -------------------------
     // 4) Confirmar en backend
-    // -------------------------
     const res2 = await confirmPromoUpload(courseId, uploadId);
 
     if (!res2.success) {
@@ -325,9 +332,7 @@ export default function EditCourse() {
       return;
     }
 
-    // -------------------------
     // 5) Actualizar formulario
-    // -------------------------
     form.setValue("muxPromoAssetId", assetId, { shouldDirty: true });
 
     if (playbackId) {
@@ -336,9 +341,11 @@ export default function EditCourse() {
 
     setUploadStatus("¡Video guardado!");
     setUploadProgress(100);
-
-    console.log("Video listo y guardado!");
   };
+
+  if (courseData && courseData.status === "PUBLISHED") {
+    throw new Error("No editable"); // TODO: Cambiar para que no de error, redireccionar al panel quiza
+  }
 
   return (
     <div className="my-8">
@@ -354,6 +361,7 @@ export default function EditCourse() {
           onSaveToDraft={onSubmitDraft}
           backButtonText="Atrás"
           nextButtonText="Siguiente"
+          errorCount={errorCount}
         >
           <Step>
             <h2 className="text-xl font-semibold text-slate-700 mb-3 flex items-center gap-2">
@@ -393,7 +401,6 @@ export default function EditCourse() {
             </h2>
             <Step4
               courseId={courseId!}
-              // addModule={addModule}
               handleLessonTypeChange={handleLessonTypeChange}
               handleRemoveLesson={handleRemoveLesson}
               lessonTypes={lessonTypes}
@@ -407,79 +414,38 @@ export default function EditCourse() {
           </Step>
           <Step>
             <h2 className="text-xl font-semibold text-slate-700 flex gap-2 mb-2">
-              5
+              <ClipboardCheck /> Examen final del curso
             </h2>
-            <Step5 />
+            <div className="min-h-[60vh]">
+              <Step5 courseId={courseId!} />
+            </div>
           </Step>
           <Step>
             <h2 className="text-xl font-semibold text-slate-700 flex gap-2 mb-2">
-              Final Step
+              Vista previa y publicación
             </h2>
-            <Step6 />
+            <Step6
+              course={courseData!}
+              completionPercentage={completionPercentage}
+              totalLessons={totalLessons}
+              warningCount={warningCount}
+              errorCount={errorCount}
+              validationIssues={validationIssues}
+            />
           </Step>
         </Stepper>
       </Form>
-      {getGeneralErrors().map((msg, i) => (
-        <li key={i} className="text-red-600 text-sm mb-2 ml-4">
-          {msg}
-        </li>
-      ))}
+      {getGeneralErrors?.()?.length > 0 && (
+        <Badge variant="warning" className="p-2">
+          <ul>
+            {getGeneralErrors().map((msg, i) => (
+              <li key={i} className="text-red-600 text-sm mb-2 ml-4">
+                {msg}
+              </li>
+            ))}
+          </ul>
+        </Badge>
+      )}
     </div>
   );
 }
-// const onSubmit = async (values: NewCourseFormValues) => {
-//   setIsLoading(true);
-//   // const newData = {
-//   //   ...data,
-//   //   thumbnail: picture || '',
-//   // };
-//   try {
-//     const promoVideoFile = values.promoVideoFile; // viene de RHF
-
-//     if (promoVideoFile) {
-//       // 1️⃣ Pedir al backend la URL de subida directa
-//       const res = await fetch("/api/course/direct-upload", {
-//         method: "POST",
-//       });
-//       const { data } = await res.json();
-
-//       const uploadUrl = data.uploadUrl;
-//       const uploadId = data.uploadId;
-
-//       // 2️⃣ Subir el archivo a Mux
-//       await fetch(uploadUrl, {
-//         method: "PUT",
-//         body: promoVideoFile, // el File
-//       });
-
-//       // 3️⃣ Preguntar a Mux por el asset final
-//       // Esto se puede hacer llamando a tu backend que ya tenga la lógica con mux.video.uploads.get(uploadId)
-//       const assetRes = await fetch(`/api/course/mux-asset/${uploadId}`);
-//       const { muxAssetId, muxPlaybackId } = await assetRes.json();
-
-//       // 4️⃣ Crear o actualizar el curso en tu backend
-//       await fetch("/api/course/upsert", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({
-//           ...values,
-//           muxPromoAssetId: muxAssetId,
-//           muxPlaybackId: muxPlaybackId,
-//         }),
-//       });
-
-//       console.log("Curso guardado con Mux asset:", muxAssetId, muxPlaybackId);
-//     } else {
-//       // Si no hay video, solo guardamos el curso sin promoVideo
-//       await fetch("/api/course/upsert", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(values),
-//       });
-//     }
-//   } catch (err) {
-//     console.error("Error subiendo el video:", err);
-//   } finally {
-//     setIsLoading(false);
-//   }
-// };

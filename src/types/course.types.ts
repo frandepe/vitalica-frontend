@@ -1,5 +1,7 @@
-import { Specialty } from "@/constants";
+import { SpecialtyLabels } from "@/constants";
 import { InstructorProfile } from "./instructor.types";
+
+export type ISpecialty = keyof typeof SpecialtyLabels;
 
 export interface ICourse {
   id: string;
@@ -11,7 +13,7 @@ export interface ICourse {
   description?: string;
   tags?: string[];
 
-  specialty?: Specialty;
+  specialty?: ISpecialty | null;
   level?: CourseLevel;
   duration?: number; // en minutos
   price?: number;
@@ -21,6 +23,7 @@ export interface ICourse {
   thumbnailUrl?: string;
   thumbnailUrlId?: string;
   promoVideoUrl?: string;
+  muxPlaybackId?: string;
 
   // Stats
   avgRating: number;
@@ -35,6 +38,7 @@ export interface ICourse {
   createdAt: string;
   updatedAt: string;
   deletedAt?: string;
+  requirementsAndMaterials?: string;
 
   // Relaciones
   reviews?: CourseReview[];
@@ -69,6 +73,16 @@ export interface CourseModule {
   updatedAt: string;
 }
 
+export interface LessonMaterial {
+  id: string;
+  lessonId: string;
+  type: LessonMaterialType; // podés usar un enum o string literal según cómo lo manejes en la UI
+  mimeType: string;
+  key: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Lesson {
   id: string;
   moduleId: string;
@@ -81,9 +95,9 @@ export interface Lesson {
   muxPlaybackId?: string;
   order: number;
   isFree: boolean;
-
+  type: "videoFile" | "content";
   deletedAt?: string;
-
+  lessonMaterial?: LessonMaterial[];
   createdAt: string;
   updatedAt: string;
 }
@@ -110,8 +124,15 @@ export interface CourseQuiz {
 
 // --------- Enums ---------
 
-export type CourseLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-export type CourseStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+export type CourseLevel = "BASIC" | "INTERMEDIATE" | "ADVANCED";
+export type CourseStatus =
+  | "DRAFT"
+  | "SUBMITTED"
+  | "UNDER_REVIEW"
+  | "PUBLISHED"
+  | "NEEDS_CORRECTION"
+  | "REJECTED"
+  | "ARCHIVED";
 export type QuizStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type LessonMaterialType = "PDF" | "IMAGE" | "VIDEO" | "OTHER";
 export type LessonType = "content" | "videoFile";
@@ -138,9 +159,8 @@ export interface LessonMaterial {
 export interface LessonFormValues {
   id: string;
   title?: string;
-  type?: LessonType;
+  type?: LessonType | null;
   content?: string;
-  // videoFile?: string; // este campo solo existe en front. Al back va a pasar como muxAssetId y muxPlaybackId
   order: number;
   isFree: boolean;
   muxAssetId?: string;
@@ -166,9 +186,9 @@ export interface NewCourseFormValues {
   title: string;
   description: string;
   tags: string[];
-  specialty: Specialty;
+  specialty: ISpecialty | null;
   thumbnailUrl?: string;
-  level: CourseLevel;
+  level: CourseLevel | null;
   // duration?: number;
   durationHours: number;
   durationMinutes: number;
@@ -192,7 +212,7 @@ export interface ICreateCourse {
   title: string;
   description: string;
   tags: string[];
-  specialty: Specialty;
+  specialty: ISpecialty;
   level: CourseLevel;
 }
 
@@ -200,3 +220,40 @@ export type LessonUploadState = {
   progress: number;
   status: string;
 };
+
+export interface CoursePreview {
+  title: string | null;
+  description: string | null;
+  tags: string[];
+  level: CourseLevel | null;
+  specialty: ISpecialty | null;
+  duration: number | null;
+  price: number | null;
+  currency: string | null;
+  thumbnailUrl: string | null;
+  requirementsAndMaterials: string | null;
+  finalQuizzesCount: number;
+  status: CourseStatus;
+  modules: {
+    id: string;
+    title: string | null;
+    description: string | null;
+    order: number;
+    quizzesCount: number;
+    lessons: {
+      id: string;
+      title: string | null;
+      type: string | null;
+      isFree: boolean;
+      hasVideo: boolean;
+      lessonMaterial: boolean;
+    }[];
+  }[];
+}
+
+export interface UpdateCourseFeedbackParams {
+  courseId: string;
+  status: CourseStatus;
+  reviewerNotes: string;
+  revewedBy: string;
+}

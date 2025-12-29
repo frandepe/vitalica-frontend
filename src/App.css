@@ -7,3 +7,84 @@ html,
 body {
   overflow-y: scroll;
 }
+
+/* ===== CONTENEDOR GENERAL ===== */
+.tiptap {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ===== HEADINGS ===== */
+.tiptap h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.75rem;
+}
+
+.tiptap h2 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.tiptap h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+}
+
+/* ===== PÁRRAFOS ===== */
+.tiptap p {
+  margin: 0.5rem 0;
+}
+
+/* ===== LISTAS ===== */
+.tiptap ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0.75rem 0;
+}
+
+.tiptap ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+  margin: 0.75rem 0;
+}
+
+.tiptap li {
+  margin: 0.25rem 0;
+}
+
+/* ===== LINKS ===== */
+.tiptap a {
+  color: #2563eb; /* azul accesible */
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.tiptap a:hover {
+  color: #1d4ed8;
+  text-decoration-thickness: 2px;
+}
+
+/* ===== SELECCIÓN DE TEXTO ===== */
+.tiptap ::selection {
+  background: rgba(37, 99, 235, 0.2);
+}
+
+/* ===== PLACEHOLDER (cuando está vacío) ===== */
+.tiptap p.is-editor-empty:first-child::before {
+  content: "Escribí el contenido de la lección…";
+  color: #9ca3af;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.tiptap {
+  outline: none;
+}
+
+.tiptap:focus {
+  outline: none;
+}

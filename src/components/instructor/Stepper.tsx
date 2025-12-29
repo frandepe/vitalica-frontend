@@ -2,7 +2,6 @@ import React, {
   useState,
   Children,
   useRef,
-  useLayoutEffect,
   HTMLAttributes,
   ReactNode,
 } from "react";
@@ -14,6 +13,7 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   initialStep?: number;
   onStepChange?: (step: number) => void;
   onFinalStepCompleted?: () => void;
+  errorCount: number;
   onSaveToDraft?: () => void;
   stepCircleContainerClassName?: string;
   stepContainerClassName?: string;
@@ -36,6 +36,7 @@ const StepperComponent = ({
   initialStep = 1,
   onStepChange = () => {},
   onFinalStepCompleted = () => {},
+  errorCount = 0,
   onSaveToDraft = () => {},
   stepCircleContainerClassName = "",
   stepContainerClassName = "",
@@ -128,7 +129,7 @@ const StepperComponent = ({
           isCompleted={isCompleted}
           currentStep={currentStep}
           direction={direction}
-          className={`space-y-2 px-6 sm:px-8 ${contentClassName}`}
+          className={`space-y-2 ${contentClassName}`}
         >
           {stepsArray[currentStep - 1]}
         </StepContentWrapper>
@@ -153,6 +154,7 @@ const StepperComponent = ({
               <Button
                 onClick={isLastStep ? handleComplete : handleNext}
                 {...nextButtonProps}
+                disabled={isLastStep && errorCount > 0}
               >
                 {isLastStep ? "Finalizar" : nextButtonText}
               </Button>
@@ -193,22 +195,16 @@ function StepContentWrapper({
   children,
   className = "",
 }: StepContentWrapperProps) {
-  const [parentHeight, setParentHeight] = useState<number>(0);
-
   return (
     <motion.div
-      style={{ position: "relative" }}
-      animate={{ height: isCompleted ? 0 : parentHeight }}
+      // style={{ position: "relative" }}
+      // animate={{ height: isCompleted ? 0 : parentHeight }}
       transition={{ type: "spring", duration: 0.4 }}
       className={className}
     >
       <AnimatePresence initial={false} mode="sync" custom={direction}>
         {!isCompleted && (
-          <SlideTransition
-            key={currentStep}
-            direction={direction}
-            onHeightReady={(h) => setParentHeight(h)}
-          >
+          <SlideTransition key={currentStep} direction={direction}>
             {children}
           </SlideTransition>
         )}
@@ -220,21 +216,10 @@ function StepContentWrapper({
 interface SlideTransitionProps {
   children: ReactNode;
   direction: number;
-  onHeightReady: (height: number) => void;
 }
 
-function SlideTransition({
-  children,
-  direction,
-  onHeightReady,
-}: SlideTransitionProps) {
+function SlideTransition({ children, direction }: SlideTransitionProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-
-  useLayoutEffect(() => {
-    if (containerRef.current) {
-      onHeightReady(containerRef.current.offsetHeight);
-    }
-  }, [children, onHeightReady]);
 
   return (
     <motion.div
@@ -245,7 +230,7 @@ function SlideTransition({
       animate="center"
       exit="exit"
       transition={{ duration: 0.4 }}
-      style={{ position: "absolute", left: 0, right: 0, top: 0 }}
+      // style={{ position: "absolute", left: 0, right: 0, top: 0 }}
     >
       {children}
     </motion.div>

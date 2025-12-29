@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { getInstructorApplicationById } from "@/api/adminEndpoints";
 import { InstructorApplication } from "@/types/instructor.types";
 import { FeedbackApplicationForm } from "@/components/Admin/FeedbackApplicationForm";
-import { statusColors, t } from "@/constants/statusTranslations";
 import { cn } from "@/utils/cn";
+
+import { statusColorsInstructorApplication } from "@/constants";
+import { t } from "@/utils/translations";
 
 const InstructorApplicationPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -64,7 +66,7 @@ const InstructorApplicationPage = () => {
           <span
             className={cn(
               "px-2 py-1 rounded text-white",
-              statusColors[status] ?? "bg-gray-400"
+              statusColorsInstructorApplication[status] ?? "bg-gray-400"
             )}
           >
             {t("application", status)}

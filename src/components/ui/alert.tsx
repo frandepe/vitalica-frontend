@@ -12,7 +12,7 @@ const alertVariants = cva(
         default:
           "border-[hsl(var(--hu-border))] bg-[hsl(var(--hu-card))] text-[hsl(var(--hu-card-foreground))]",
         destructive:
-          "border-[hsl(var(--hu-destructive))] bg-[hsl(var(--hu-destructive))]/10 text-[hsl(var(--hu-destructive))] [&>svg]:text-[hsl(var(--hu-destructive))]",
+          "border-red-500/40 bg-red-500/10 text-red-600 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-400 [&>svg]:text-red-500",
         warning:
           "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200 [&>svg]:text-amber-600 dark:[&>svg]:text-amber-400",
         success:

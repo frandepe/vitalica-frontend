@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Star, Users, MoreHorizontal, Share2 } from "lucide-react";
+import { Star, Users, MoreHorizontal, Share2, Info } from "lucide-react";
 import {
   Dropdown,
   DropdownContent,
@@ -12,6 +12,10 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { ICourse } from "@/types/course.types";
+import { t } from "@/utils/translations";
+import { formatPrice } from "@/utils/formatPrice";
+import { formatDuration } from "@/utils/formatDuration";
+import { Separator } from "../ui/separator";
 
 export const CardInstructorCourse: React.FC<ICourse> = ({
   id,
@@ -31,135 +35,164 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
   const navigate = useNavigate();
 
   const isPublished = status === "PUBLISHED";
+  const canEdit = status === "DRAFT" || status === "NEEDS_CORRECTION";
+
+  // const handleEditCourse = async (id: string) => {
+  //   const res = await createDraftB(id)
+  //    navigate(`/perfil/editar-curso/${res.data.draftId}`)
+  // }
 
   return (
     <>
-      <div className="flex w-full items-center rounded-xl bg-white transition-all duration-200 p-2 border border-border">
+      <div className="relative flex w-full gap-4 rounded-xl border border-border bg-white p-3">
         {/* Imagen */}
-        <div className="w-40 h-32 flex-shrink-0">
+        <div className="h-32 w-40 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100">
           <img
             src={thumbnailUrl || "/Placeholders/no-image-course.png"}
             alt={title || "Curso sin título"}
-            className="h-full w-full object-cover rounded-lg"
+            className="h-full w-full object-cover"
           />
         </div>
 
         {/* Contenido */}
-        <div className="flex flex-col flex-1 p-4">
-          {/* Header */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex flex-col gap-1">
-              {/* Nombre del curso siempre visible */}
-              <h3 className="text-lg font-semibold line-clamp-1">
-                {title || "Curso sin título"}
-              </h3>
+        <div className="flex flex-1 flex-col justify-between">
+          <div className="space-y-3">
+            {/* Header */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <Badge variant="info" appearance="light">
+                  {t("statusCourse", status)}
+                </Badge>
 
-              {/* Badge de incompleto si querés mantenerlo */}
-              {!isPublished && (
-                <Badge
-                  variant="destructive"
-                  appearance="light"
-                  className="w-fit text-xs mt-1"
-                >
-                  Curso incompleto
+                <h3 className="line-clamp-2 text-lg font-semibold text-slate-900">
+                  {title || "Curso sin título"}
+                </h3>
+              </div>
+
+              {/* Acciones */}
+              <div className="flex items-center gap-2 text-slate-500">
+                {isPublished && (
+                  <Share2
+                    className="h-5 w-5 cursor-pointer hover:text-slate-700"
+                    onClick={() => setOpen(true)}
+                  />
+                )}
+
+                <Dropdown>
+                  <DropdownTrigger className="cursor-pointer">
+                    <MoreHorizontal className="h-5 w-5 hover:text-slate-700" />
+                  </DropdownTrigger>
+
+                  <DropdownContent align="end" className="bg-background">
+                    {isPublished && (
+                      <DropdownItem onClick={() => navigate(`/curso/${id}`)}>
+                        Ver curso
+                      </DropdownItem>
+                    )}
+
+                    {isPublished && (
+                      <DropdownItem
+                      // onClick={() => handleEditCourse(id)}
+                      >
+                        Editar
+                      </DropdownItem>
+                    )}
+                    <DropdownItem
+                      onClick={() => navigate(`/estado-curso/${id}`)}
+                    >
+                      Ver estado
+                    </DropdownItem>
+
+                    {isPublished && <DropdownItem>Editar</DropdownItem>}
+                    {isPublished && (
+                      <DropdownItem>
+                        Solicitar Rollback <Info size={15} />
+                      </DropdownItem>
+                    )}
+                    {isPublished && (
+                      <DropdownItem className="text-red-600">
+                        Eliminar
+                      </DropdownItem>
+                    )}
+                  </DropdownContent>
+                </Dropdown>
+              </div>
+            </div>
+
+            {/* Metadata */}
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              {specialty && (
+                <Badge variant="primary">
+                  {t("courseSpecialty", specialty)}
                 </Badge>
               )}
+
+              {level && (
+                <Badge variant="warning">{t("courseLevel", level)}</Badge>
+              )}
+
+              <Badge variant="outline">
+                {duration
+                  ? `${formatDuration(duration)} hs`
+                  : "Duración no definida"}
+              </Badge>
             </div>
 
-            {/* Acciones */}
-            <div className="flex items-center gap-2 text-slate-500">
-              <Share2
-                className="h-5 w-5 cursor-pointer"
-                onClick={() => setOpen(true)}
-              />
+            {/* Stats */}
+            {isPublished && (
+              <div className="flex items-center gap-6 text-sm text-slate-600">
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span>{avgRating}</span>
+                  <span className="text-slate-400">({ratingCount})</span>
+                </div>
 
-              <Dropdown>
-                <DropdownTrigger className="cursor-pointer">
-                  <MoreHorizontal className="h-5 w-5 cursor-pointer" />
-                </DropdownTrigger>
+                <Separator orientation="vertical" />
 
-                <DropdownContent align="end" className="bg-background">
-                  {isPublished && (
-                    <DropdownItem onClick={() => navigate(`/curso/${id}`)}>
-                      Ver curso
-                    </DropdownItem>
-                  )}
-
-                  <DropdownItem
-                    onClick={() => navigate(`/perfil/editar-curso/${id}`)}
-                  >
-                    Editar
-                  </DropdownItem>
-
-                  <DropdownItem className="text-red-700">Eliminar</DropdownItem>
-                </DropdownContent>
-              </Dropdown>
-            </div>
-          </div>
-
-          {/* Info extra */}
-          <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-slate-500">
-            <Badge
-              variant={specialty ? "primary" : "outline"}
-              appearance="light"
-            >
-              {specialty || "Sin especialidad"}
-            </Badge>
-
-            <Badge variant={level ? "warning" : "outline"} appearance="light">
-              {level || "Sin nivel"}
-            </Badge>
-
-            {duration ? (
-              <Badge variant="outline" appearance="light">
-                {Math.floor(duration / 60)}h {duration % 60}m
-              </Badge>
-            ) : (
-              <Badge variant="outline" appearance="light">
-                Duración no definida
-              </Badge>
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4" />
+                  <span>{totalStudents}</span>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Stats */}
-          {isPublished && (
-            <div className="flex items-center justify-between mt-4">
-              <div className="flex items-center gap-1 text-sm text-slate-600">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span>{avgRating}</span>
-                <span className="text-slate-400">({ratingCount})</span>
-              </div>
-
-              <div className="flex items-center gap-1 text-sm text-slate-600">
-                <Users className="h-4 w-4" />
-                <span>{totalStudents}</span>
-              </div>
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-3">
+            <div className="text-lg font-semibold text-primary">
+              {currency} ${formatPrice(price) || "0"}
             </div>
-          )}
 
-          {/* Precio */}
-          <div className="mt-2 text-right font-semibold text-primary">
-            {currency} ${price || "0"}
+            {!isPublished && (
+              <Button
+                variant="outline"
+                onClick={() =>
+                  navigate(
+                    canEdit
+                      ? `/perfil/editar-curso/${id}`
+                      : `/estado-curso/${id}`
+                  )
+                }
+              >
+                {canEdit ? "Seguir editando" : "Ver estado"}
+              </Button>
+            )}
+            {isPublished && (
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/curso/${id}`)}
+              >
+                Ver curso
+              </Button>
+            )}
           </div>
-
-          {/* Botón si NO está publicado */}
-          {!isPublished && (
-            <Button
-              onClick={() => navigate(`/perfil/editar-curso/${id}`)}
-              className="max-w-max"
-              variant="outline"
-            >
-              Seguir editando
-            </Button>
-          )}
         </div>
       </div>
 
       {/* Modal compartir */}
       <AppModal open={open} onOpenChange={() => setOpen(!open)} title={title}>
         <ShareCourse
-          courseUrl={`www.vitalica.com/micurso/${id}`}
-          key={id}
+          courseUrl={`https://www.vitalica.com/micurso/${id}`}
           titleCourse={title || "Curso sin título"}
         />
       </AppModal>

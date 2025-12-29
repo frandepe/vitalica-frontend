@@ -1,6 +1,5 @@
-import { Specialty } from "@/constants";
 import { InstructorStatus, User } from "./auth.types";
-import { Course } from "./course.types";
+import { ICourse, ISpecialty } from "./course.types";
 
 export interface IApplyInstructor {
   dniNumber: string;
@@ -13,6 +12,12 @@ export interface IApplyInstructor {
   issueDate?: string;
   expiryDate?: string;
 }
+// export type StatusInstructorApplication =
+//   | "NOT_APPLIED"
+//   | "PENDING"
+//   | "APPROVED"
+//   | "REJECTED"
+//   | "SUSPENDED";
 export type StatusInstructorApplication =
   | "DRAFT"
   | "SUBMITTED"
@@ -57,6 +62,7 @@ export enum PayoutMethod {
   MERCADO_PAGO = "MERCADO_PAGO",
   BANK_TRANSFER = "BANK_TRANSFER",
 }
+
 export interface InstructorProfile {
   id: string;
   userId: string;
@@ -65,7 +71,7 @@ export interface InstructorProfile {
   headline?: string;
   bio?: string;
 
-  specialties: Specialty[];
+  specialties: ISpecialty[];
 
   avgRating: number;
   ratingCount: number;
@@ -99,6 +105,6 @@ export interface InstructorProfile {
   updatedAt: Date;
 
   // Relaciones
-  courses: Course[];
+  courses: ICourse[];
   user: User;
 }
