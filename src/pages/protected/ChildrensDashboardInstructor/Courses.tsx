@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { GridCards } from "@/components/CardsAnimated/GridCards";
-import { CardInstructorCourse } from "@/components/instructor/CardInstructorCourse";
+import { CardInstructorCourse } from "@/components/Instructor/CardInstructorCourse";
 import { Calendar, Plus, Users } from "lucide-react";
 import { TextPagination } from "@/components/Pagination/TextPagination";
 import { TextImage } from "@/components/TextImage";
@@ -32,6 +32,7 @@ export default function Courses() {
 
     fetchCourses();
   }, []);
+  console.log(coursesData);
 
   const infoCards = [
     {
@@ -64,16 +65,10 @@ export default function Courses() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  // ===============================
-  // 1) PANTALLA DE CARGA (SKELETON)
-  // ===============================
   if (loading) {
     return <InstructorMyCoursesSkeleton />;
   }
 
-  // ===============================
-  // 2) SIN CURSOS
-  // ===============================
   // TODO: Si el usuario todavia no completo su perfil de instructor, va a salir un error al intentar Crear curso
   if (!loading && coursesData.length === 0) {
     return (

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useFormattedDate } from "@/hooks/useFormattedDate";
 import { t } from "@/utils/translations";
 import { AdminCourse } from "@/types/admin.types";
+import { Badge } from "../ui/badge";
 
 interface CourseCardsProps {
   projects: AdminCourse[];
@@ -90,6 +91,14 @@ const CourseCard: FC<{ project: AdminCourse }> = ({ project }) => {
               >
                 {t("statusCourse", project.status)}
               </span>
+              {project.parentCourseId && (
+                <Badge
+                  variant="warning"
+                  className="px-2 py-0.5 rounded-full text-xs font-medium"
+                >
+                  Edicion de: {project.parentCourseId}
+                </Badge>
+              )}
             </motion.div>
 
             <motion.p
@@ -112,6 +121,9 @@ const CourseCard: FC<{ project: AdminCourse }> = ({ project }) => {
                     className="flex flex-col gap-2 text-sm text-gray-600 mb-3"
                     variants={childVariants}
                   >
+                    {project.parentCourseId && (
+                      <span>ID Curso publicado: ${project.parentCourseId}</span>
+                    )}
                     <span>Precio: ${project.price}</span>
                     <span>Alumnos: {project.totalStudents}</span>
                     <span>Creado: {useFormattedDate(project.createdAt)}</span>
@@ -163,7 +175,8 @@ const CourseCard: FC<{ project: AdminCourse }> = ({ project }) => {
     </motion.div>
   );
 };
-
+// TODO: Las que estan en status archived, el boton del form para modificar el status deberia aparecer como disabled. O bien,
+// la BD no deberia ni siquiera traer los cursos con status ARCHIVED
 export const AdminCoursesAccordion: FC<CourseCardsProps> = ({ projects }) => (
   <div className="max-w-4xl mx-auto p-6">
     {projects.map((project, index) => (

@@ -18,10 +18,9 @@ import mask01 from "@/assets/Masks/mask-06.svg";
 import banner1 from "/Banners/pago.jpg";
 import banner2 from "/Banners/dinero.jpg";
 import { Button } from "@/components/ui/button";
-import PaymentRadio from "@/components/instructor/Forms/SelectPaymentMethod";
-import { UbicationSelect } from "@/components/instructor/Forms/UbicationSelect";
+
 import { ProgressCard } from "@/components/ui/progress";
-import SpecialtyChecks from "@/components/instructor/Forms/SpecialtyChecks";
+
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/toast";
@@ -30,6 +29,9 @@ import { getInstructorProfile, upsertInstructorProfile } from "@/api";
 import { useIntervalClick } from "@/hooks/useIntervalClick";
 import { InstructorProfile as IInstructorProfile } from "@/types/instructor.types";
 import { paymentMethods } from "@/constants";
+import { UbicationSelect } from "@/components/Instructor/Forms/Profile/UbicationSelect";
+import SpecialtyChecks from "@/components/Instructor/Forms/Profile/SpecialtyChecks";
+import PaymentRadio from "@/components/Instructor/Forms/Profile/SelectPaymentMethod";
 
 export default function InstructorProfile() {
   const { user } = useAuth();

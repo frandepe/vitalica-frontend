@@ -3,7 +3,7 @@ import "./App.css";
 import { Suspense } from "react";
 import { router } from "./routes";
 import AppWrapper from "./providers/AuthProvider";
-import { GlobalLoading } from "./components/GlobalLoading";
+import { GlobalLoading } from "./components/Loadings/GlobalLoading";
 
 function App() {
   return (

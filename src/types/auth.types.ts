@@ -11,11 +11,10 @@ export type InstructorStatus =
   | "REJECTED"
   | "SUSPENDED";
 
-// Respuesta del usuario para frontend / autenticación
 export interface User {
   id: string;
   email: string;
-  password?: string; // opcional, porque no siempre lo vas a exponer
+  password?: string;
   role: Role;
 
   firstName?: string | null;
@@ -71,65 +70,6 @@ export const EMPTY_USER: User = {
   createdAt: new Date(),
   updatedAt: new Date(),
 };
-
-// Instructor profile
-// export interface InstructorProfile {
-//   id: string;
-//   userId: string;
-//   status: InstructorStatus;
-//   headline?: string | null;
-//   bio?: string | null;
-//   specialties: string[]; // podría mapear a enum Specialty si querés
-//   avgRating: number;
-//   ratingCount: number;
-//   totalStudents: number;
-//   totalCourses: number;
-
-//   payoutMethod?: "PAYPAL" | "MERCADO_PAGO" | "BANK_TRANSFER";
-//   payoutAccountId?: string | null;
-//   payoutEmail?: string | null;
-//   currency?: string;
-
-//   country?: string;
-//   state?: string | null;
-//   city?: string | null;
-//   zipCode?: string | null;
-
-//   approvedAt?: Date | null;
-//   suspendedAt?: Date | null;
-//   createdAt: Date;
-//   updatedAt: Date;
-// }
-
-// // Instructor application
-// export interface InstructorApplication {
-//   id: string;
-//   userId: string;
-//   status: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "APPROVED" | "REJECTED";
-//   dniNumber?: string | null;
-//   dniCountry?: string | null;
-//   certificateType?: string | null;
-//   issuedBy?: string | null;
-//   issueDate?: Date | null;
-//   expiryDate?: Date | null;
-//   submittedAt?: Date | null;
-//   reviewedAt?: Date | null;
-//   reviewedBy?: string | null;
-//   reviewerNotes?: string | null;
-//   createdAt: Date;
-//   updatedAt: Date;
-// }
-
-// Course review
-export interface CourseReview {
-  id: string;
-  courseId: string;
-  userId: string;
-  rating: number; // 1-5
-  comment?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 export interface AuthContextType {
   user: User | null;

@@ -36,3 +36,22 @@ polar.sh para implementar pagos
 scalar.com para hacer documentacion
 
 openpanel.dev para analiticas (alternativa  agoogle adcent)
+
+usar api de deepseek para IA
+
+
+
+
+rutas de page:
+
+page/
+ ├─ public/
+ │   └─ cursos/
+ │       └─ [slug]/page.tsx   // CourseOverview
+ │
+ ├─ protected/
+ │   └─ mis-cursos/
+ │       └─ [slug]/page.tsx   // CoursePlayer
+ │
+ ├─ auth/
+ └─ admin/

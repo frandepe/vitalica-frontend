@@ -1,32 +1,33 @@
-import {
-  LessonType,
-  SaveCourseDraftPayload,
-  UpdateCourseFeedbackParams,
-} from "@/types/course.types";
+import { LessonType, SaveCourseDraftPayload } from "@/types/course.types";
 import { apiRequest } from "./configEndpoint";
-import { ApiResponse, PromoUploadStatus } from "@/types/endpoints.types";
-import {
-  GetAllCoursesAdminParams,
-  GetAllCoursesAdminResponse,
-} from "@/types/admin.types";
+import { ApiResponse } from "@/types/endpoints.types";
+
+import { API_ROUTES } from "@/constants";
 
 export const createCourse = async (): Promise<ApiResponse> => {
   return apiRequest({
-    url: "/api/course",
+    url: `${API_ROUTES.COURSE}`,
     method: "POST",
   });
 };
 
 export const getInstructorCourses = async (): Promise<ApiResponse> => {
   return apiRequest({
-    url: "/api/course/instructor-courses",
+    url: `${API_ROUTES.COURSE}/instructor-courses`,
     method: "GET",
   });
 };
 
 export const getCourseById = async (courseId: string): Promise<ApiResponse> => {
   return apiRequest({
-    url: `/api/course/${courseId}`,
+    url: `${API_ROUTES.COURSE}/${courseId}`,
+    method: "GET",
+  });
+};
+
+export const getCourseBySlug = async (slug: string): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/public/${slug}`,
     method: "GET",
   });
 };
@@ -35,7 +36,7 @@ export const saveCourseAsDraft = async (
   data: SaveCourseDraftPayload
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: "/api/course/save-draft",
+    url: `${API_ROUTES.COURSE}/save-draft`,
     method: "PUT",
     data,
   });
@@ -46,70 +47,12 @@ export const saveCourseThumbnail = async (
   thumbnailUrl: string
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: "/api/course/save-thumbnail",
+    url: `${API_ROUTES.COURSE}/save-thumbnail`,
     method: "PUT",
     data: {
       id,
       thumbnailUrl,
     },
-  });
-};
-
-// 🔹 1) Obtener URL de subida directa a Mux
-export const createPromoDirectUpload = async (
-  courseId: string
-): Promise<ApiResponse> => {
-  return apiRequest({
-    url: "/api/course/promo/direct-upload",
-    method: "POST",
-    data: { courseId },
-  });
-};
-
-// 🔹 2) Confirmar upload y guardar asset en la base
-export const confirmPromoUpload = async (
-  courseId: string,
-  uploadId: string
-): Promise<ApiResponse> => {
-  return apiRequest({
-    url: "/api/course/promo/confirm",
-    method: "POST",
-    data: { courseId, uploadId },
-  });
-};
-
-// 🔹 3) Consultar estado del upload (y obtener playbackId)
-export const getMuxUploadStatus = async (
-  uploadId: string
-): Promise<PromoUploadStatus> => {
-  return apiRequest({
-    url: `/api/course/promo/upload-status/${uploadId}`,
-    method: "GET",
-  });
-};
-
-// Mux Video Lessons
-
-// 🔹 1) Obtener URL de subida directa a Mux
-export const createLessonDirectUpload = async (
-  lessonId: string
-): Promise<ApiResponse> => {
-  return apiRequest({
-    url: "/api/course/lesson/direct-upload",
-    method: "POST",
-    data: { lessonId },
-  });
-};
-
-// 🔹 2) Confirmar upload y guardar asset en la base
-export const confirmLessonVideoUpload = async (
-  lessonId: string,
-  uploadId: string
-): Promise<ApiResponse> => {
-  return apiRequest({
-    url: "/api/course/lesson/video/confirm",
-    method: "POST",
-    data: { lessonId, uploadId },
   });
 };
 
@@ -124,7 +67,7 @@ export const requestMaterialUploadUrlTest = async (
   file: File
 ): Promise<ApiResponse<UploadUrlResponse>> => {
   return apiRequest({
-    url: "/api/course/upload-test",
+    url: `${API_ROUTES.COURSE}/upload-test`,
     method: "POST",
     data: {
       courseId,
@@ -142,7 +85,7 @@ export const requestMaterialDownloadUrl = async (
   key: string
 ): Promise<ApiResponse<DownloadMaterialResponse>> => {
   return apiRequest({
-    url: "/api/course/download-material",
+    url: `${API_ROUTES.COURSE}/download-material`,
     method: "GET",
     params: { key },
   });
@@ -153,7 +96,7 @@ export const createCourseModule = async (
   courseId: string
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: `/api/course/${courseId}/modules`,
+    url: `${API_ROUTES.COURSE}/${courseId}/modules`,
     method: "POST",
   });
 };
@@ -162,7 +105,7 @@ export const deleteCourseModule = async (
   moduleId: string
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: `/api/course/module/${moduleId}`,
+    url: `${API_ROUTES.COURSE}/module/${moduleId}`,
     method: "DELETE",
   });
 };
@@ -172,7 +115,7 @@ export const createCourseLesson = async (
   payload?: { title?: string; type: LessonType }
 ) => {
   return apiRequest({
-    url: `/api/course/${moduleId}/lesson`,
+    url: `${API_ROUTES.COURSE}/${moduleId}/lesson`,
     method: "POST",
     data: payload,
   });
@@ -182,7 +125,7 @@ export const deleteCourseLesson = async (
   lessonId: string
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: `/api/course/lesson/${lessonId}`,
+    url: `${API_ROUTES.COURSE}/lesson/${lessonId}`,
     method: "DELETE",
   });
 };
@@ -192,22 +135,13 @@ export const requestMaterialUploadUrl = async (
   file: File
 ): Promise<ApiResponse<UploadUrlResponse>> => {
   return apiRequest({
-    url: "/api/course/upload-lesson-material",
+    url: `${API_ROUTES.COURSE}/upload-lesson-material`,
     method: "POST",
     data: {
       lessonId,
       fileType: file.type,
       originalName: file.name,
     },
-  });
-};
-
-export const deleteLessonVideo = async (
-  lessonId: string
-): Promise<ApiResponse> => {
-  return apiRequest({
-    url: `/api/course/lesson/${lessonId}/video/delete`,
-    method: "DELETE",
   });
 };
 
@@ -222,7 +156,7 @@ export const createModuleQuiz = async (
   payload: CreateModuleQuizPayload
 ): Promise<ApiResponse<{ id: string }>> => {
   return apiRequest({
-    url: "/api/course/module/quiz",
+    url: `${API_ROUTES.COURSE}/module/quiz`,
     method: "POST",
     data: payload,
   });
@@ -232,7 +166,7 @@ export const getModuleQuizzes = async (
   moduleId: string
 ): Promise<ApiResponse<any[]>> => {
   return apiRequest({
-    url: `/api/course/module/${moduleId}/quizzes`,
+    url: `${API_ROUTES.COURSE}/module/${moduleId}/quizzes`,
     method: "GET",
   });
 };
@@ -241,7 +175,7 @@ export const deleteModuleQuiz = async (
   quizId: string
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: `/api/course/module/quiz/${quizId}`,
+    url: `${API_ROUTES.COURSE}/module/quiz/${quizId}`,
     method: "DELETE",
   });
 };
@@ -258,7 +192,7 @@ export const createFinalQuiz = async (
   payload: CreateFinalQuizPayload
 ): Promise<ApiResponse<{ id: string }>> => {
   return apiRequest({
-    url: "/api/course/quiz/final-quiz",
+    url: `${API_ROUTES.COURSE}/quiz/final-quiz`,
     method: "POST",
     data: payload,
   });
@@ -269,7 +203,7 @@ export const getFinalQuizzes = async (
   courseId: string
 ): Promise<ApiResponse<any[]>> => {
   return apiRequest({
-    url: `/api/course/quiz/final/${courseId}`,
+    url: `${API_ROUTES.COURSE}/quiz/final/${courseId}`,
     method: "GET",
   });
 };
@@ -277,7 +211,7 @@ export const getFinalQuizzes = async (
 // Eliminar quiz final
 export const deleteFinalQuiz = async (quizId: string): Promise<ApiResponse> => {
   return apiRequest({
-    url: `/api/course/quiz/final/${quizId}`,
+    url: `${API_ROUTES.COURSE}/quiz/final/${quizId}`,
     method: "DELETE",
   });
 };
@@ -287,7 +221,7 @@ export const getCoursePreview = async (
   courseId: string
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: `/api/course/preview/${courseId}`,
+    url: `${API_ROUTES.COURSE}/preview/${courseId}`,
     method: "GET",
   });
 };
@@ -297,7 +231,7 @@ export const submitCourseForReview = async (
   courseId: string
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: `/api/course/submit/${courseId}`,
+    url: `${API_ROUTES.COURSE}/submit/${courseId}`,
     method: "PATCH",
   });
 };
@@ -306,29 +240,16 @@ export const getCourseStatus = async (
   courseId: string
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: `/api/course/status/${courseId}`,
+    url: `${API_ROUTES.COURSE}/status/${courseId}`,
     method: "GET",
   });
 };
 
-export const getAllCoursesAdmin = async (
-  params?: GetAllCoursesAdminParams
-): Promise<ApiResponse<GetAllCoursesAdminResponse>> => {
-  return apiRequest({
-    url: "/api/course/admin/courses",
-    method: "GET",
-    params,
-  });
-};
-
-export const updateFeedbackCourse = async (
-  data: UpdateCourseFeedbackParams
+export const createOrGetCourseDraft = async (
+  courseId: string
 ): Promise<ApiResponse> => {
-  const { courseId, ...payload } = data;
-
   return apiRequest({
-    url: `/api/course/admin/feedback/${courseId}`,
-    method: "PATCH",
-    data: payload,
+    url: `${API_ROUTES.COURSE}/edit-published/${courseId}`,
+    method: "POST",
   });
 };

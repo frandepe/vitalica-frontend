@@ -1,6 +1,6 @@
 import { CirclesImg } from "@/components/Banners/HeaderBanner";
-import { Step1 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step1";
-import { Step, Stepper } from "@/components/instructor/Stepper";
+import { Step1 } from "@/components/Instructor/Forms/Course/Steps/Step1";
+import { Step, Stepper } from "@/components/Instructor/Stepper";
 import { Form } from "@/components/ui/form";
 import {
   ICourse,
@@ -11,11 +11,11 @@ import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import banner1 from "/Banners/banner4.jpg";
 import mask01 from "@/assets/Masks/mask-20.svg";
-import { Step2 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step2";
-import { Step3 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step3";
-import { Step4 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step4";
-import { Step5 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step5";
-import { Step6 } from "@/components/instructor/Forms/NuevoCurso/Step1/Step6";
+import { Step2 } from "@/components/Instructor/Forms/Course/Steps/Step2";
+import { Step3 } from "@/components/Instructor/Forms/Course/Steps/Step3";
+import { Step4 } from "@/components/Instructor/Forms/Course/Steps/Step4";
+import { Step5 } from "@/components/Instructor/Forms/Course/Steps/Step5";
+import { Step6 } from "@/components/Instructor/Forms/Course/Steps/Step6";
 import {
   BookOpenCheck,
   ClipboardCheck,
@@ -24,19 +24,21 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  confirmPromoUpload,
-  createPromoDirectUpload,
   getCourseById,
-  getMuxUploadStatus,
   saveCourseAsDraft,
   saveCourseThumbnail,
   submitCourseForReview,
 } from "@/api";
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import { useToast } from "@/components/ui/toast";
-import { GlobalLoading } from "@/components/GlobalLoading";
-import { getValidationIssues } from "@/utils/courseValidations";
+import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
+import { getValidationIssues } from "@/utils/course-validations";
 import { Badge } from "@/components/ui/badge";
+import {
+  createPromoVideoDirectUpload,
+  getMuxUploadStatus,
+  savePromoVideoToCourse,
+} from "@/api/videoEndpoints";
 
 interface LessonTypes {
   [sectionIndex: number]: {
@@ -159,9 +161,17 @@ export default function EditCourse() {
     setValue(`modules.${moduleIndex}.lessons`, updatedLessons);
   };
 
-  const onSubmit = async () => {
+  const onSubmit = handleSubmit(async (data) => {
     setIsLoading(true);
     try {
+      const { durationHours, durationMinutes, ...rest } = data;
+
+      const payload = {
+        ...rest,
+        duration: durationHours * 60 + durationMinutes,
+      };
+
+      await saveCourseAsDraft(payload);
       const res = await submitCourseForReview(courseId!);
 
       console.log("resultado de submit", res);
@@ -191,9 +201,7 @@ export default function EditCourse() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  if (isLoading) return <GlobalLoading text="Autoguardado..." />;
+  });
 
   const onSubmitDraft = handleSubmit(async (data) => {
     setIsLoading(true);
@@ -254,7 +262,7 @@ export default function EditCourse() {
     if (!courseId) return;
 
     // 1) Crear Direct Upload
-    const res1 = await createPromoDirectUpload(courseId);
+    const res1 = await createPromoVideoDirectUpload(courseId);
 
     if (!res1.success) {
       console.error(res1.message);
@@ -325,7 +333,7 @@ export default function EditCourse() {
     }
 
     // 4) Confirmar en backend
-    const res2 = await confirmPromoUpload(courseId, uploadId);
+    const res2 = await savePromoVideoToCourse(courseId, uploadId);
 
     if (!res2.success) {
       console.error(res2.message);
@@ -343,8 +351,18 @@ export default function EditCourse() {
     setUploadProgress(100);
   };
 
-  if (courseData && courseData.status === "PUBLISHED") {
-    throw new Error("No editable"); // TODO: Cambiar para que no de error, redireccionar al panel quiza
+  if (isLoading) return <GlobalLoading text="Autoguardado..." />;
+
+  if (
+    courseData &&
+    ["PUBLISHED", "ARCHIVED", "UNDER_REVIEW"].includes(courseData.status)
+  ) {
+    showToast(
+      "No podés editar este curso en su estado actual",
+      "warning",
+      "bottom-right"
+    );
+    navigate("/");
   }
 
   return (
@@ -357,7 +375,7 @@ export default function EditCourse() {
           onStepChange={(step) => {
             console.log("Current step:", step);
           }}
-          onFinalStepCompleted={handleSubmit(onSubmit)}
+          onFinalStepCompleted={onSubmit}
           onSaveToDraft={onSubmitDraft}
           backButtonText="Atrás"
           nextButtonText="Siguiente"

@@ -1,5 +1,5 @@
 import { getCourseById, updateFeedbackCourse } from "@/api";
-import { GlobalLoading } from "@/components/GlobalLoading";
+import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
 import { ICourse } from "@/types/course.types";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -7,12 +7,12 @@ import { useFormattedDate } from "@/hooks/useFormattedDate";
 import { Badge } from "@/components/ui/badge";
 import { QuizList } from "@/components/Quizzes/QuizList";
 import { Info } from "@/components/CardsAnimated/Info";
-import { formatDuration } from "@/utils/formatDuration";
-import { formatPrice } from "@/utils/formatPrice";
+import { formatDuration } from "@/utils/format-duration";
+import { formatPrice } from "@/utils/format-price";
 import { t } from "@/utils/translations";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AppModal } from "@/components/AppModal";
+import { UniversalModal } from "@/components/UniversalModal";
 import { FeedbackCourse } from "@/components/Admin/FeedbackCourse";
 import { FeedbackFormValues } from "@/types/admin.types";
 import { useToast } from "@/components/ui/toast";
@@ -56,6 +56,7 @@ const AdminCourse = () => {
         reviewerNotes: data.reviewerNotes,
         revewedBy: data.revewedBy,
       });
+      console.log("response", response);
 
       if (response.success) {
         showToast("Feedback guardado correctamente", "success", "bottom-right");
@@ -311,7 +312,7 @@ const AdminCourse = () => {
       >
         Responder al instructor
       </Button>
-      <AppModal
+      <UniversalModal
         open={open}
         onOpenChange={setOpen}
         title="Evaluación del módulo"
@@ -322,7 +323,7 @@ const AdminCourse = () => {
           isSubmitting={isSubmitting}
           adminEmail={user.email}
         />
-      </AppModal>
+      </UniversalModal>
     </div>
   );
 };

@@ -12,12 +12,7 @@ export interface IApplyInstructor {
   issueDate?: string;
   expiryDate?: string;
 }
-// export type StatusInstructorApplication =
-//   | "NOT_APPLIED"
-//   | "PENDING"
-//   | "APPROVED"
-//   | "REJECTED"
-//   | "SUSPENDED";
+
 export type StatusInstructorApplication =
   | "DRAFT"
   | "SUBMITTED"

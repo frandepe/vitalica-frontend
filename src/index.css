@@ -8,7 +8,7 @@
 
   --color-primary: #20ab9f;
   --color-primary-foreground: #ffffff; /* texto legible sobre verde */
-  --color-primary-dark: #1a76d2;
+  --color-primary-dark: #225045;
 
   --color-secondary-light: #adebf3;
   --color-secondary-foreground-light: #ffffff; /* texto blanco sobre azul claro */
@@ -16,7 +16,7 @@
 
   --color-secondary: #189cf4;
   --color-secondary-foreground: #ffffff; /* texto blanco sobre azul */
-  --color-secondary-dark: #189cf4;
+  --color-secondary-dark: #0e598b;
 
   /* Destructive */
   --color-destructive: #e53935;
@@ -25,7 +25,7 @@
   /* Neutros */
   --color-background: #ffffff;
   --color-foreground: #111827;
-  --color-muted: #9ca3af;
+  --color-muted: #d1d5db80;
   --color-muted-foreground: #6b7280;
   --color-border: #d1d5db;
   --color-border-input: #d1d5db;
@@ -47,6 +47,9 @@
   /* Superficies */
   --color-popover: #ffffff;
   --color-popover-foreground: #111827;
+
+  /* Badges */
+  --color-info-foreground: #92400e;
 }
 
 @layer base {

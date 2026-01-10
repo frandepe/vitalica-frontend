@@ -1,7 +1,6 @@
-// authEndpoints.ts
-
 import { ApiResponse } from "@/types/endpoints.types";
 import { apiRequest } from "./configEndpoint";
+import { API_ROUTES } from "@/constants";
 
 // Tipos opcionales para la request/response
 interface RegisterData {
@@ -16,7 +15,7 @@ export const registerUser = async (
   data: RegisterData
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: "/api/auth/register",
+    url: `${API_ROUTES.AUTH}/register`,
     method: "POST",
     data,
   });
@@ -28,7 +27,7 @@ export const loginUser = async (data: {
   password: string;
 }): Promise<ApiResponse> => {
   return apiRequest({
-    url: "/api/auth/login",
+    url: `${API_ROUTES.AUTH}/login`,
     method: "POST",
     data,
   });
@@ -37,7 +36,7 @@ export const loginUser = async (data: {
 // Obtener datos del usuario logueado
 export const getMe = async (): Promise<ApiResponse> => {
   return apiRequest({
-    url: "/api/auth/me",
+    url: `${API_ROUTES.AUTH}/me`,
     method: "GET",
   });
 };
@@ -48,7 +47,7 @@ export const sendValidationEmail = async (data: {
   email: string;
 }): Promise<ApiResponse> => {
   return apiRequest({
-    url: "/api/auth/verificar-email",
+    url: `${API_ROUTES.AUTH}/verificar-email`,
     method: "POST",
     data,
   });
@@ -59,7 +58,7 @@ export const confirmVerification = async (
   token: string
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: `/api/auth/confirm-verification/${token}`,
+    url: `${API_ROUTES.AUTH}/confirm-verification/${token}`,
     method: "POST",
   });
 };
@@ -67,7 +66,7 @@ export const confirmVerification = async (
 export const getEmailByVerificationToken = async (token: string) => {
   try {
     const res = await apiRequest({
-      url: `/api/auth/email/verification/${token}`,
+      url: `${API_ROUTES.AUTH}/email/verification/${token}`,
       method: "GET",
     });
 
@@ -80,7 +79,7 @@ export const getEmailByVerificationToken = async (token: string) => {
 // Login con Google
 export const googleLogin = async (credential: string): Promise<ApiResponse> => {
   return apiRequest({
-    url: "/api/auth/google",
+    url: `${API_ROUTES.AUTH}/google`,
     method: "POST",
     data: { credential },
   });

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputPassword } from "@/components/ui/password-input";
-import GoogleLoginButton from "@/components/GoogleLoginButton";
+import GoogleLoginButton from "@/components/Buttons/GoogleLoginButton";
 import { Link } from "react-router-dom";
 import { registerUser, sendValidationEmail } from "@/api";
 import { useToast } from "@/components/ui/toast";

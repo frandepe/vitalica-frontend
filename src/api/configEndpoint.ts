@@ -1,4 +1,3 @@
-// configEndpoints.ts
 import axios, { InternalAxiosRequestConfig, AxiosHeaders } from "axios";
 
 // Crear instancia de Axios

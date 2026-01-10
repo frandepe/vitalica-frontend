@@ -8,6 +8,7 @@ export interface AdminCourse {
   price: number;
   totalStudents: number;
   createdAt: string;
+  parentCourseId: string;
   instructor: {
     userId: string;
     user: {
@@ -33,6 +34,7 @@ export interface GetAllCoursesAdminResponse {
     price: number;
     totalStudents: number;
     createdAt: string;
+    parentCourseId: string;
     instructor: {
       userId: string;
       user: {
@@ -51,6 +53,13 @@ export interface GetAllCoursesAdminResponse {
 }
 
 export interface FeedbackFormValues {
+  status: CourseStatus;
+  reviewerNotes: string;
+  revewedBy: string;
+}
+
+export interface UpdateCourseFeedbackParams {
+  courseId: string;
   status: CourseStatus;
   reviewerNotes: string;
   revewedBy: string;

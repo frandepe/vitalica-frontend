@@ -41,19 +41,19 @@ export function useFormattedDate(
   }
 }
 
-// 💡 Ejemplos de uso:
+// Ejemplos de uso:
 
-// 📅 Mostrar fecha + hora:
+// Mostrar fecha + hora:
 
 // const formatted = useFormattedDate(project.createdAt);
 // // → "6 nov 2025, 12:27"
 
-// 📆 Solo fecha:
+// Solo fecha:
 
 // const formatted = useFormattedDate(project.createdAt, { showTime: false });
 // // → "6 nov 2025"
 
-// 🌍 Cambiar idioma o formato:
+// Cambiar idioma o formato:
 
 // const formatted = useFormattedDate(project.createdAt, {
 //   locale: "en-US",

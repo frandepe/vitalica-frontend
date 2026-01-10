@@ -4,9 +4,9 @@
   --secondary: #189cf4;
 }
 html,
-body {
+/* body {
   overflow-y: scroll;
-}
+} */
 
 /* ===== CONTENEDOR GENERAL ===== */
 .tiptap {

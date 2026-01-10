@@ -1,18 +1,17 @@
-import { FeaturesSectionWithCardGradient } from "@/components/FeaturesSectionWithCardGradient";
-
 import Avatar from "@/components/user/Avatar";
 import ProfileBg from "@/components/user/ProfileBg";
 
-import ShareProfile from "@/components/ShareProfile";
+import ShareProfile from "@/components/Share/ShareProfile";
 import { Separator } from "@/components/ui/separator";
 import { PromoteInstructor } from "@/components/Banners/PromoteInstructor";
-import { NotificationConfig } from "@/components/notifications/NotificationConfig";
+import { NotificationConfig } from "@/components/Notifications/NotificationConfig";
 import { BasicInformationForm } from "@/components/user/Forms/BasicInformationForm";
 
 import { Activity, CalendarHeart, RefreshCw, UserCheck } from "lucide-react";
 import { AnimatedGradientDemo } from "@/components/CardsAnimated/DemoCardsAnimatedGradient";
 import { useAuth } from "@/hooks/useAuth";
 import { useFormattedDate } from "@/hooks/useFormattedDate";
+import { FeaturesSectionWithCardGradient } from "@/components/user/FeaturesSectionWithCardGradient";
 
 const grid = [
   {

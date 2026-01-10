@@ -1,5 +1,5 @@
-import { AnalyticsData } from "@/components/instructor/AnalyticsData";
-import { MarketingDashboard } from "@/components/instructor/AnalyticsData2";
+import { AnalyticsData } from "@/components/Instructor/AnalyticsData";
+import { MarketingDashboard } from "@/components/Instructor/AnalyticsData2";
 
 export default function Analytics() {
   const sampleCta = {

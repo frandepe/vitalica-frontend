@@ -166,7 +166,9 @@ function ActionSearchBar() {
     setSelectedAction(null);
     setIsFocused(true);
   };
-
+  // TODO IMPLEMENTACION:
+  // Mirar como lo hace platzi, redirige a la page buscar con una query
+  // https://platzi.com/buscar/?search=frontend
   return (
     <div className="w-full max-w-sm bg-background z-10">
       <div className="relative">

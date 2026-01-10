@@ -1,21 +1,22 @@
 import React, { useState } from "react";
-import { Star, Users, MoreHorizontal, Share2, Info } from "lucide-react";
+import { Star, Users, MoreHorizontal, Share2, Loader2 } from "lucide-react";
 import {
   Dropdown,
   DropdownContent,
   DropdownItem,
   DropdownTrigger,
 } from "../ui/basic-dropdown";
-import { AppModal } from "../AppModal";
-import ShareCourse from "../ShareCourse";
+import { UniversalModal } from "../UniversalModal";
+import ShareCourse from "../Share/ShareCourse";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { ICourse } from "@/types/course.types";
 import { t } from "@/utils/translations";
-import { formatPrice } from "@/utils/formatPrice";
-import { formatDuration } from "@/utils/formatDuration";
+import { formatPrice } from "@/utils/format-price";
+import { formatDuration } from "@/utils/format-duration";
 import { Separator } from "../ui/separator";
+import { createOrGetCourseDraft } from "@/api";
 
 export const CardInstructorCourse: React.FC<ICourse> = ({
   id,
@@ -30,17 +31,53 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
   ratingCount,
   totalStudents,
   status,
+  versions,
 }) => {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const isPublished = status === "PUBLISHED";
-  const canEdit = status === "DRAFT" || status === "NEEDS_CORRECTION";
 
-  // const handleEditCourse = async (id: string) => {
-  //   const res = await createDraftB(id)
-  //    navigate(`/perfil/editar-curso/${res.data.draftId}`)
-  // }
+  const canEdit =
+    status === "DRAFT" ||
+    status === "NEEDS_CORRECTION" ||
+    status === "SUBMITTED";
+
+  // 🔑 Versiones realmente editables (NUNCA archived)
+  const editableStatuses = ["DRAFT", "SUBMITTED", "NEEDS_CORRECTION"];
+
+  const editableVersion = versions?.find((v) =>
+    editableStatuses.includes(v.status)
+  );
+
+  const hasLockedVersion = versions?.some((v) =>
+    ["SUBMITTED", "UNDER_REVIEW"].includes(v.status)
+  );
+
+  const handleEditCourse = async (courseId: string) => {
+    if (loading) return;
+
+    try {
+      setLoading(true);
+
+      // 1️⃣ Si ya hay una versión editable → ir a esa
+      if (editableVersion) {
+        navigate(`/perfil/editar-curso/${editableVersion.id}`);
+        return;
+      }
+
+      // 2️⃣ Si no hay → crear u obtener draft desde el publicado
+      const res = await createOrGetCourseDraft(courseId);
+      const draftId = res.data.draftId;
+
+      navigate(`/perfil/editar-curso/${draftId}`);
+    } catch (error) {
+      console.error("Error al crear/obtener draft", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -90,25 +127,25 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
                       </DropdownItem>
                     )}
 
-                    {isPublished && (
-                      <DropdownItem
-                      // onClick={() => handleEditCourse(id)}
-                      >
-                        Editar
-                      </DropdownItem>
-                    )}
                     <DropdownItem
                       onClick={() => navigate(`/estado-curso/${id}`)}
                     >
                       Ver estado
                     </DropdownItem>
 
-                    {isPublished && <DropdownItem>Editar</DropdownItem>}
-                    {isPublished && (
-                      <DropdownItem>
-                        Solicitar Rollback <Info size={15} />
+                    {isPublished && !hasLockedVersion && (
+                      <DropdownItem
+                        disabled={loading}
+                        onClick={() => handleEditCourse(id)}
+                      >
+                        {loading ? (
+                          <Loader2 className="animate-spin" />
+                        ) : (
+                          "Editar"
+                        )}
                       </DropdownItem>
                     )}
+
                     {isPublished && (
                       <DropdownItem className="text-red-600">
                         Eliminar
@@ -177,6 +214,7 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
                 {canEdit ? "Seguir editando" : "Ver estado"}
               </Button>
             )}
+
             {isPublished && (
               <Button
                 variant="outline"
@@ -190,12 +228,16 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
       </div>
 
       {/* Modal compartir */}
-      <AppModal open={open} onOpenChange={() => setOpen(!open)} title={title}>
+      <UniversalModal
+        open={open}
+        onOpenChange={() => setOpen(!open)}
+        title={title}
+      >
         <ShareCourse
           courseUrl={`https://www.vitalica.com/micurso/${id}`}
           titleCourse={title || "Curso sin título"}
         />
-      </AppModal>
+      </UniversalModal>
     </>
   );
 };

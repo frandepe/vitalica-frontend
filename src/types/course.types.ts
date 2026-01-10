@@ -24,12 +24,13 @@ export interface ICourse {
   thumbnailUrlId?: string;
   promoVideoUrl?: string;
   muxPlaybackId?: string;
+  muxPromoAssetId?: string;
 
   // Stats
   avgRating: number;
   ratingCount: number;
   totalStudents: number;
-
+  versions?: IStatusVersion[];
   // Estados
   status: CourseStatus;
   reviewerNotes?: string;
@@ -44,6 +45,13 @@ export interface ICourse {
   reviews?: CourseReview[];
   modules?: CourseModule[];
   quizzes?: CourseQuiz[];
+}
+
+export interface IStatusVersion {
+  id: string;
+  status: CourseStatus;
+  revewedBy: string | null;
+  reviewerNotes: string | null;
 }
 
 export interface CourseModuleFormValues {
@@ -136,8 +144,6 @@ export type CourseStatus =
 export type QuizStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type LessonMaterialType = "PDF" | "IMAGE" | "VIDEO" | "OTHER";
 export type LessonType = "content" | "videoFile";
-
-// --------- Extras ---------
 
 export interface CourseReview {
   id: string;
@@ -249,11 +255,4 @@ export interface CoursePreview {
       lessonMaterial: boolean;
     }[];
   }[];
-}
-
-export interface UpdateCourseFeedbackParams {
-  courseId: string;
-  status: CourseStatus;
-  reviewerNotes: string;
-  revewedBy: string;
 }

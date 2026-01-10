@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getAllCoursesAdmin } from "@/api";
 import { AdminCoursesAccordion } from "@/components/Accordion/CourseAccordion";
 import { AdminCourse } from "@/types/admin.types";
+import { getAllCoursesAdmin } from "@/api";
 
 const AdminCourses = () => {
   const [coursesData, setCoursesData] = useState<AdminCourse[] | null>(null);

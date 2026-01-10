@@ -4,7 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import GoogleLoginButton from "@/components/GoogleLoginButton";
+import GoogleLoginButton from "@/components/Buttons/GoogleLoginButton";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { loginUser } from "@/api";

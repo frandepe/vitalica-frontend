@@ -69,11 +69,13 @@ export const FeedbackCourse = ({
               Object.keys(translateStatusCourse) as Array<
                 keyof typeof translateStatusCourse
               >
-            ).map((statusKey) => (
-              <SelectItem key={statusKey} value={statusKey}>
-                {translateStatusCourse[statusKey]}
-              </SelectItem>
-            ))}
+            )
+              .filter((statusKey) => statusKey !== "ARCHIVED")
+              .map((statusKey) => (
+                <SelectItem key={statusKey} value={statusKey}>
+                  {translateStatusCourse[statusKey]}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
 
@@ -119,6 +121,7 @@ export const FeedbackCourse = ({
       </div>
 
       {/* Acción */}
+
       <div className="flex justify-end gap-3">
         <Button type="submit" disabled={isSubmitting} className="min-w-[160px]">
           {isSubmitting ? "Guardando..." : "Guardar feedback"}

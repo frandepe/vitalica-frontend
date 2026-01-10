@@ -6,8 +6,12 @@ import { Card } from "@/components/ui/card";
 
 import { Trash2, Plus, Loader2, ClipboardPenLine } from "lucide-react";
 import { createModuleQuiz, deleteModuleQuiz, getModuleQuizzes } from "@/api";
-import { RadioGroup, OptionCard } from "@/components/ui/radio-group";
-import { AppModal } from "../AppModal";
+
+import { UniversalModal } from "../UniversalModal";
+import {
+  OptionCardQuestion,
+  RadioGroupQuestion,
+} from "@/components/RadioGroups/RadioGroupQuestion";
 
 interface Props {
   moduleId: string;
@@ -77,7 +81,7 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
         <ClipboardPenLine className="w-4 h-4" />
         Preguntas de evaluación del módulo ({quizzes.length}/5)
       </Button>
-      <AppModal
+      <UniversalModal
         open={open}
         onOpenChange={setOpen}
         title="Evaluación del módulo"
@@ -133,7 +137,7 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
               <div className="space-y-2">
                 <Label>Opciones (al finalizar seleccioná la correcta)</Label>
 
-                <RadioGroup
+                <RadioGroupQuestion
                   value={
                     correctAnswer !== null
                       ? correctAnswer.toString()
@@ -146,7 +150,7 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
                     const isSelected = correctAnswer === idx;
 
                     return (
-                      <OptionCard key={idx} value={idx.toString()}>
+                      <OptionCardQuestion key={idx} value={idx.toString()}>
                         <div className="flex items-center justify-between gap-2 w-full">
                           <Input
                             value={opt}
@@ -165,10 +169,10 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
                             </span>
                           )}
                         </div>
-                      </OptionCard>
+                      </OptionCardQuestion>
                     );
                   })}
-                </RadioGroup>
+                </RadioGroupQuestion>
               </div>
 
               <Button
@@ -192,7 +196,7 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
             </p>
           )}
         </div>
-      </AppModal>
+      </UniversalModal>
     </div>
   );
 };

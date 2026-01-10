@@ -6,7 +6,7 @@ import DateTimePicker from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
-import ImageUpload from "@/components/UploadFiles/UploadFiles";
+import ImagesUpload from "@/components/Uploads/ImagesUpload";
 
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import type {
@@ -247,7 +247,7 @@ const ApplyToBeInstructor = () => {
               <Label>
                 Imagen del DNI <span className="text-destructive">*</span>
               </Label>
-              <ImageUpload
+              <ImagesUpload
                 value={dniImages.existing}
                 onChange={(data) => setDniImages(data)}
                 multiple={false}
@@ -369,7 +369,7 @@ const ApplyToBeInstructor = () => {
 
             <div className="space-y-2">
               <Label>Imágenes del Certificado *</Label>
-              <ImageUpload
+              <ImagesUpload
                 value={certificateImages.existing}
                 onChange={(data) => setCertificateImages(data)}
                 multiple={true}

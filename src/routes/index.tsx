@@ -13,12 +13,17 @@ import DownloadPageTest from "@/pages/public/download-test";
 import CourseStatus from "@/pages/protected/CourseStatus";
 
 // Páginas públicas
+const Onboarding = lazy(() => import("@/pages/public/Onboarding"));
 const HomePage = lazy(() => import("@/pages/public/HomePage"));
 const AboutPage = lazy(() => import("@/pages/public/AboutPage"));
 const ContactPage = lazy(() => import("@/pages/public/ContactPage"));
 const ApplyToBeInstructor = lazy(
   () => import("@/pages/public/ApplyToBeInstructor")
 );
+const CourseOverview = lazy(
+  () => import("@/pages/public/Courses/CourseOverview")
+);
+const Checkout = lazy(() => import("@/pages/public/Courses/Checkout"));
 
 // Páginas de autenticación
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
@@ -27,6 +32,9 @@ const VerifyEmailPage = lazy(() => import("@/pages/auth/VerifyEmailPage"));
 
 // Páginas protegidas por autenticación
 const ProfilePage = lazy(() => import("@/pages/protected/ProfilePage"));
+const CoursePlayer = lazy(
+  () => import("@/pages/protected/Courses/CoursePlayer")
+);
 const ApplicationStatus = lazy(
   () => import("@/pages/protected/ApplicationStatus")
 );
@@ -101,13 +109,29 @@ export const router = createBrowserRouter([
       },
       {
         path: "download-test",
-        element: <DownloadPageTest />,
+        element: <DownloadPageTest />, // Eliminar
+      },
+      {
+        path: "cursos/:slug",
+        element: <CourseOverview />,
+      },
+      {
+        path: "cursos/:courseId/pago",
+        element: <Checkout />,
       },
       {
         path: "perfil",
         element: (
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "mis-cursos/:slug",
+        element: (
+          <ProtectedRoute>
+            <CoursePlayer />
           </ProtectedRoute>
         ),
       },
@@ -195,6 +219,10 @@ export const router = createBrowserRouter([
     ],
   },
   // Ruta catch-all para 404
+  {
+    path: "primeros-pasos",
+    element: <Onboarding />,
+  },
   {
     path: "*",
     element: (
