@@ -17,6 +17,7 @@ export const LevelLabels = {
 } as const;
 
 export const descriptionCourseLimit = 5000;
+export const descriptionModuleCourseLimit = 1000;
 export const requirementsAndMaterialsCourseLimit = 2000;
 
 export const translateInstructorStatus = {

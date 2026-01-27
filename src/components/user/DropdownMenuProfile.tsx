@@ -113,7 +113,7 @@ export default function ProfileMenu() {
         <img
           src={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
           alt="User avatar"
-          className="h-10 w-10 rounded-full border-2 border-border hover:border-primary transition-colors"
+          className="h-10 w-10 rounded-full object-cover border-2 border-border hover:border-primary transition-colors cursor-pointer"
         />
       </DropdownTrigger>
       <DropdownContent align="end" className="w-64 bg-background">
@@ -122,7 +122,7 @@ export default function ProfileMenu() {
           <img
             src={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
             alt="User avatar"
-            className="h-10 w-10 rounded-full"
+            className="h-10 w-10 rounded-full object-cover"
           />
           <div className="flex flex-col gap-1">
             <p className="text-sm font-medium text-foreground">{user?.email}</p>

@@ -9,11 +9,13 @@ import {
   CircleCheckBig,
   Clapperboard,
   ImagePlus,
+  InfoIcon,
   RotateCcw,
   Undo2,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { TooltipIconButton } from "@/components/TooltipIconButton";
 
 type Step2Props = {
   onThumbnailReady: (base64: string) => void;
@@ -37,9 +39,18 @@ export const Step2 = ({
   return (
     <div>
       {/* ================= Miniatura ================= */}
-      <h2 className="text-xl font-semibold text-slate-700 flex items-center gap-2 mb-2">
+      <h2 className="text-xl font-semibold text-slate-700 flex items-center mb-2">
         <ImagePlus />
-        Miniatura
+        Miniatura{" "}
+        <span className="font-normal text-muted-foreground text-sm ml-1">
+          (opcional)
+        </span>
+        <TooltipIconButton
+          tooltip="Si no quiere subir una miniatura personalizada, se generará automáticamente una a partir de su video promocional o una imagen por defecto."
+          side="top"
+        >
+          <InfoIcon size={15} className="text-secondary" />
+        </TooltipIconButton>
       </h2>
 
       <Controller
@@ -59,7 +70,10 @@ export const Step2 = ({
       {/* ================= Video promocional ================= */}
       <h2 className="text-xl font-semibold text-slate-700 flex items-center gap-2 mb-2">
         <Clapperboard />
-        Video promocional
+        Video promocional{" "}
+        <span className="font-normal text-muted-foreground text-sm">
+          (opcional)
+        </span>
       </h2>
 
       {/* Progreso */}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Step1,
@@ -12,6 +12,7 @@ import { BeamsBackground } from "@/components/Backgrounds/BeamsBackground";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useForm, FormProvider } from "react-hook-form";
+import { getUserOnboarding } from "@/api";
 
 const steps = [Step1, Step2, Step3, Step4, Step5, Step6];
 
@@ -33,6 +34,21 @@ const Onboarding = () => {
       hasCompletedOnboarding: false,
     },
   });
+
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const res = await getUserOnboarding();
+        if (res.success && res.data.onboarding?.hasCompletedOnboarding) {
+          navigate("/");
+        }
+      } catch (err) {
+        console.error("Error al verificar onboarding:", err);
+      }
+    };
+
+    checkOnboarding();
+  }, [navigate]);
 
   const handleSkip = () => {
     navigate("/");

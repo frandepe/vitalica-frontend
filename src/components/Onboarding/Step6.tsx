@@ -1,13 +1,28 @@
 import { useFormContext } from "react-hook-form";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
+import { updateUserOnboarding } from "@/api";
+import { useEffect } from "react";
+import { IOnboarding } from "@/types/auth.types";
 
 export default function Step6Instructor() {
-  const { getValues } = useFormContext();
+  const { getValues } = useFormContext<IOnboarding>();
   const navigate = useNavigate();
 
   // obtener todos los valores completados en el onboarding
   const formData = getValues();
+
+  useEffect(() => {
+    const saveOnboarding = async () => {
+      try {
+        await updateUserOnboarding(formData);
+      } catch (err) {
+        console.error("Error al actualizar onboarding:", err);
+      }
+    };
+
+    saveOnboarding();
+  }, []);
 
   const handleExplorePrimary = () => {
     navigate("/solicitar-ser-instructor"); // TODO: reemplazar con la ruta de cursos/instructores si hay

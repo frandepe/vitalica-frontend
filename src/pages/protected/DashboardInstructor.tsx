@@ -14,6 +14,7 @@ import {
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ScrollToTop } from "@/utils/scroll-top";
 import { useStickyTop } from "@/hooks/useStickyTop";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NavigationItem {
   id: string;
@@ -64,6 +65,7 @@ export default function DashboardInstructor() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeItem, setActiveItem] = useState("panel-administrativo");
   const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     const pathToIdMap: Record<string, string> = {
@@ -105,7 +107,7 @@ export default function DashboardInstructor() {
     navigate(href);
   };
 
-  const navbarHeight = 80; // px
+  const navbarHeight = 60.8; // px
   const top = useStickyTop(navbarHeight);
   const sidebarHeight = `calc(100vh - ${top}px)`;
   return (
@@ -293,20 +295,20 @@ export default function DashboardInstructor() {
             {!isCollapsed ? (
               <div className="flex items-center px-3 py-2 rounded-md bg-white hover:bg-slate-50 transition-colors duration-200">
                 <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-                  <span className="text-slate-700 font-medium text-sm">JD</span>
+                  <span className="text-slate-700 font-medium text-sm">
+                    {user.firstName?.charAt(0)}
+                    {user.lastName?.charAt(0) || "AA"}
+                  </span>
                 </div>
                 <div className="flex-1 min-w-0 ml-2.5">
                   <p className="text-sm font-medium text-slate-800 truncate">
-                    John Doe
+                    {user.firstName} {user.lastName}
                   </p>
                   <p className="text-xs text-slate-500 truncate">
-                    Senior Administrator
+                    {user.email}
                   </p>
                 </div>
-                <div
-                  className="w-2 h-2 bg-green-500 rounded-full ml-2"
-                  title="Online"
-                />
+                <div className="w-2 h-2 bg-green-500 rounded-full ml-2" />
               </div>
             ) : (
               <div className="flex justify-center">

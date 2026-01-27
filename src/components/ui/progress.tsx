@@ -53,7 +53,7 @@ export const ProgressCard: React.FC<Vo2MaxCardProps> = ({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = useTransform(
     progressValue,
-    (v) => circumference - (v / 100) * circumference
+    (v) => circumference - (v / 100) * circumference,
   );
 
   // Lista de pasos de perfil
@@ -62,12 +62,9 @@ export const ProgressCard: React.FC<Vo2MaxCardProps> = ({
     <Card
       className={cn(
         "relative flex flex-col 2xl:flex-row w-full p-6 gap-6 bg-gradient-to-br from-white to-primary/20",
-        className
+        className,
       )}
     >
-      {/* Glow decorativo */}
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-48 h-48 bg-primary/10 rounded-full blur-3xl -z-10" />
-
       {/* Left: Radial + info */}
       <div className="flex-1 flex flex-col lg:flex-row items-center lg:items-start gap-6">
         <div className="relative flex h-44 w-44 items-center justify-center flex-shrink-0">

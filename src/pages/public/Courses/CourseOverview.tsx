@@ -46,7 +46,7 @@ export default function CourseOverview() {
 
   const totalLessons = course.modules!.reduce(
     (acc: number, m: any) => acc + m.lessons.length,
-    0
+    0,
   );
 
   const handleBtnCheckout = () => {
@@ -104,7 +104,7 @@ export default function CourseOverview() {
               </div>
 
               {course.muxPromoAssetId && (
-                <div className="relative aspect-video max-w-3xl overflow-hidden rounded-3xl bg-neutral-900 shadow-2xl ring-1 ring-white/10">
+                <div className="relative aspect-video xl:max-w-3xl overflow-hidden rounded-3xl bg-neutral-900 shadow-2xl ring-1 ring-white/10">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <MuxPlayer
                       playbackId={course.muxPlaybackId}
@@ -119,6 +119,28 @@ export default function CourseOverview() {
                   </div>
                 </div>
               )}
+              <div className="lg:hidden">
+                <div className="space-y-1">
+                  <p className="text-4xl font-semibold text-black">
+                    {course.currency} ${formatPrice(course.price)}
+                  </p>
+                  <p className="text-sm text-neutral-500">
+                    Pago único · Acceso de por vida
+                  </p>
+                </div>
+
+                <Button
+                  onClick={handleBtnCheckout}
+                  size="lg"
+                  className="w-full text-base"
+                >
+                  Inscribirme ahora
+                </Button>
+
+                <p className="text-center text-xs text-neutral-500">
+                  Garantía de devolución de 7 días
+                </p>
+              </div>
             </div>
             <section className="pt-32 pb-24 space-y-16 text-neutral-900">
               <CourseOverviewTabs {...course} />

@@ -249,7 +249,7 @@ export const Step6 = ({
                 <div className="flex items-center gap-2 text-sm">
                   <DollarSign className="w-4 h-4 text-destructive" />
                   <span className="font-medium text-destructive italic">
-                    Precio no definido
+                    Precio no definido (en caso de ser gratuito, colocar $0)
                   </span>
                 </div>
               )}
@@ -365,15 +365,16 @@ export const Step6 = ({
                                       }
                                     </Badge>
                                   )}
-                                {lesson.lessonMaterial && (
-                                  <Badge
-                                    variant="outline"
-                                    className="text-xs gap-1"
-                                  >
-                                    <FileText className="w-3 h-3" />
-                                    Material extra
-                                  </Badge>
-                                )}
+                                {lesson.lessonMaterial &&
+                                  lesson.lessonMaterial?.length > 0 && (
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs gap-1"
+                                    >
+                                      <FileText className="w-3 h-3" />
+                                      Material extra
+                                    </Badge>
+                                  )}
                                 {lesson.isFree && (
                                   <Badge
                                     variant="success"

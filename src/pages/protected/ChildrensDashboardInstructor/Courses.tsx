@@ -17,11 +17,13 @@ export default function Courses() {
 
   const [coursesData, setCoursesData] = useState<ICourse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingCreate, setLoadingCreate] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchCourses = async () => {
       const res = await getInstructorCourses();
+
       if (res.success) {
         setCoursesData(res.data);
       } else {
@@ -50,19 +52,26 @@ export default function Courses() {
   ];
 
   const onCreate = async () => {
-    const res = await createCourse();
-    if (!res.success) {
-      console.error("Error creating course:", res.message);
-      return;
+    setLoadingCreate(true);
+    try {
+      const res = await createCourse();
+      if (!res.success) {
+        console.error("Error creating course:", res.message);
+        return;
+      }
+      navigate(`/perfil/editar-curso/${res.data.id}`);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoadingCreate(false);
     }
-    navigate(`/perfil/editar-curso/${res.data.id}`);
   };
 
   const totalPages = Math.ceil(coursesData.length / ITEMS_PER_PAGE);
 
   const courses = coursesData.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   if (loading) {
@@ -83,7 +92,7 @@ export default function Courses() {
           }}
           buttonSecondary={{
             label: "Más información",
-            href: "https://shadcnblocks.com",
+            href: "https://shadcnblocks.com", // TODO: cambiar link a pagina de ayuda
           }}
         />
 
@@ -95,6 +104,7 @@ export default function Courses() {
       </div>
     );
   }
+  console.log("course", courses);
 
   // ===============================
   // 3) CURSOS NORMALES
@@ -108,9 +118,14 @@ export default function Courses() {
           totalPages={totalPages}
           onPageChange={setCurrentPage}
         />
-        {/* TODO: añadir logica para crear nuevo curso */}
-        <Button variant="secondary" className="gap-2">
-          Nuevo curso <Plus size={16} />
+
+        <Button
+          variant="secondary"
+          className="gap-2"
+          onClick={onCreate}
+          disabled={loadingCreate}
+        >
+          {loadingCreate ? "Creando..." : "Nuevo curso"} <Plus size={16} />
         </Button>
       </div>
 

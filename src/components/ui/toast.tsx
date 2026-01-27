@@ -11,17 +11,24 @@ type ToastPosition =
   | "bottom-right"
   | "center";
 
+interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 interface Toast {
   id: number;
   message: string;
   type: ToastType;
+  action?: ToastAction;
 }
 
 interface ToastContextType {
   showToast: (
     message: string,
     type?: ToastType,
-    position?: ToastPosition
+    position?: ToastPosition,
+    action?: ToastAction
   ) => void;
 }
 
@@ -42,12 +49,13 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
     (
       message: string,
       type: ToastType = "info",
-      position: ToastPosition = "bottom-right"
+      position: ToastPosition = "bottom-right",
+      action?: ToastAction
     ) => {
       const id = Date.now() + Math.random();
       setToasts((prev) => [
         ...prev,
-        { toast: { id, message, type }, position },
+        { toast: { id, message, type, action }, position },
       ]);
 
       setTimeout(() => removeToast(id), 5000);
@@ -78,6 +86,9 @@ export const useToast = () => {
   return context;
 };
 
+// ==========================
+// Toast Container
+// ==========================
 interface ToastContainerProps {
   toasts: { toast: Toast; position: ToastPosition }[];
   position: ToastPosition;
@@ -129,11 +140,19 @@ const ToastContainer: React.FC<ToastContainerProps> = ({
   );
 };
 
+// ==========================
+// Toast Component
+// ==========================
 interface ToastProps extends Toast {
   onClose: () => void;
 }
 
-const ToastComponent: React.FC<ToastProps> = ({ message, type, onClose }) => {
+const ToastComponent: React.FC<ToastProps> = ({
+  message,
+  type,
+  onClose,
+  action,
+}) => {
   const typeConfig = {
     success: {
       icon: CircleCheck,
@@ -165,11 +184,31 @@ const ToastComponent: React.FC<ToastProps> = ({ message, type, onClose }) => {
 
   return (
     <div
-      onClick={onClose}
-      className={`${bgColor} ${borderColor} border rounded-lg shadow-lg p-4 flex items-center cursor-pointer max-w-full`}
+      className={`${bgColor} ${borderColor} border rounded-lg shadow-lg p-4 flex items-center justify-between max-w-full`}
     >
-      <Icon className={`${textColor} w-5 h-5`} />
-      <p className={`${textColor} font-medium ml-2`}>{message}</p>
+      <div className="flex items-center gap-2">
+        <Icon className={`${textColor} w-5 h-5`} />
+        <p className={`${textColor} font-medium`}>{message}</p>
+      </div>
+      {action && (
+        <button
+          onClick={() => {
+            action.onClick();
+            onClose();
+          }}
+          className="ml-4 text-sm font-semibold text-blue-600 hover:underline"
+        >
+          {action.label}
+        </button>
+      )}
+      {!action && (
+        <div
+          onClick={onClose}
+          className="ml-2 cursor-pointer font-bold text-gray-500"
+        >
+          ×
+        </div>
+      )}
     </div>
   );
 };

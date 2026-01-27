@@ -70,6 +70,7 @@
 
 // export default ProfileBg;
 import { useAuth } from "@/hooks/useAuth";
+import { BlurMotionText } from "../Texts/BlurMotionText";
 
 function ProfileBg() {
   const { user } = useAuth();
@@ -78,18 +79,18 @@ function ProfileBg() {
     switch (user?.role) {
       case "ADMIN":
         return {
-          src: "/Banners/banner-admin-profile.jpg",
+          src: "/Banners/perfil-generico.jpg",
           alt: "Imagen de portada para administradores. Fondo profesional que representa la gestión del sistema.",
         };
       case "INSTRUCTOR":
         return {
-          src: "/Banners/banner-instructor-profile.jpg",
+          src: "/Banners/perfil-generico.jpg",
           alt: "Imagen de portada para instructores. Fondo educativo que simboliza enseñanza y guía.",
         };
       case "USER":
       default:
         return {
-          src: "/Banners/banner-user-profile.jpg",
+          src: "/Banners/perfil-generico.jpg",
           alt: "Imagen de portada para usuarios. Fondo amigable que representa la participación en la comunidad.",
         };
     }
@@ -107,6 +108,23 @@ function ProfileBg() {
           width={512}
           height={96}
         />
+
+        <section
+          id="header"
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center"
+        >
+          <BlurMotionText delay={0.25} inView>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl">
+              Hola {user?.firstName || ""} 👋
+            </h2>
+          </BlurMotionText>
+
+          <BlurMotionText delay={0.5} inView>
+            <span className="text-xl tracking-tighter sm:text-3xl xl:text-4xl">
+              Continuá donde lo dejaste
+            </span>
+          </BlurMotionText>
+        </section>
       </div>
     </div>
   );

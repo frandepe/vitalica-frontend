@@ -142,7 +142,7 @@ export default function EditCourse() {
   const handleLessonTypeChange = (
     sectionIndex: number,
     lessonIndex: number,
-    type: string
+    type: string,
   ) => {
     setLessonTypes((prev: LessonTypes) => ({
       ...prev,
@@ -156,7 +156,7 @@ export default function EditCourse() {
   const handleRemoveLesson = (moduleIndex: number, lessonIndex: number) => {
     const currentLessons = watch(`modules.${moduleIndex}.lessons`);
     const updatedLessons = currentLessons?.filter(
-      (_: LessonFormValues, index: number) => index !== lessonIndex
+      (_: LessonFormValues, index: number) => index !== lessonIndex,
     );
     setValue(`modules.${moduleIndex}.lessons`, updatedLessons);
   };
@@ -187,7 +187,7 @@ export default function EditCourse() {
         showToast(
           "El curso ya fue enviado a revisión y no puede modificarse ni reenviarse hasta que finalice el proceso",
           "info",
-          "top-right"
+          "top-right",
         );
       }
 
@@ -235,14 +235,14 @@ export default function EditCourse() {
   const validationIssues = getValidationIssues(courseData!);
   const errorCount = validationIssues.filter((i) => i.type === "error").length;
   const warningCount = validationIssues.filter(
-    (i) => i.type === "warning"
+    (i) => i.type === "warning",
   ).length;
   const totalLessons = courseData?.modules!.reduce(
     (acc, module) => acc + module.lessons!.length,
-    0
+    0,
   );
   const completionPercentage = Math.round(
-    ((14 - validationIssues.length) / 14) * 100
+    ((14 - validationIssues.length) / 14) * 100,
   ); // 14 possible fields to complete
 
   const handleThumbnailReady = async (fileBase64: string) => {
@@ -360,7 +360,7 @@ export default function EditCourse() {
     showToast(
       "No podés editar este curso en su estado actual",
       "warning",
-      "bottom-right"
+      "bottom-right",
     );
     navigate("/");
   }
@@ -410,7 +410,10 @@ export default function EditCourse() {
               <HandCoins />
               Detalles comerciales
             </h2>
-            <Step3 register={register} />
+            <Step3
+              register={register}
+              priceDB={courseData?.price?.toString()}
+            />
           </Step>
           <Step>
             <h2 className="text-xl font-semibold text-slate-700 mb-2 flex items-center gap-2">
@@ -428,6 +431,7 @@ export default function EditCourse() {
               setValue={setValue}
               watch={watch}
               control={control}
+              priceDB={courseData?.price?.toString()}
             />
           </Step>
           <Step>

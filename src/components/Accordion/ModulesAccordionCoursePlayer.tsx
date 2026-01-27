@@ -1,12 +1,62 @@
+"use client";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { CourseModule } from "@/types/course.types";
-import { LessonItem } from "./LessonAccordion";
-import { ChevronDown } from "lucide-react";
+import { LessonItemCoursePlayer } from "./LessonAccordionCoursePlayer";
 
-export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
-  const [activeId, setActiveId] = useState<string | null>("design");
+import { BookOpenText, ChevronDown, Loader2 } from "lucide-react";
+import { getModuleQuizzes } from "@/api";
+import {
+  QuizCoursePlayerModule,
+  QuizQuestion,
+} from "../Quizzes/QuizCoursePlayerModule";
+import { Card } from "../ui/card";
+import { Button } from "../ui/button";
+import { UniversalModal } from "../UniversalModal";
+
+export function ModulesAccordionCoursePlayer({
+  modules,
+}: {
+  modules: CourseModule[];
+}) {
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const [openModuleId, setOpenModuleId] = useState<string | null>(null);
+  const [quizzesByModule, setQuizzesByModule] = useState<
+    Record<string, QuizQuestion[]>
+  >({});
+  const [loadingModule, setLoadingModule] = useState<string | null>(null);
+
+  const handleOpenExam = async (moduleId: string) => {
+    setOpenModuleId(moduleId);
+
+    // Si ya tenemos los quizzes cargados, no volvemos a cargar
+    if (quizzesByModule[moduleId]) return;
+
+    try {
+      setLoadingModule(moduleId);
+      const res = await getModuleQuizzes(moduleId);
+      console.log("res", res);
+
+      // Guardamos los quizzes del módulo en el estado
+      if (res.success && res.data) {
+        setQuizzesByModule((prev) => ({
+          ...prev,
+          [moduleId]: res.data!,
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching module quizzes:", error);
+    } finally {
+      setLoadingModule(null);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setOpenModuleId(null);
+  };
 
   return (
     <div className="w-full max-w-xl">
@@ -14,6 +64,8 @@ export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
         {modules.map((item, index) => {
           const isActive = activeId === item.id;
           const isHovered = hoveredId === item.id;
+          const quizzes = quizzesByModule[item.id] ?? [];
+          const isLoading = loadingModule === item.id;
 
           return (
             <div key={item.id}>
@@ -25,10 +77,9 @@ export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
                 initial={false}
               >
                 <div className="flex items-center gap-6 py-5 px-1">
-                  {/* Number with animated circle */}
                   <div className="relative flex items-center justify-center w-10 h-10">
                     <motion.div
-                      className="absolute inset-0 rounded-full bg-primary"
+                      className="absolute inset-0 rounded-lg bg-primary"
                       initial={false}
                       animate={{
                         scale: isActive ? 1 : isHovered ? 0.85 : 0,
@@ -53,14 +104,13 @@ export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
                     </motion.span>
                   </div>
 
-                  {/* Title */}
                   <motion.h3
-                    className="text-xl font-semibold"
+                    title={item.title}
+                    className="text-lg font-semibold truncate"
                     animate={{
                       x: isActive || isHovered ? 4 : 0,
-                      color: isActive
-                        ? "var(--foreground)"
-                        : isHovered
+                      color:
+                        isActive || isHovered
                           ? "var(--foreground)"
                           : "var(--muted-foreground)",
                     }}
@@ -73,9 +123,8 @@ export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
                     {item.title}
                   </motion.h3>
 
-                  {/* Animated indicator */}
-                  <div className="ml-auto flex items-center gap-3">
-                    {item.lessons!.length > 0 && (
+                  <div className="flex items-center gap-3 ml-auto">
+                    {item?.lessons?.length! > 0 && (
                       <motion.span
                         className="text-xs text-muted-foreground font-medium"
                         animate={{
@@ -87,6 +136,7 @@ export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
                         {item.lessons!.length === 1 ? "lección" : "lecciones"}
                       </motion.span>
                     )}
+
                     <motion.div
                       className="flex items-center justify-center w-8 h-8"
                       animate={{ rotate: isActive ? -90 : 0 }}
@@ -112,53 +162,20 @@ export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
                     </motion.div>
                   </div>
                 </div>
-
-                {/* Animated underline */}
-                <motion.div
-                  className="absolute bottom-0 left-0 right-0 h-px bg-border origin-left"
-                  initial={false}
-                />
-                <motion.div
-                  className="absolute bottom-0 left-0 h-px bg-foreground origin-left"
-                  initial={{ scaleX: 0 }}
-                  animate={{
-                    scaleX: isActive ? 1 : isHovered ? 0.3 : 0,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30,
-                  }}
-                />
               </motion.button>
 
-              {/* Content */}
               <AnimatePresence mode="wait">
                 {isActive && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
-                    animate={{
-                      height: "auto",
-                      opacity: 1,
-                      transition: {
-                        height: { type: "spring", stiffness: 300, damping: 30 },
-                        opacity: { duration: 0.2, delay: 0.1 },
-                      },
-                    }}
-                    exit={{
-                      height: 0,
-                      opacity: 0,
-                      transition: {
-                        height: { type: "spring", stiffness: 300, damping: 30 },
-                        opacity: { duration: 0.1 },
-                      },
-                    }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="pl-16 pr-4 py-6 space-y-1">
-                      {item.lessons!.length > 0 ? (
+                    <div className="pr-4 py-6 space-y-1">
+                      {item?.lessons?.length! > 0 ? (
                         item.lessons!.map((lesson, idx) => (
-                          <LessonItem
+                          <LessonItemCoursePlayer
                             key={lesson.id}
                             lesson={lesson}
                             index={idx}
@@ -170,6 +187,46 @@ export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
                         </p>
                       )}
                     </div>
+
+                    <Card className="mx-1 mb-4 max-w-max">
+                      <Button
+                        onClick={() => handleOpenExam(item.id)}
+                        variant="link"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <Loader2 size={18} className="mr-1 animate-spin" />
+                        ) : (
+                          <BookOpenText size={18} className="mr-1" />
+                        )}
+                        Examen del módulo {item.order}
+                      </Button>
+
+                      <UniversalModal
+                        open={openModuleId === item.id}
+                        onOpenChange={handleCloseModal}
+                        title={`Examen del módulo ${item.order}`}
+                      >
+                        {isLoading ? (
+                          <div className="flex items-center justify-center p-8">
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                            <span className="ml-2 text-muted-foreground">
+                              Cargando preguntas...
+                            </span>
+                          </div>
+                        ) : (
+                          <QuizCoursePlayerModule
+                            quizzes={quizzes}
+                            moduleTitle={`Módulo ${item.order}: ${item.title}`}
+                            onComplete={(score, total) => {
+                              console.log(
+                                `Quiz completado: ${score}/${total} correctas`,
+                              );
+                            }}
+                          />
+                        )}
+                      </UniversalModal>
+                    </Card>
                   </motion.div>
                 )}
               </AnimatePresence>

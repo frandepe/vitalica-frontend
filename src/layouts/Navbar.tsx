@@ -1,7 +1,5 @@
-"use client";
-
 import { SearchNav } from "@/components/Search/SearchNav";
-import { Button } from "@/components/ui/button";
+
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,10 +11,11 @@ import {
 import DropdownMenuNotifications from "@/components/user/DropdownMenuNotifications";
 import DropdownMenuProfile from "@/components/user/DropdownMenuProfile";
 import { useHideOnScroll } from "@/hooks/useHideOnScroll";
-import { Activity, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export function Navbar() {
   const navigationItems = [
@@ -43,16 +42,16 @@ export function Navbar() {
   ];
 
   const showNavbar = useHideOnScroll(50);
-  const { user, isActive } = useAuth();
+  const { isActive } = useAuth();
   const navigate = useNavigate();
 
   return (
-    <header
+    <div
       className={`w-full z-40 fixed top-0 left-0 bg-background ${
         showNavbar ? "translate-y-0 shadow-md" : "-translate-y-full"
       }`}
     >
-      <div className="container relative mx-auto min-h-20 flex gap-4 flex-row lg:grid lg:grid-cols-3 items-center">
+      <div className="container relative mx-auto min-h-16 flex gap-4 flex-row lg:grid lg:grid-cols-3 items-center">
         {/* NAV DESKTOP */}
         <div className="justify-start items-center gap-4 lg:flex hidden flex-row">
           <NavigationMenu className="flex justify-start items-start">
@@ -100,8 +99,8 @@ export function Navbar() {
           <img
             src="/Logo/logoVitalica.png"
             alt="Logotipo de Vitalica con la letra V en forma de pulso de actividad, completando el nombre de la marca"
-            height={100}
-            width={180}
+            width={120}
+            height={80}
             onClick={() => navigate("/")}
             className="cursor-pointer"
           />
@@ -162,6 +161,6 @@ export function Navbar() {
           </Drawer>
         </div>
       </div>
-    </header>
+    </div>
   );
 }

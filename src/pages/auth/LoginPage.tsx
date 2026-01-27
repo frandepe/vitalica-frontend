@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import GoogleLoginButton from "@/components/Buttons/GoogleLoginButton";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { loginUser } from "@/api";
+import { getUserOnboarding, loginUser } from "@/api";
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import { DataValidationEmail } from "@/types/auth.types";
 import { EmailConfirm } from "@/components/user/auth/EmailConfirm";
@@ -48,7 +48,11 @@ const LoginPage = () => {
       if (result.success) {
         localStorage.setItem("token", result.data.token);
         setUser(result.data.user); // guardamos usuario global
-        navigate("/");
+        const res = await getUserOnboarding();
+        const onboardingStatus =
+          res?.data?.onboarding?.hasCompletedOnboarding ?? false;
+        if (!onboardingStatus) navigate("/primeros-pasos");
+        else navigate("/");
       }
     } catch (err) {
       console.error(err);

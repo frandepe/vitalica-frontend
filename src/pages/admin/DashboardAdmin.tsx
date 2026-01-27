@@ -93,7 +93,7 @@ export default function DashboardAdmin() {
     navigate(href);
   };
 
-  const navbarHeight = 80; // px
+  const navbarHeight = 60.8; // px
   const top = useStickyTop(navbarHeight);
   const sidebarHeight = `calc(100vh - ${top}px)`;
   return (

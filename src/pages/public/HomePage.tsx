@@ -3,8 +3,32 @@ import mask01 from "@/assets/Masks/mask-15.svg";
 import banner1 from "/Banners/banner1.jpg";
 import { Button } from "@/components/ui/button";
 import { Award, Heart, Users } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getUserOnboarding } from "@/api";
 
 const HomePage = () => {
+  const { showToast } = useToast();
+  const navigate = useNavigate();
+  // EN MODO DESARROLLOR: Esto se ejecuta dos veces por el modo estricto de react
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      if (sessionStorage.getItem("onboardingToastShown")) return;
+
+      const res = await getUserOnboarding();
+      if (!res.data.onboarding || !res.data.onboarding.hasCompletedOnboarding) {
+        showToast("Completá tus primeros pasos", "info", "bottom-right", {
+          label: "Comenzar",
+          onClick: () => navigate("/primeros-pasos"),
+        });
+        sessionStorage.setItem("onboardingToastShown", "true");
+      }
+    };
+
+    checkOnboarding();
+  }, []);
+
   return (
     <section className="relative">
       <div className="top-0 h-full w-full bg-white dark:bg-background">
@@ -12,7 +36,7 @@ const HomePage = () => {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#d1d5db33_1px,transparent_1px),linear-gradient(to_bottom,#d1d5db33_1px,transparent_1px)] bg-[size:40px_40px]" />
         <div className="absolute left-1/3 top-1/3 h-[500px] w-[500px] rounded-full bg-primary opacity-20 blur-[120px]" />
       </div>
-      <div className="container h-[92vh] mx-auto flex flex-col-reverse lg:flex-row items-center justify-center px-6">
+      <div className="container h-[93.5vh] mx-auto flex flex-col-reverse lg:flex-row items-center justify-center px-6">
         <div className="flex-1 text-center lg:text-left space-y-6 z-10">
           <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
             Lleva tu práctica médica al
@@ -25,7 +49,7 @@ const HomePage = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
             <Button>Ver cursos</Button>
-            <Button variant={"ghost"}>Saber más</Button>
+            <Button variant={"ghost"}>Explorar</Button>
           </div>
         </div>
 

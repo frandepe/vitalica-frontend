@@ -11,6 +11,7 @@ import AdminRoute from "@/components/auth/AdminRoute";
 import SubirPageTest from "@/pages/public/upload-test";
 import DownloadPageTest from "@/pages/public/download-test";
 import CourseStatus from "@/pages/protected/CourseStatus";
+import CourseLayout from "@/layouts/course-player.layout";
 
 // Páginas públicas
 const Onboarding = lazy(() => import("@/pages/public/Onboarding"));
@@ -127,14 +128,7 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: "mis-cursos/:slug",
-        element: (
-          <ProtectedRoute>
-            <CoursePlayer />
-          </ProtectedRoute>
-        ),
-      },
+
       {
         path: "estado-aplicacion",
         element: (
@@ -215,6 +209,21 @@ export const router = createBrowserRouter([
           { path: "aplicacion/:id", element: <InstructorApplication /> },
           { path: "curso/:id", element: <AdminCourse /> },
         ],
+      },
+    ],
+  },
+  // Ruta curso player
+  {
+    path: "mis-cursos/:slug",
+    element: (
+      <ProtectedRoute>
+        <CourseLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        path: ":lessonId?",
+        element: <CoursePlayer />,
       },
     ],
   },

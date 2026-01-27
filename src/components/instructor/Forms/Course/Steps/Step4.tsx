@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress-bar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { sectionBackgrounds } from "@/constants";
+import { descriptionModuleCourseLimit, sectionBackgrounds } from "@/constants";
 import {
   CourseModuleFormValues,
   LessonFormValues,
@@ -59,6 +59,8 @@ import {
   getMuxUploadStatus,
   saveLessonVideoToCourse,
 } from "@/api/videoEndpoints";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 
 interface Props {
   courseId: string;
@@ -71,6 +73,7 @@ interface Props {
   handleLessonTypeChange: any;
   lessonTypes: any;
   control: Control<NewCourseFormValues>;
+  priceDB: string | undefined;
 }
 
 export const Step4 = ({
@@ -82,6 +85,7 @@ export const Step4 = ({
   setValue,
   handleLessonTypeChange,
   control,
+  priceDB,
 }: Props) => {
   const [isCreatingModule, setIsCreatingModule] = useState(false);
   const [deletingModuleId, setDeletingModuleId] = useState<string | null>(null);
@@ -91,13 +95,13 @@ export const Step4 = ({
   >(null);
   const [deletingLessonId, setDeletingLessonId] = useState<string | null>(null);
   const [deletingVideoLesson, setDeletingVideoLesson] = useState<string | null>(
-    null
+    null,
   );
   const [lessonUploads, setLessonUploads] = useState<
     Record<string, LessonUploadState>
   >({});
   const [replacingLessonId, setReplacingLessonId] = useState<string | null>(
-    null
+    null,
   );
 
   const handleAddModule = async () => {
@@ -180,7 +184,7 @@ export const Step4 = ({
   const handleDeleteLesson = async (
     moduleIndex: number,
     lessonIndex: number,
-    lessonId: string
+    lessonId: string,
   ) => {
     try {
       setDeletingLessonId(lessonId);
@@ -191,7 +195,7 @@ export const Step4 = ({
       const currentLessons = watch(`modules.${moduleIndex}.lessons`) || [];
 
       const updatedLessons = currentLessons.filter(
-        (_: any, index: number) => index !== lessonIndex
+        (_: any, index: number) => index !== lessonIndex,
       );
 
       // Reordenar en frontend
@@ -212,12 +216,12 @@ export const Step4 = ({
     file: File,
     lessonId: string,
     lessonIndex: number,
-    moduleIndex: number
+    moduleIndex: number,
   ) => {
     setValue(
       `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
       null,
-      { shouldDirty: true }
+      { shouldDirty: true },
     );
     // 1) crear direct upload
     setLessonUploads((prev) => ({
@@ -298,7 +302,7 @@ export const Step4 = ({
     setValue(
       `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
       playbackId,
-      { shouldDirty: true }
+      { shouldDirty: true },
     );
 
     setLessonUploads((prev) => ({
@@ -313,7 +317,7 @@ export const Step4 = ({
   const handleDeleteLessonVideo = async (
     lessonId: string,
     moduleIndex: number,
-    lessonIndex: number
+    lessonIndex: number,
   ) => {
     try {
       setDeletingVideoLesson(lessonId);
@@ -321,7 +325,7 @@ export const Step4 = ({
       setValue(
         `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
         null,
-        { shouldDirty: true }
+        { shouldDirty: true },
       );
       if (!res.success) return false;
       return true;
@@ -433,7 +437,7 @@ export const Step4 = ({
                                 try {
                                   await handleDeleteModule(
                                     section.id,
-                                    moduleIndex
+                                    moduleIndex,
                                   );
                                 } finally {
                                   setDeletingModuleId(null);
@@ -448,11 +452,34 @@ export const Step4 = ({
                         </AlertDialogContent>
                       </AlertDialog>
                     </div>
+                    <Textarea
+                      placeholder="Descrbí de qué trata este módulo y qué aprenderán los estudiantes. Por ejemplo: 'En este módulo, exploraremos los conceptos fundamentales de...'"
+                      className={cn(
+                        "resize-y w-full h-[100px] dark:bg-card bg-background rounded-[13px]",
+                      )}
+                      {...register(`modules.${moduleIndex}.description`, {
+                        minLength: {
+                          value: 10,
+                          message:
+                            "La descripción debe tener al menos 10 caracteres",
+                        },
+                        maxLength: {
+                          value: descriptionModuleCourseLimit,
+                          message: `La descripción no puede superar los ${descriptionModuleCourseLimit} caracteres`,
+                        },
+                      })}
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {descriptionModuleCourseLimit -
+                        (watch(`modules.${moduleIndex}.description`)?.length ||
+                          0)}{" "}
+                      caracteres restantes
+                    </span>
                     <div className="space-y-3 md:space-y-4">
                       {watch(`modules.${moduleIndex}.lessons`)?.map(
                         (lesson: LessonFormValues, lessonIndex: number) => {
                           const playbackId = watch(
-                            `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`
+                            `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
                           );
                           const upload = lessonUploads[lesson.id];
                           return (
@@ -467,7 +494,7 @@ export const Step4 = ({
                                 <Input
                                   {...register(
                                     `modules.${moduleIndex}.lessons.${lessonIndex}.title`,
-                                    { required: true }
+                                    { required: true },
                                   )}
                                   placeholder="Ingrese el título de la lección"
                                   className="flex-1 dark:bg-background bg-white text-sm md:text-base"
@@ -523,7 +550,7 @@ export const Step4 = ({
                                           handleDeleteLesson(
                                             moduleIndex,
                                             lessonIndex,
-                                            lesson.id
+                                            lesson.id,
                                           )
                                         }
                                       >
@@ -549,19 +576,19 @@ export const Step4 = ({
                                       onClick={() => {
                                         setValue(
                                           `modules.${moduleIndex}.lessons.${lessonIndex}.type`,
-                                          "videoFile"
+                                          "videoFile",
                                         );
                                         handleLessonTypeChange(
                                           moduleIndex,
                                           lessonIndex,
-                                          "videoFile"
+                                          "videoFile",
                                         );
                                       }}
                                       className={cn(
                                         "relative flex flex-col items-center justify-center gap-2 rounded-lg border border-slate-400 p-4 text-sm transition cursor-pointer",
                                         lesson.type === "videoFile"
                                           ? "border-primary bg-primary/10 ring-2 ring-primary"
-                                          : "hover:border-muted-foreground/40"
+                                          : "hover:border-muted-foreground/40",
                                       )}
                                     >
                                       {lesson.type === "videoFile" && (
@@ -578,19 +605,19 @@ export const Step4 = ({
                                       onClick={() => {
                                         setValue(
                                           `modules.${moduleIndex}.lessons.${lessonIndex}.type`,
-                                          "content"
+                                          "content",
                                         );
                                         handleLessonTypeChange(
                                           moduleIndex,
                                           lessonIndex,
-                                          "content"
+                                          "content",
                                         );
                                       }}
                                       className={cn(
                                         "relative flex flex-col items-center justify-center gap-2 rounded-lg border border-slate-400 p-4 text-sm transition cursor-pointer",
                                         lesson.type === "content"
                                           ? "border-primary bg-primary/10 ring-2 ring-primary"
-                                          : "hover:border-muted-foreground/40"
+                                          : "hover:border-muted-foreground/40",
                                       )}
                                     >
                                       {lesson.type === "content" && (
@@ -609,13 +636,13 @@ export const Step4 = ({
                                 <RichTextEditor
                                   value={
                                     watch(
-                                      `modules.${moduleIndex}.lessons.${lessonIndex}.content`
+                                      `modules.${moduleIndex}.lessons.${lessonIndex}.content`,
                                     ) as string
                                   }
                                   onChange={(html) =>
                                     setValue(
                                       `modules.${moduleIndex}.lessons.${lessonIndex}.content`,
-                                      html
+                                      html,
                                     )
                                   }
                                 />
@@ -710,7 +737,7 @@ export const Step4 = ({
                                                     handleDeleteLessonVideo(
                                                       lesson.id,
                                                       moduleIndex,
-                                                      lessonIndex
+                                                      lessonIndex,
                                                     )
                                                   }
                                                 >
@@ -734,7 +761,7 @@ export const Step4 = ({
                                         onClick={() =>
                                           document
                                             .getElementById(
-                                              `lesson-video-${moduleIndex}-${lessonIndex}`
+                                              `lesson-video-${moduleIndex}-${lessonIndex}`,
                                             )
                                             ?.click()
                                         }
@@ -756,7 +783,7 @@ export const Step4 = ({
                                             file,
                                             lesson.id,
                                             lessonIndex,
-                                            moduleIndex
+                                            moduleIndex,
                                           );
 
                                           setReplacingLessonId(null);
@@ -790,30 +817,32 @@ export const Step4 = ({
                                   }
                                 />
                               </div>
-                              <div className="mt-2 flex items-center gap-2">
-                                <Controller
-                                  name={`modules.${moduleIndex}.lessons.${lessonIndex}.isFree`}
-                                  control={control}
-                                  defaultValue={false}
-                                  render={({ field }) => (
-                                    <Checkbox
-                                      id={`isFree-${moduleIndex}-${lessonIndex}`}
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                    />
-                                  )}
-                                />
+                              {priceDB !== "0" && (
+                                <div className="mt-2 flex items-center gap-2">
+                                  <Controller
+                                    name={`modules.${moduleIndex}.lessons.${lessonIndex}.isFree`}
+                                    control={control}
+                                    defaultValue={false}
+                                    render={({ field }) => (
+                                      <Switch
+                                        id={`isFree-${moduleIndex}-${lessonIndex}`}
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                      />
+                                    )}
+                                  />
 
-                                <label
-                                  htmlFor={`isFree-${moduleIndex}-${lessonIndex}`}
-                                  className="text-sm md:text-base"
-                                >
-                                  Clase gratuita
-                                </label>
-                              </div>
+                                  <Label
+                                    htmlFor={`isFree-${moduleIndex}-${lessonIndex}`}
+                                    className="text-sm md:text-base cursor-pointer"
+                                  >
+                                    Clase gratuita
+                                  </Label>
+                                </div>
+                              )}
                             </div>
                           );
-                        }
+                        },
                       )}
 
                       <Button

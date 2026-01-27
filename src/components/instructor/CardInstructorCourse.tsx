@@ -39,20 +39,18 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
 
   const isPublished = status === "PUBLISHED";
 
-  const canEdit =
-    status === "DRAFT" ||
-    status === "NEEDS_CORRECTION" ||
-    status === "SUBMITTED";
+  const canEdit = status === "DRAFT" || status === "NEEDS_CORRECTION";
 
   // 🔑 Versiones realmente editables (NUNCA archived)
-  const editableStatuses = ["DRAFT", "SUBMITTED", "NEEDS_CORRECTION"];
+  const editableStatuses = ["DRAFT", "NEEDS_CORRECTION"];
 
   const editableVersion = versions?.find((v) =>
-    editableStatuses.includes(v.status)
+    editableStatuses.includes(v.status),
   );
 
+  // 🔒 Versiones bloqueadas (SUBMITTED, UNDER_REVIEW)
   const hasLockedVersion = versions?.some((v) =>
-    ["SUBMITTED", "UNDER_REVIEW"].includes(v.status)
+    ["SUBMITTED", "UNDER_REVIEW"].includes(v.status),
   );
 
   const handleEditCourse = async (courseId: string) => {
@@ -83,13 +81,25 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
     <>
       <div className="relative flex w-full gap-4 rounded-xl border border-border bg-white p-3">
         {/* Imagen */}
-        <div className="h-32 w-40 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100">
+        <div className="w-40 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100 aspect-[4/3]">
           <img
             src={thumbnailUrl || "/Placeholders/no-image-course.png"}
             alt={title || "Curso sin título"}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-center"
           />
         </div>
+        {/* <div className="relative h-32 w-40 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100">
+          <img
+            src={thumbnailUrl || "/Placeholders/no-image-course.png"}
+            className="absolute inset-0 h-full w-full object-cover blur-md scale-110"
+            alt=""
+          />
+          <img
+            src={thumbnailUrl || "/Placeholders/no-image-course.png"}
+            alt={title || "Curso sin título"}
+            className="relative h-full w-full object-contain"
+          />
+        </div> */}
 
         {/* Contenido */}
         <div className="flex flex-1 flex-col justify-between">
@@ -197,7 +207,9 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
           {/* Footer */}
           <div className="flex items-center justify-between pt-3">
             <div className="text-lg font-semibold text-primary">
-              {currency} ${formatPrice(price) || "0"}
+              {Number(price) === 0
+                ? "Clase gratuita"
+                : `${currency} $${formatPrice(price)}`}
             </div>
 
             {!isPublished && (
@@ -207,7 +219,7 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
                   navigate(
                     canEdit
                       ? `/perfil/editar-curso/${id}`
-                      : `/estado-curso/${id}`
+                      : `/estado-curso/${id}`,
                   )
                 }
               >
@@ -234,7 +246,7 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
         title={title}
       >
         <ShareCourse
-          courseUrl={`https://www.vitalica.com/micurso/${id}`}
+          courseUrl={`https://www.vitalica.com.ar/cursos/${id}`}
           titleCourse={title || "Curso sin título"}
         />
       </UniversalModal>

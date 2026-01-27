@@ -25,7 +25,7 @@ function Avatar({ defaultImage }: { defaultImage?: string }) {
   };
 
   const handleFileChangeWithConversion = async (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -38,7 +38,7 @@ function Avatar({ defaultImage }: { defaultImage?: string }) {
       showToast(
         "Error. Asegúrate de subir un archivo válido.",
         "error",
-        "top-right"
+        "top-right",
       );
       setIsLoading(false);
     }
@@ -69,7 +69,7 @@ function Avatar({ defaultImage }: { defaultImage?: string }) {
         <button
           type="button"
           disabled={isLoading}
-          className="absolute flex size-8 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white outline-offset-2 transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-ring/70 disabled:cursor-not-allowed disabled:opacity-50"
+          className="absolute flex size-8 cursor-pointer border-accent-foreground items-center justify-center rounded-full bg-black/20 text-white outline-offset-2 transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-ring/70 disabled:cursor-not-allowed disabled:opacity-50"
           onClick={handleThumbnailClick}
           aria-label="Change profile picture"
         >

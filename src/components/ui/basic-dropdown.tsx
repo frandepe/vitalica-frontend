@@ -108,9 +108,7 @@ export function Dropdown({ children, className = "" }: DropdownProps) {
 
   return (
     <DropdownContext.Provider value={{ open, setOpen, triggerRef, contentRef }}>
-      <div className={`relative inline-block text-left ${className}`}>
-        {children}
-      </div>
+      <div className={`relative text-left ${className}`}>{children}</div>
     </DropdownContext.Provider>
   );
 }
@@ -126,7 +124,7 @@ export function DropdownTrigger({
     <div
       ref={triggerRef}
       onClick={() => setOpen(!open)}
-      className={`inline-flex ${className}`}
+      className={`${className}`}
       aria-expanded={open}
       aria-haspopup="true"
     >

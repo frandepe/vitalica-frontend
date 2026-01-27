@@ -38,6 +38,8 @@ export interface User {
 
   application?: InstructorApplication | null;
 
+  onboarding?: IOnboarding;
+
   isActive: boolean;
   lastLoginAt?: Date | null;
   deletedAt?: Date | null;
@@ -45,6 +47,14 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IOnboarding {
+  userType: OnboardingUserType;
+  primaryGoal: string;
+  hasCompletedOnboarding: boolean;
+}
+
+export type OnboardingUserType = "STUDENT" | "PROFESSIONAL";
 
 export const EMPTY_USER: User = {
   id: "",
