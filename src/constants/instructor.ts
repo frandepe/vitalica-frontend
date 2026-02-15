@@ -1,9 +1,7 @@
 import { InstructorApplication } from "@/types/instructor.types";
 
 export const paymentMethods = {
-  PAYPAL: "PAYPAL",
   MERCADO_PAGO: "MERCADO_PAGO",
-  BANK_TRANSFER: "BANK_TRANSFER",
 } as const;
 
 // -------------------------------
@@ -18,6 +16,8 @@ export const LevelLabels = {
 
 export const descriptionCourseLimit = 5000;
 export const descriptionModuleCourseLimit = 1000;
+export const titleMinModuleAndLessonsMaxCourseLimit = 3;
+export const titleMaxModuleAndLessonsCourseLimit = 100;
 export const requirementsAndMaterialsCourseLimit = 2000;
 
 export const translateInstructorStatus = {

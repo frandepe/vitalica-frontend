@@ -1,24 +1,80 @@
 import { Card } from "@/components/ui/card";
-import { ChevronRight, PenBox, School, Users } from "lucide-react";
+import {
+  BarChart3,
+  ChevronRight,
+  DollarSign,
+  GraduationCap,
+  LifeBuoy,
+  School,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+  Video,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 const features = [
   {
-    title: "Usuarios", // editar perfil de instructor
+    title: "Panel administrativo",
+    href: "/admin/panel-administrativo",
+    description:
+      "Accede a herramientas y reportes administrativos para gestionar toda la plataforma.",
+    icon: <BarChart3 />,
+  },
+  {
+    title: "Usuarios",
     href: "/admin/usuarios",
-    description: "Ver todos los usuarios",
+    description:
+      "Visualiza y administra todos los usuarios registrados en la plataforma.",
     icon: <Users />,
+  },
+  {
+    title: "Instructores",
+    href: "/admin/instructores",
+    description:
+      "Revisa perfiles de instructores, aprueba o gestiona su estado y desempeño.",
+    icon: <GraduationCap />,
   },
   {
     title: "Aplicaciones",
     href: "/admin/aplicaciones",
-    description: "Ver y dar feedback a las aplicación de posibles instructores",
+    description:
+      "Revisa nuevas aplicaciones de instructores y proporciona feedback sobre su aceptación.",
     icon: <School />,
   },
   {
     title: "Cursos",
     href: "/admin/cursos",
-    description: "Ver, modificar estado y dar feedback a los cursos enviados",
-    icon: <PenBox />,
+    description:
+      "Gestiona todos los cursos: revisa contenido, aprueba o rechaza y da feedback a los instructores.",
+    icon: <Video />,
+  },
+  {
+    title: "Pagos",
+    href: "/admin/pagos",
+    description:
+      "Supervisa los pagos realizados, pendientes y resuelve cualquier incidencia financiera.",
+    icon: <DollarSign />,
+  },
+  {
+    title: "Métricas",
+    href: "/admin/metricas",
+    description:
+      "Consulta estadísticas globales sobre cursos, instructores, usuarios y desempeño de la plataforma.",
+    icon: <TrendingUp />,
+  },
+  {
+    title: "Moderación",
+    href: "/admin/moderacion",
+    description:
+      "Controla contenido, revisa reportes y asegura que se cumplan las normas de la comunidad.",
+    icon: <ShieldCheck />,
+  },
+  {
+    title: "Soporte",
+    href: "/admin/soporte",
+    description:
+      "Gestiona consultas y problemas de usuarios e instructores para mantener la plataforma funcionando correctamente.",
+    icon: <LifeBuoy />,
   },
 ];
 

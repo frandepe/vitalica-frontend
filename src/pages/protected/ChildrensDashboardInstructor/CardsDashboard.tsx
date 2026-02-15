@@ -1,16 +1,20 @@
 import { Card } from "@/components/ui/card";
 import {
+  BarChart3,
   BookOpen,
   BookPlus,
   ChartNoAxesCombined,
   ChevronRight,
+  LifeBuoy,
+  MessageCircle,
   Star,
   UserRoundPen,
+  Wallet,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 const features = [
   {
-    title: "Perfil", // editar perfil de instructor
+    title: "Perfil",
     href: "/perfil/perfil-de-instructor",
     description:
       "Actualiza tu información personal y profesional para que tus estudiantes te conozcan mejor.",
@@ -43,6 +47,34 @@ const features = [
     description:
       "Lee la opinión de tus estudiantes, revisa sus valoraciones y mejora tu propuesta educativa.",
     icon: <Star />,
+  },
+  {
+    title: "Mensajes",
+    href: "/perfil/mensajes",
+    description:
+      "Mantente en contacto con tus estudiantes: responde consultas y envía notificaciones importantes.",
+    icon: <MessageCircle />,
+  },
+  {
+    title: "Ingresos",
+    href: "/perfil/ingresos",
+    description:
+      "Visualiza tus ganancias, historial de pagos y administra tus finanzas como instructor.",
+    icon: <Wallet />,
+  },
+  {
+    title: "Soporte",
+    href: "/perfil/soporte",
+    description:
+      "Obtén ayuda sobre cualquier problema técnico o consulta relacionada con tu cuenta y cursos.",
+    icon: <LifeBuoy />,
+  },
+  {
+    title: "Panel administrativo",
+    href: "/perfil/panel-administrativo",
+    description:
+      "Gestiona configuraciones avanzadas, reportes y herramientas administrativas de tu perfil de instructor.",
+    icon: <BarChart3 />,
   },
 ];
 
@@ -83,7 +115,7 @@ const Feature = ({
 
       {/* Contenido */}
       <div className="relative z-10 px-10 flex flex-col h-full">
-        <div className="mb-4 rounded-lg bg-blue-100 text-secondary w-max p-2 group-hover/feature:bg-secondary group-hover/feature:text-white transition duration-200">
+        <div className="mb-4 rounded-lg bg-blue-100 text-primary w-max p-2 group-hover/feature:bg-secondary group-hover/feature:text-white transition duration-200">
           {icon}
         </div>
 

@@ -8,11 +8,12 @@ import {
   ChartNoAxesCombined,
   BookOpen,
   Star,
-  BookPlus,
   ArrowLeftFromLine,
+  MessageCircle,
+  Wallet,
+  LifeBuoy,
 } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { ScrollToTop } from "@/utils/scroll-top";
 import { useStickyTop } from "@/hooks/useStickyTop";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -43,20 +44,39 @@ const navigationItems: NavigationItem[] = [
     name: "Analíticas",
     icon: ChartNoAxesCombined,
     href: "/perfil/analiticas",
-    badge: "3",
   },
   {
     id: "cursos",
     name: "Mis Cursos",
     icon: BookOpen,
     href: "/perfil/cursos",
-    badge: "12",
+    badge: "2",
   },
   {
     id: "resenas",
     name: "Reseñas y Calificaciones",
     icon: Star,
     href: "/perfil/resenas",
+    badge: "6",
+  },
+  {
+    id: "mensajes",
+    name: "Mensajes",
+    icon: MessageCircle,
+    href: "/perfil/mensajes",
+    badge: "3",
+  },
+  {
+    id: "ingresos",
+    name: "Ingresos",
+    icon: Wallet,
+    href: "/perfil/ingresos",
+  },
+  {
+    id: "soporte",
+    name: "Soporte",
+    icon: LifeBuoy,
+    href: "/perfil/soporte",
   },
 ];
 
@@ -74,6 +94,9 @@ export default function DashboardInstructor() {
       "/perfil/analiticas": "analiticas",
       "/perfil/cursos": "cursos",
       "/perfil/resenas": "resenas",
+      "/perfil/mensajes": "mensajes",
+      "/perfil/ingresos": "ingresos",
+      "/perfil/soporte": "soporte",
     };
 
     const id = pathToIdMap[location.pathname];
@@ -112,7 +135,6 @@ export default function DashboardInstructor() {
   const sidebarHeight = `calc(100vh - ${top}px)`;
   return (
     <div className="flex">
-      <ScrollToTop />
       {/* Mobile hamburger button */}
       <button
         onClick={toggleSidebar}
@@ -210,7 +232,7 @@ export default function DashboardInstructor() {
                       w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-md text-left transition-all duration-200 group
                       ${
                         isActive
-                          ? "bg-blue-50 text-secondary"
+                          ? "bg-blue-50 text-primary"
                           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                       }
                       ${isCollapsed ? "justify-center px-2" : ""}
@@ -223,7 +245,7 @@ export default function DashboardInstructor() {
                           h-4.5 w-4.5 flex-shrink-0
                           ${
                             isActive
-                              ? "text-secondary"
+                              ? "text-primary"
                               : "text-slate-500 group-hover:text-slate-700"
                           }
                         `}

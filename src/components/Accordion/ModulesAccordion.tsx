@@ -1,12 +1,73 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { CourseModule } from "@/types/course.types";
+import type { CourseModule, Lesson } from "@/types/course.types";
 import { LessonItem } from "./LessonAccordion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Text, Video } from "lucide-react";
+import { UniversalModal } from "../UniversalModal";
+import { getFreeLessons } from "@/api";
+import MuxPlayer from "@mux/mux-player-react";
+import { Button } from "../ui/button";
+import { formatPrice } from "@/utils/format-price";
+import { useNavigate } from "react-router-dom";
 
-export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
+export function ModulesAccordion({
+  modules,
+  courseId,
+  price,
+}: {
+  modules: CourseModule[];
+  courseId: string;
+  price: number;
+}) {
   const [activeId, setActiveId] = useState<string | null>("design");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [openPay, setOpenPay] = useState(false);
+  const [freeLessons, setFreeLessons] = useState<Lesson[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
+  const navigate = useNavigate();
+
+  const handleOpenPayModal = () => {
+    setOpenPay(true);
+  };
+
+  const handleOpenFreeLesson = async (lessonClicked: Lesson) => {
+    setOpen(true);
+
+    try {
+      setLoading(true);
+      const res = await getFreeLessons(courseId);
+      const lessons = res.data.modules.flatMap((m: any) => m.lessons);
+
+      setFreeLessons(lessons);
+
+      const selected =
+        lessons.find((l: Lesson) => l.id === lessonClicked.id) ??
+        lessons[0] ??
+        null;
+
+      setActiveLesson(selected);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isLoading = loading || !activeLesson;
+
+  const handleCloseModal = () => {
+    setOpen(false);
+  };
+
+  const handleCloseModalPay = () => {
+    setOpenPay(false);
+  };
+
+  const handleBtnCheckout = () => {
+    navigate(`/cursos/${courseId}/pago`);
+  };
 
   return (
     <div className="w-full max-w-xl">
@@ -162,6 +223,8 @@ export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
                             key={lesson.id}
                             lesson={lesson}
                             index={idx}
+                            onFreeClick={handleOpenFreeLesson}
+                            onPayClick={handleOpenPayModal}
                           />
                         ))
                       ) : (
@@ -177,6 +240,107 @@ export function ModulesAccordion({ modules }: { modules: CourseModule[] }) {
           );
         })}
       </div>
+      <UniversalModal
+        open={open}
+        onOpenChange={handleCloseModal}
+        title="Vista previa del curso"
+      >
+        <div className="flex flex-col gap-6">
+          {/* VISOR SUPERIOR */}
+          <div className="w-full rounded-lg overflow-hidden min-h-[360px] bg-muted">
+            {isLoading && (
+              <p className="text-sm text-muted-foreground">
+                Cargando vista previa...
+              </p>
+            )}
+
+            {!isLoading && activeLesson?.muxPlaybackId && (
+              <MuxPlayer
+                key={activeLesson.id}
+                playbackId={activeLesson.muxPlaybackId}
+                className="w-full h-full mux-custom"
+                metadata={{
+                  video_id: activeLesson.muxPlaybackId,
+                  video_title: "Video gratuito del curso",
+                }}
+                accentColor="#20ab9f"
+              />
+            )}
+
+            {!isLoading && activeLesson?.content && (
+              <div className="max-h-[360px] overflow-y-auto p-6 prose prose-invert tiptap">
+                <div
+                  dangerouslySetInnerHTML={{ __html: activeLesson.content }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* LISTA DE CLASES */}
+          <div>
+            <h4 className="text-sm font-medium mb-2">
+              Clases gratuitas disponibles:
+            </h4>
+
+            <ul className="space-y-1">
+              {loading && (
+                <li className="text-sm text-muted-foreground px-3 py-2">
+                  Cargando clases...
+                </li>
+              )}
+
+              {!loading &&
+                freeLessons.map((lesson) => {
+                  const isActive = lesson.id === activeLesson?.id;
+
+                  return (
+                    <li
+                      key={lesson.id}
+                      onClick={() => setActiveLesson(lesson)}
+                      className={`cursor-pointer rounded-md px-3 py-2 text-sm flex justify-between
+          ${isActive ? "bg-muted font-medium" : "hover:bg-muted/50"}`}
+                    >
+                      <span>{lesson.title}</span>
+                      {lesson.type === "videoFile" ? (
+                        <Video size={18} />
+                      ) : (
+                        <Text size={18} />
+                      )}
+                    </li>
+                  );
+                })}
+            </ul>
+          </div>
+        </div>
+      </UniversalModal>
+      <UniversalModal
+        open={openPay}
+        onOpenChange={handleCloseModalPay}
+        title="Comprar acceso al curso"
+      >
+        <div>
+          <div className="space-y-1">
+            <p className="text-4xl font-semibold text-black">
+              ARS ${formatPrice(price)}
+            </p>
+            <p className="text-sm text-neutral-500">
+              Pago único · Acceso de por vida
+            </p>
+          </div>
+
+          <Button
+            onClick={handleBtnCheckout}
+            size="lg"
+            className="w-full text-base"
+          >
+            Inscribirme ahora
+          </Button>
+
+          <p className="text-center text-xs text-neutral-500">
+            Garantía de devolución de 7 días
+          </p>
+        </div>
+      </UniversalModal>
     </div>
   );
 }

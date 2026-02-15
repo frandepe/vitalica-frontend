@@ -71,8 +71,8 @@ export const Step6 = ({
             <div className="leading-snug">
               <span className="font-semibold block">
                 {errorCount > 0
-                  ? "Hay contenido obligatorio pendiente"
-                  : "Completá la información del curso"}
+                  ? "Hay contenido obligatorio pendiente. Por favor, completá los campos marcados en rojo antes de finalizar el curso."
+                  : "Hay contenido opcional pendiente. Puedes finalizar el curso sin completar estos campos, pero se recomienda hacerlo para una mejor experiencia del alumno."}
               </span>
 
               {(errorCount > 0 || warningCount > 0) && (

@@ -12,17 +12,23 @@ import SubirPageTest from "@/pages/public/upload-test";
 import DownloadPageTest from "@/pages/public/download-test";
 import CourseStatus from "@/pages/protected/CourseStatus";
 import CourseLayout from "@/layouts/course-player.layout";
+import BlogsLayout from "@/layouts/blogs.layout";
 
 // Páginas públicas
 const Onboarding = lazy(() => import("@/pages/public/Onboarding"));
 const HomePage = lazy(() => import("@/pages/public/HomePage"));
 const AboutPage = lazy(() => import("@/pages/public/AboutPage"));
+const Search = lazy(() => import("@/pages/public/Courses/Search"));
 const ContactPage = lazy(() => import("@/pages/public/ContactPage"));
 const ApplyToBeInstructor = lazy(
-  () => import("@/pages/public/ApplyToBeInstructor")
+  () => import("@/pages/public/ApplyToBeInstructor"),
 );
+const TeachesOnVitalica = lazy(
+  () => import("@/pages/public/TeachesOnVitalica"),
+);
+const BlogLandingPage = lazy(() => import("@/pages/public/Blogs/Blogs"));
 const CourseOverview = lazy(
-  () => import("@/pages/public/Courses/CourseOverview")
+  () => import("@/pages/public/Courses/CourseOverview"),
 );
 const Checkout = lazy(() => import("@/pages/public/Courses/Checkout"));
 
@@ -34,52 +40,52 @@ const VerifyEmailPage = lazy(() => import("@/pages/auth/VerifyEmailPage"));
 // Páginas protegidas por autenticación
 const ProfilePage = lazy(() => import("@/pages/protected/ProfilePage"));
 const CoursePlayer = lazy(
-  () => import("@/pages/protected/Courses/CoursePlayer")
+  () => import("@/pages/protected/Courses/CoursePlayer"),
 );
 const ApplicationStatus = lazy(
-  () => import("@/pages/protected/ApplicationStatus")
+  () => import("@/pages/protected/ApplicationStatus"),
 );
 
 // Paginas protegicas - Dashboard
 const DashboardInstructor = lazy(
-  () => import("@/pages/protected/DashboardInstructor")
+  () => import("@/pages/protected/DashboardInstructor"),
 );
 const CardsDashboard = lazy(
-  () => import("@/pages/protected/ChildrensDashboardInstructor/CardsDashboard")
+  () => import("@/pages/protected/ChildrensDashboardInstructor/CardsDashboard"),
 );
 const Analytics = lazy(
-  () => import("@/pages/protected/ChildrensDashboardInstructor/Analytics")
+  () => import("@/pages/protected/ChildrensDashboardInstructor/Analytics"),
 );
 const InstructorProfile = lazy(
   () =>
-    import("@/pages/protected/ChildrensDashboardInstructor/InstructorProfile")
+    import("@/pages/protected/ChildrensDashboardInstructor/InstructorProfile"),
 );
 const Courses = lazy(
-  () => import("@/pages/protected/ChildrensDashboardInstructor/Courses")
+  () => import("@/pages/protected/ChildrensDashboardInstructor/Courses"),
 );
 const EditCourse = lazy(
-  () => import("@/pages/protected/ChildrensDashboardInstructor/EditCourse")
+  () => import("@/pages/protected/ChildrensDashboardInstructor/EditCourse"),
 );
 
 // Páginas del admin
 const DashboardAdmin = lazy(() => import("@/pages/admin/DashboardAdmin"));
 const AdminUsers = lazy(
-  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminUsers")
+  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminUsers"),
 );
 const AdminCourses = lazy(
-  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminCourses")
+  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminCourses"),
 );
 const CardsDashboardAdmin = lazy(
-  () => import("@/pages/admin/ChildrensDashboardAdmin/CardsDashboard")
+  () => import("@/pages/admin/ChildrensDashboardAdmin/CardsDashboard"),
 );
 const InstructorsApplications = lazy(
-  () => import("@/pages/admin/ChildrensDashboardAdmin/InstructorsApplications")
+  () => import("@/pages/admin/ChildrensDashboardAdmin/InstructorsApplications"),
 );
 const InstructorApplication = lazy(
-  () => import("@/pages/admin/ChildrensDashboardAdmin/InstructorApplication")
+  () => import("@/pages/admin/ChildrensDashboardAdmin/InstructorApplication"),
 );
 const AdminCourse = lazy(
-  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminCourse")
+  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminCourse"),
 );
 
 export const router = createBrowserRouter([
@@ -97,8 +103,20 @@ export const router = createBrowserRouter([
         element: <AboutPage />,
       },
       {
+        path: "buscar",
+        element: <Search />,
+      },
+      {
         path: "solicitar-ser-instructor",
-        element: <ApplyToBeInstructor />,
+        element: (
+          <ProtectedRoute>
+            <ApplyToBeInstructor />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "dar-cursos",
+        element: <TeachesOnVitalica />,
       },
       {
         path: "contacto",
@@ -224,6 +242,17 @@ export const router = createBrowserRouter([
       {
         path: ":lessonId?",
         element: <CoursePlayer />,
+      },
+    ],
+  },
+  {
+    path: "blogs",
+    element: <BlogsLayout />,
+
+    children: [
+      {
+        path: "",
+        element: <BlogLandingPage />,
       },
     ],
   },

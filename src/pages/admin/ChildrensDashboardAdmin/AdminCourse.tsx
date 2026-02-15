@@ -70,13 +70,13 @@ const AdminCourse = () => {
                 reviewerNotes: data.reviewerNotes,
                 reviewedBy: data.revewedBy,
               }
-            : prev
+            : prev,
         );
       } else {
         showToast(
           response.message || "Error al guardar el feedback",
           "error",
-          "bottom-right"
+          "bottom-right",
         );
       }
     } catch (error) {
@@ -84,7 +84,7 @@ const AdminCourse = () => {
       showToast(
         "Error inesperado al guardar el feedback",
         "error",
-        "bottom-right"
+        "bottom-right",
       );
     } finally {
       setIsSubmitting(false);
@@ -227,7 +227,7 @@ const AdminCourse = () => {
                       {/* CONTENT */}
                       {lesson.type === "content" && lesson.content && (
                         <div
-                          className="prose prose-sm max-w-none bg-white p-3 border border-slate-400 rounded"
+                          className="prose prose-sm max-w-none bg-white p-3 border border-slate-400 rounded tiptap"
                           dangerouslySetInnerHTML={{ __html: lesson.content }}
                         />
                       )}

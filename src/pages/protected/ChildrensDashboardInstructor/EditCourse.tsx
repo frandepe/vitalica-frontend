@@ -40,6 +40,11 @@ import {
   savePromoVideoToCourse,
 } from "@/api/videoEndpoints";
 
+// TODO: (Posible TODO)
+// click siguiente →
+//   si isDirty → guardar
+//   si no → avanzar
+
 interface LessonTypes {
   [sectionIndex: number]: {
     [lessonIndex: number]: string;
@@ -95,7 +100,7 @@ export default function EditCourse() {
   });
   const {
     register,
-    formState: { errors },
+    formState: { errors, isDirty },
     handleSubmit,
     control,
     setValue,
@@ -172,6 +177,7 @@ export default function EditCourse() {
       };
 
       await saveCourseAsDraft(payload);
+
       const res = await submitCourseForReview(courseId!);
 
       console.log("resultado de submit", res);
@@ -260,95 +266,105 @@ export default function EditCourse() {
 
   const handlePromoVideoUpload = async (file: File) => {
     if (!courseId) return;
+    try {
+      // 1) Crear Direct Upload
+      setUploadProgress(0);
+      setUploadStatus("Preparando subida…");
 
-    // 1) Crear Direct Upload
-    const res1 = await createPromoVideoDirectUpload(courseId);
+      const res1 = await createPromoVideoDirectUpload(courseId);
 
-    if (!res1.success) {
-      console.error(res1.message);
-      return;
-    }
-
-    const { uploadUrl, uploadId } = res1.data;
-
-    // 2) Subir archivo a Mux con barra de progreso
-    await new Promise<void>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-
-      xhr.open("PUT", uploadUrl);
-
-      xhr.setRequestHeader("Content-Type", file.type);
-
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const progress = Math.round((e.loaded / e.total) * 100);
-          console.log("Progreso:", progress + "%");
-
-          // llamá a tu hook o setState
-          setUploadProgress(progress);
-        }
-      };
-
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          resolve();
-        } else {
-          reject("Error subiendo archivo a Mux");
-        }
-      };
-
-      xhr.onerror = () => reject("Error en la subida");
-
-      xhr.send(file);
-    });
-
-    // El paso dos se puede reemplazar con esto:
-    // await fetch(uploadUrl, {
-    //   method: "PUT",
-    //   headers: { "Content-Type": file.type },
-    //   body: file,
-    // });
-    // pero no me permite trackear el progreso fácilmente.
-
-    // 3) Mostrar feedback mientras Mux procesa
-    setUploadStatus("Por favor, no cierre la página…");
-
-    let playbackId: string | null = null;
-    let assetId: string | null = null;
-
-    while (!assetId) {
-      const statusRes = await getMuxUploadStatus(uploadId);
-
-      if (!statusRes.success) {
-        console.error(statusRes.message);
+      if (!res1.success) {
+        console.error(res1.message);
         return;
       }
 
-      if (statusRes.status === "asset_created") {
-        assetId = statusRes.assetId;
-        playbackId = statusRes.playbackId;
-      } else {
-        await new Promise((r) => setTimeout(r, 2000));
+      const { uploadUrl, uploadId } = res1.data;
+
+      // 2) Subir archivo a Mux con barra de progreso
+      setUploadStatus("Subiendo video…");
+
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+
+        xhr.open("PUT", uploadUrl);
+
+        xhr.setRequestHeader("Content-Type", file.type);
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const progress = Math.round((e.loaded / e.total) * 100);
+            console.log("Progreso:", progress + "%");
+
+            // llamá a tu hook o setState
+            setUploadProgress(progress);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            resolve();
+          } else {
+            reject("Error subiendo archivo a Mux");
+          }
+        };
+
+        xhr.onerror = () => reject("Error en la subida");
+
+        xhr.send(file);
+      });
+
+      // El paso dos se puede reemplazar con esto:
+      // await fetch(uploadUrl, {
+      //   method: "PUT",
+      //   headers: { "Content-Type": file.type },
+      //   body: file,
+      // });
+      // pero no me permite trackear el progreso fácilmente.
+
+      // 3) Mostrar feedback mientras Mux procesa
+      setUploadStatus("Procesando el video, por favor no cierre la página…");
+
+      let playbackId: string | null = null;
+      let assetId: string | null = null;
+
+      while (!assetId) {
+        const statusRes = await getMuxUploadStatus(uploadId);
+
+        if (!statusRes.success) {
+          console.error(statusRes.message);
+          return;
+        }
+
+        if (statusRes.status === "asset_created") {
+          assetId = statusRes.assetId;
+          playbackId = statusRes.playbackId;
+        } else {
+          await new Promise((r) => setTimeout(r, 2000));
+        }
       }
+
+      // 4) Confirmar en backend
+      setUploadStatus("Guardando video…");
+      const res2 = await savePromoVideoToCourse(courseId, uploadId);
+
+      if (!res2.success) {
+        console.error(res2.message);
+        return;
+      }
+
+      // 5) Actualizar formulario
+      form.setValue("muxPromoAssetId", assetId, { shouldDirty: true });
+
+      if (playbackId) {
+        form.setValue("muxPlaybackId", playbackId, { shouldDirty: true });
+      }
+
+      setUploadStatus("¡Video guardado!");
+      setUploadProgress(100);
+    } catch (err) {
+      console.error(err);
+      setUploadStatus("Ocurrió un error al subir el video");
     }
-
-    // 4) Confirmar en backend
-    const res2 = await savePromoVideoToCourse(courseId, uploadId);
-
-    if (!res2.success) {
-      console.error(res2.message);
-      return;
-    }
-
-    // 5) Actualizar formulario
-    form.setValue("muxPromoAssetId", assetId, { shouldDirty: true });
-
-    if (playbackId) {
-      form.setValue("muxPlaybackId", playbackId, { shouldDirty: true });
-    }
-
-    setUploadStatus("¡Video guardado!");
-    setUploadProgress(100);
   };
 
   if (isLoading) return <GlobalLoading text="Autoguardado..." />;
@@ -377,6 +393,7 @@ export default function EditCourse() {
           }}
           onFinalStepCompleted={onSubmit}
           onSaveToDraft={onSubmitDraft}
+          isDirty={isDirty}
           backButtonText="Atrás"
           nextButtonText="Siguiente"
           errorCount={errorCount}

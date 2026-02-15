@@ -87,7 +87,7 @@ export default function Courses() {
           description="Empezá a compartir tu conocimiento creando tu primer curso."
           imageSrc="/Banners/banner2.jpg"
           buttonPrimary={{
-            label: "Crear curso",
+            label: "+ Tu primer curso",
             onSubmit: onCreate,
           }}
           buttonSecondary={{

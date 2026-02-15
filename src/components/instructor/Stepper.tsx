@@ -15,6 +15,7 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   onFinalStepCompleted?: () => void;
   errorCount: number;
   onSaveToDraft?: () => void;
+  isDirty?: boolean;
   stepCircleContainerClassName?: string;
   stepContainerClassName?: string;
   contentClassName?: string;
@@ -38,6 +39,7 @@ const StepperComponent = ({
   onFinalStepCompleted = () => {},
   errorCount = 0,
   onSaveToDraft = () => {},
+  isDirty = false,
   stepCircleContainerClassName = "",
   stepContainerClassName = "",
   contentClassName = "",
@@ -160,7 +162,11 @@ const StepperComponent = ({
               </Button>
               {!isLastStep && (
                 // TODO: Agregar un useIntervalClicks para evitar múltiples clicks rápidos
-                <Button variant="outline" onClick={onSaveToDraft}>
+                <Button
+                  variant="outline"
+                  onClick={onSaveToDraft}
+                  disabled={!isDirty}
+                >
                   Guardar en borrador
                 </Button>
               )}
@@ -278,8 +284,8 @@ function StepIndicator({
     currentStep === step
       ? "active"
       : currentStep < step
-      ? "inactive"
-      : "complete";
+        ? "inactive"
+        : "complete";
 
   const handleClick = () => {
     if (step !== currentStep && !disableStepIndicators) {

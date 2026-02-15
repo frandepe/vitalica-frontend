@@ -53,9 +53,7 @@ export interface ApplicationDocument {
 }
 
 export enum PayoutMethod {
-  PAYPAL = "PAYPAL",
   MERCADO_PAGO = "MERCADO_PAGO",
-  BANK_TRANSFER = "BANK_TRANSFER",
 }
 
 export interface InstructorProfile {
@@ -75,14 +73,8 @@ export interface InstructorProfile {
 
   payoutMethod?: PayoutMethod;
 
-  // MÉTODOS DE PAGO
-  paypalEmail?: string;
-
-  mpAlias?: string;
-  mpCVU?: string;
-
-  bankCBU?: string;
-  bankAlias?: string;
+  mpCollectorId?: string;
+  mpConnectedAt?: Date;
 
   currency?: string;
   country?: string;
@@ -98,8 +90,4 @@ export interface InstructorProfile {
 
   createdAt: Date;
   updatedAt: Date;
-
-  // Relaciones
-  courses: ICourse[];
-  user: User;
 }

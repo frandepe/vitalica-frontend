@@ -7,8 +7,6 @@ import { Loader, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-// http://localhost:3000/verificar-email?token=571a9ffd-2ca8-4724-a254-14439be2638d
-
 export const EmailConfirm = ({
   userData,
 }: {
@@ -30,7 +28,7 @@ export const EmailConfirm = ({
         showToast(
           "Verificación de email enviada. Revisa tu bandeja de entrada",
           "info",
-          "top-right"
+          "top-right",
         );
         setIsResendDisabled(true);
         setTimer(15);
@@ -38,7 +36,7 @@ export const EmailConfirm = ({
         showToast(
           "Falló el envío del correo electrónico",
           "error",
-          "top-right"
+          "top-right",
         );
       }
     } catch (error) {

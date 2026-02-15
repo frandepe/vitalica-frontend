@@ -8,9 +8,13 @@ import {
   Users,
   School,
   Video,
+  DollarSign,
+  TrendingUp,
+  GraduationCap,
+  ShieldCheck,
+  LifeBuoy,
 } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { ScrollToTop } from "@/utils/scroll-top";
 import { useStickyTop } from "@/hooks/useStickyTop";
 
 interface NavigationItem {
@@ -35,16 +39,46 @@ const navigationItems: NavigationItem[] = [
     href: "/admin/usuarios",
   },
   {
-    id: "cursos",
-    name: "Cursos",
-    icon: Video,
-    href: "/admin/cursos",
+    id: "instructores",
+    name: "Instructores",
+    icon: GraduationCap,
+    href: "/admin/instructores",
   },
   {
     id: "aplicaciones",
     name: "Aplicaciones",
     icon: School,
     href: "/admin/aplicaciones",
+  },
+  {
+    id: "cursos",
+    name: "Cursos",
+    icon: Video,
+    href: "/admin/cursos",
+  },
+  {
+    id: "pagos",
+    name: "Pagos",
+    icon: DollarSign,
+    href: "/admin/pagos",
+  },
+  {
+    id: "metricas",
+    name: "Métricas",
+    icon: TrendingUp,
+    href: "/admin/metricas",
+  },
+  {
+    id: "moderacion",
+    name: "Moderación",
+    icon: ShieldCheck,
+    href: "/admin/moderacion",
+  },
+  {
+    id: "soporte",
+    name: "Soporte",
+    icon: LifeBuoy,
+    href: "/admin/soporte",
   },
 ];
 
@@ -60,6 +94,11 @@ export default function DashboardAdmin() {
       "/admin/usuarios": "usuarios",
       "/admin/cursos": "cursos",
       "/admin/aplicaciones": "aplicaciones",
+      "/admin/pagos": "pagos",
+      "/admin/metricas": "metricas",
+      "/admin/instructores": "instructores",
+      "/admin/moderacion": "moderacion",
+      "/admin/soporte": "soporte",
     };
 
     const id = pathToIdMap[location.pathname];
@@ -98,7 +137,6 @@ export default function DashboardAdmin() {
   const sidebarHeight = `calc(100vh - ${top}px)`;
   return (
     <div className="flex">
-      <ScrollToTop />
       {/* Mobile hamburger button */}
       <button
         onClick={toggleSidebar}

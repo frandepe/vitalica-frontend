@@ -64,7 +64,7 @@ const LoginPage = () => {
 
   if (
     getGeneralErrors().includes(
-      "Por favor verifica tu email antes de iniciar sesión"
+      "Por favor verifica tu email antes de iniciar sesión",
     )
   ) {
     return <EmailConfirm userData={userData!} />;
@@ -133,7 +133,7 @@ const LoginPage = () => {
             </div>
 
             <div className="animate-element animate-delay-500 flex items-center justify-between text-sm">
-              <a className="hover:underline text-secondary transition-colors cursor-pointer">
+              <a className="hover:underline text-black/60 transition-colors cursor-pointer">
                 Olvidé mi contraseña
               </a>
             </div>
@@ -162,7 +162,7 @@ const LoginPage = () => {
             Nuevo en la plataforma?{" "}
             <Link
               to="/auth/register"
-              className="text-secondary hover:underline transition-colors cursor-pointer"
+              className="text-primary hover:underline transition-colors cursor-pointer"
             >
               Crear una cuenta
             </Link>

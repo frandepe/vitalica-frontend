@@ -18,6 +18,22 @@ export const getInstructorCourses = async (): Promise<ApiResponse> => {
   });
 };
 
+export const getCourses = async (
+  page: number,
+  limit: number,
+  search: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/`,
+    method: "GET",
+    params: {
+      page,
+      limit,
+      search,
+    },
+  });
+};
+
 export const getCourseById = async (courseId: string): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/${courseId}`,
@@ -33,7 +49,7 @@ export const getCourseBySlug = async (slug: string): Promise<ApiResponse> => {
 };
 
 export const saveCourseAsDraft = async (
-  data: SaveCourseDraftPayload
+  data: SaveCourseDraftPayload,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/save-draft`,
@@ -44,7 +60,7 @@ export const saveCourseAsDraft = async (
 
 export const saveCourseThumbnail = async (
   id: string,
-  thumbnailUrl: string
+  thumbnailUrl: string,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/save-thumbnail`,
@@ -64,7 +80,7 @@ interface UploadUrlResponse {
 
 export const requestMaterialUploadUrlTest = async (
   courseId: string,
-  file: File
+  file: File,
 ): Promise<ApiResponse<UploadUrlResponse>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/upload-test`,
@@ -82,7 +98,7 @@ interface DownloadMaterialResponse {
 }
 
 export const requestMaterialDownloadUrl = async (
-  key: string
+  key: string,
 ): Promise<ApiResponse<DownloadMaterialResponse>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/download-material`,
@@ -93,7 +109,7 @@ export const requestMaterialDownloadUrl = async (
 
 // Creacion de Modulos y Lecciones
 export const createCourseModule = async (
-  courseId: string
+  courseId: string,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/${courseId}/modules`,
@@ -102,7 +118,7 @@ export const createCourseModule = async (
 };
 
 export const deleteCourseModule = async (
-  moduleId: string
+  moduleId: string,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/module/${moduleId}`,
@@ -112,7 +128,7 @@ export const deleteCourseModule = async (
 
 export const createCourseLesson = async (
   moduleId: string,
-  payload?: { title?: string; type: LessonType }
+  payload?: { title?: string; type: LessonType },
 ) => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/${moduleId}/lesson`,
@@ -122,7 +138,7 @@ export const createCourseLesson = async (
 };
 
 export const deleteCourseLesson = async (
-  lessonId: string
+  lessonId: string,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/lesson/${lessonId}`,
@@ -132,7 +148,7 @@ export const deleteCourseLesson = async (
 
 export const requestMaterialUploadUrl = async (
   lessonId: string,
-  file: File
+  file: File,
 ): Promise<ApiResponse<UploadUrlResponse>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/upload-lesson-material`,
@@ -153,7 +169,7 @@ export interface CreateModuleQuizPayload {
 }
 
 export const createModuleQuiz = async (
-  payload: CreateModuleQuizPayload
+  payload: CreateModuleQuizPayload,
 ): Promise<ApiResponse<{ id: string }>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/module/quiz`,
@@ -163,7 +179,7 @@ export const createModuleQuiz = async (
 };
 
 export const getModuleQuizzes = async (
-  moduleId: string
+  moduleId: string,
 ): Promise<ApiResponse<any[]>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/module/${moduleId}/quizzes`,
@@ -172,7 +188,7 @@ export const getModuleQuizzes = async (
 };
 
 export const deleteModuleQuiz = async (
-  quizId: string
+  quizId: string,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/module/quiz/${quizId}`,
@@ -189,7 +205,7 @@ export interface CreateFinalQuizPayload {
 
 // Crear quiz final del curso
 export const createFinalQuiz = async (
-  payload: CreateFinalQuizPayload
+  payload: CreateFinalQuizPayload,
 ): Promise<ApiResponse<{ id: string }>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/quiz/final-quiz`,
@@ -200,7 +216,7 @@ export const createFinalQuiz = async (
 
 // Obtener quizzes finales del curso
 export const getFinalQuizzes = async (
-  courseId: string
+  courseId: string,
 ): Promise<ApiResponse<any[]>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/quiz/final/${courseId}`,
@@ -218,7 +234,7 @@ export const deleteFinalQuiz = async (quizId: string): Promise<ApiResponse> => {
 
 // Obtener preview de un curso (estructura, lecciones, quizzes)
 export const getCoursePreview = async (
-  courseId: string
+  courseId: string,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/preview/${courseId}`,
@@ -228,7 +244,7 @@ export const getCoursePreview = async (
 
 // Enviar curso para revisión
 export const submitCourseForReview = async (
-  courseId: string
+  courseId: string,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/submit/${courseId}`,
@@ -237,7 +253,7 @@ export const submitCourseForReview = async (
 };
 
 export const getCourseStatus = async (
-  courseId: string
+  courseId: string,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/status/${courseId}`,
@@ -245,8 +261,17 @@ export const getCourseStatus = async (
   });
 };
 
+export const getFreeLessons = async (
+  courseId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/free-lessons/${courseId}`,
+    method: "GET",
+  });
+};
+
 export const createOrGetCourseDraft = async (
-  courseId: string
+  courseId: string,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/edit-published/${courseId}`,

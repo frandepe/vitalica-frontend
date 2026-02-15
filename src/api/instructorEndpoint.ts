@@ -4,7 +4,7 @@ import { IApplyInstructor, InstructorProfile } from "@/types/instructor.types";
 import { API_ROUTES } from "@/constants";
 
 export const upsertInstructorApplication = async (
-  data: IApplyInstructor
+  data: IApplyInstructor,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.INSTRUCTOR}/upsert-application`,
@@ -21,7 +21,7 @@ export const getInstructorApplication = async () => {
 };
 
 export const upsertInstructorProfile = async (
-  data: InstructorProfile
+  data: Partial<InstructorProfile>,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.INSTRUCTOR}/profile`,

@@ -6,12 +6,12 @@ import { ModulesAccordion } from "../Accordion/ModulesAccordion";
 
 function CourseOverviewTabs(course: ICourse) {
   const hasModuleDescriptions = course.modules?.some((module) =>
-    Boolean(module.description)
+    Boolean(module.description),
   );
 
   return (
     <Tabs defaultValue="tab-1" className="w-full">
-      <TabsList className="relative h-auto w-full justify-start gap-1 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-border">
+      <TabsList className="relative h-auto w-full justify-start gap-1 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-black/50">
         <TabsTrigger
           value="tab-1"
           className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
@@ -60,7 +60,7 @@ function CourseOverviewTabs(course: ICourse) {
         {/* Instructor */}
         {/* Instructor */}
         {course.instructor?.user && (
-          <section className="border-t border-border pt-8">
+          <section className="border-t border-black/50 pt-8">
             <h2 className="text-lg font-semibold tracking-tight text-foreground mb-4">
               Instructor
             </h2>
@@ -107,10 +107,14 @@ function CourseOverviewTabs(course: ICourse) {
       </TabsContent>
 
       <TabsContent value="tab-2" className="pt-6 space-y-10">
-        <ModulesAccordion modules={course.modules!} />
+        <ModulesAccordion
+          modules={course.modules!}
+          courseId={course.id!}
+          price={course.price!}
+        />
 
         {hasModuleDescriptions && (
-          <section className="border-t border-border pt-8">
+          <section className="border-t border-black/50 pt-8">
             <h2 className="flex items-center gap-3 text-lg font-semibold text-foreground">
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <BookOpen className="h-4 w-4" />
@@ -133,7 +137,7 @@ function CourseOverviewTabs(course: ICourse) {
                       {module.description}
                     </span>
                   </li>
-                ) : null
+                ) : null,
               )}
             </ul>
           </section>

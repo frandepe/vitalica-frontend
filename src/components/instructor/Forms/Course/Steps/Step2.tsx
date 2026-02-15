@@ -32,6 +32,8 @@ export const Step2 = ({
 }: Step2Props) => {
   const { control, watch } = useFormContext();
   const playbackId = watch("muxPlaybackId");
+  const isProcessingVideo =
+    uploadProgress > 0 && uploadProgress < 100 && !playbackId;
 
   const [isReplacingVideo, setIsReplacingVideo] = useState(false);
   const { user } = useAuth();
@@ -95,7 +97,12 @@ export const Step2 = ({
       )}
 
       <div className="relative w-full h-[550px] flex flex-col justify-center">
-        {playbackId && !isReplacingVideo ? (
+        {isProcessingVideo ? (
+          /* ================= PROCESANDO ================= */
+          <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+            {uploadStatus || "Procesando el video…"}
+          </div>
+        ) : playbackId && !isReplacingVideo ? (
           /* ================= VIDEO LISTO ================= */
           <div className="flex flex-col items-center justify-center gap-4 h-full">
             <div className="w-full max-w-lg aspect-video rounded-xl overflow-hidden">
@@ -108,6 +115,7 @@ export const Step2 = ({
                   viewer_user_id: user.id.toString(),
                 }}
                 accentColor="#20ab9f"
+                onError={(event) => console.log("loggg event", event)}
               />
             </div>
 

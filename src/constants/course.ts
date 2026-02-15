@@ -1,5 +1,4 @@
 import { ICourse } from "@/types/course.types";
-import { InstructorApplication } from "@/types/instructor.types";
 
 export const sectionBackgrounds = [
   "bg-primary/20",
@@ -105,3 +104,9 @@ export const statusColorsCourse: Record<ICourse["status"], string> = {
 
 export const statusLabelsCourse: Record<ICourse["status"], string> =
   translateStatusCourse;
+
+export const COURSES_CARD_DEFAULTS = {
+  page: 1,
+  limit: 12,
+  MAX_LIMIT: 20,
+} as const;

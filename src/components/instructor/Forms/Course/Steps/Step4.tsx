@@ -6,12 +6,16 @@ import {
 } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress-bar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { descriptionModuleCourseLimit, sectionBackgrounds } from "@/constants";
+import {
+  descriptionModuleCourseLimit,
+  sectionBackgrounds,
+  titleMaxModuleAndLessonsCourseLimit,
+  titleMinModuleAndLessonsMaxCourseLimit,
+} from "@/constants";
 import {
   CourseModuleFormValues,
   LessonFormValues,
@@ -32,6 +36,7 @@ import { useState } from "react";
 import {
   Control,
   Controller,
+  useFormContext,
   UseFormRegister,
   UseFormSetValue,
   UseFormWatch,
@@ -79,12 +84,12 @@ interface Props {
 export const Step4 = ({
   courseId,
   modules,
-  register,
-  watch,
+  // register,
+  // watch,
   removeModule,
-  setValue,
+  // setValue,
   handleLessonTypeChange,
-  control,
+  // control,
   priceDB,
 }: Props) => {
   const [isCreatingModule, setIsCreatingModule] = useState(false);
@@ -103,6 +108,14 @@ export const Step4 = ({
   const [replacingLessonId, setReplacingLessonId] = useState<string | null>(
     null,
   );
+
+  const {
+    watch,
+    setValue,
+    formState: { errors },
+    control,
+    register,
+  } = useFormContext<NewCourseFormValues>();
 
   const handleAddModule = async () => {
     if (isCreatingModule) return;
@@ -229,7 +242,6 @@ export const Step4 = ({
       [lessonId]: { progress: 0, status: "Subiendo…" },
     }));
     const res = await createLessonDirectUpload(lessonId);
-    console.log("createLessonDirectUpload res:", res);
 
     if (!res.success) return;
 
@@ -296,8 +308,7 @@ export const Step4 = ({
     }
 
     // 4) confirmar backend
-    const resp = await saveLessonVideoToCourse(lessonId, uploadId);
-    console.log("confirmLessonVideoUpload res:", resp);
+    await saveLessonVideoToCourse(lessonId, uploadId);
 
     setValue(
       `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
@@ -366,6 +377,14 @@ export const Step4 = ({
                       <Input
                         {...register(`modules.${moduleIndex}.title`, {
                           required: true,
+                          minLength: {
+                            value: titleMinModuleAndLessonsMaxCourseLimit,
+                            message: `El título debe tener al menos ${titleMinModuleAndLessonsMaxCourseLimit} caracteres`,
+                          },
+                          maxLength: {
+                            value: titleMaxModuleAndLessonsCourseLimit,
+                            message: `El título no puede superar los ${titleMaxModuleAndLessonsCourseLimit} caracteres`,
+                          },
                         })}
                         placeholder="Ingrese el título del módulo"
                       />
@@ -392,7 +411,6 @@ export const Step4 = ({
                             <AlertDialogTitle>
                               ¿Eliminar este módulo completo?
                             </AlertDialogTitle>
-
                             <AlertDialogDescription>
                               Este módulo y todas las lecciones que contiene
                               serán eliminadas de forma permanente.
@@ -452,6 +470,12 @@ export const Step4 = ({
                         </AlertDialogContent>
                       </AlertDialog>
                     </div>
+                    {errors.modules?.[moduleIndex]?.title?.message && (
+                      <p className="text-red-500 text-sm my-1">
+                        {errors.modules?.[moduleIndex]?.title?.message}
+                      </p>
+                    )}
+
                     <Textarea
                       placeholder="Descrbí de qué trata este módulo y qué aprenderán los estudiantes. Por ejemplo: 'En este módulo, exploraremos los conceptos fundamentales de...'"
                       className={cn(
@@ -469,6 +493,12 @@ export const Step4 = ({
                         },
                       })}
                     />
+
+                    {errors.modules?.[moduleIndex]?.description?.message && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.modules?.[moduleIndex]?.description?.message}
+                      </p>
+                    )}
                     <span className="text-sm text-muted-foreground">
                       {descriptionModuleCourseLimit -
                         (watch(`modules.${moduleIndex}.description`)?.length ||
@@ -494,7 +524,19 @@ export const Step4 = ({
                                 <Input
                                   {...register(
                                     `modules.${moduleIndex}.lessons.${lessonIndex}.title`,
-                                    { required: true },
+                                    {
+                                      required: true,
+                                      minLength: {
+                                        value:
+                                          titleMinModuleAndLessonsMaxCourseLimit,
+                                        message: `El título debe tener al menos ${titleMinModuleAndLessonsMaxCourseLimit} caracteres`,
+                                      },
+                                      maxLength: {
+                                        value:
+                                          titleMaxModuleAndLessonsCourseLimit,
+                                        message: `El título no puede superar los ${titleMaxModuleAndLessonsCourseLimit} caracteres`,
+                                      },
+                                    },
                                   )}
                                   placeholder="Ingrese el título de la lección"
                                   className="flex-1 dark:bg-background bg-white text-sm md:text-base"
@@ -560,6 +602,17 @@ export const Step4 = ({
                                   </AlertDialogContent>
                                 </AlertDialog>
                               </div>
+                              {errors.modules?.[moduleIndex]?.lessons?.[
+                                lessonIndex
+                              ]?.title?.message && (
+                                <p className="text-red-500 text-sm my-1">
+                                  {
+                                    errors.modules?.[moduleIndex]?.lessons?.[
+                                      lessonIndex
+                                    ]?.title?.message
+                                  }
+                                </p>
+                              )}
 
                               {/* ========= SELECT VIDEO OR CONTENT ========= */}
                               <div>

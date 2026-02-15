@@ -61,10 +61,5 @@ _________________
 http://localhost:5173/cursos/curso-mock-1769375296610
 Si el curso es gratuito (price === "0"), puede entrar directamente.
 
-Si una clase es gratuita y clickeamos, se abre un modal. (ejemplo de Udemy https://www.udemy.com/course/modelos-educativos/)
-Crear un endpoint que llame a todas las clases gratuitas de un curso y mapearlas en ese modal.
-
-Si una clase no es gratuita, sale un modal para comprar el curso
-
 http://localhost:5173/mis-cursos/curso-mock-1769375296610
 Sumar las quizzes globales

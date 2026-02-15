@@ -18,23 +18,25 @@ import mask01 from "@/assets/Masks/mask-06.svg";
 import banner1 from "/Banners/pago.jpg";
 import banner2 from "/Banners/dinero.jpg";
 import { Button } from "@/components/ui/button";
-
 import { ProgressCard } from "@/components/ui/progress";
-
 import { useAuth } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/toast";
 import { Form } from "@/components/ui/form";
-import { getInstructorProfile, upsertInstructorProfile } from "@/api";
 import { useIntervalClick } from "@/hooks/useIntervalClick";
-import { InstructorProfile as IInstructorProfile } from "@/types/instructor.types";
-import { paymentMethods } from "@/constants";
+import {
+  InstructorProfile as IInstructorProfile,
+  PayoutMethod,
+} from "@/types/instructor.types";
 import { UbicationSelect } from "@/components/Instructor/Forms/Profile/UbicationSelect";
 import SpecialtyChecks from "@/components/Instructor/Forms/Profile/SpecialtyChecks";
-import PaymentRadio from "@/components/Instructor/Forms/Profile/SelectPaymentMethod";
+import { MercadoPagoConnect } from "@/components/Buttons/MercadoPagoConnect";
+import { useSearchParams } from "react-router-dom";
 
 export default function InstructorProfile() {
-  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { user, instructor, upsertInstructorProfile, hasMercadoPagoConnected } =
+    useAuth();
   const { showToast } = useToast();
   const [editingLocation, setEditingLocation] = useState(false);
   const [cityAndState, setCityAndState] = useState("");
@@ -47,18 +49,7 @@ export default function InstructorProfile() {
       bio: "",
       specialties: [],
 
-      payoutMethod: undefined,
-
-      // PAYPAL
-      paypalEmail: "",
-
-      // MERCADO PAGO
-      mpAlias: "",
-      mpCVU: "",
-
-      // BANK TRANSFER
-      bankCBU: "",
-      bankAlias: "",
+      payoutMethod: PayoutMethod.MERCADO_PAGO,
 
       currency: "ARS",
       country: "AR",
@@ -84,36 +75,22 @@ export default function InstructorProfile() {
   // GET — Cargar perfil existente
   // ================================
   useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const response = await getInstructorProfile();
-        if (response?.data) {
-          reset(response.data); // Popular el formulario
-        }
-        console.log("response", response);
-      } catch (err) {
-        console.log("No hay perfil de instructor aún.");
-      }
-    };
-    loadProfile();
-  }, [reset]);
+    if (!instructor) return;
+
+    reset(instructor);
+  }, [instructor, reset]);
+
+  useEffect(() => {
+    if (searchParams.get("mp") === "connected") {
+      showToast("Mercado Pago conectado correctamente", "success");
+    }
+  }, []);
 
   // ================================
   // UPSERT — Crear o actualizar
   // ================================
   const onSubmit = async (data: IInstructorProfile) => {
     try {
-      if (data.payoutMethod === "MERCADO_PAGO") {
-        if (!data.mpAlias || !data.mpCVU) return errors;
-      }
-
-      if (data.payoutMethod === "PAYPAL") {
-        if (!data.paypalEmail) return errors;
-      }
-
-      if (data.payoutMethod === "BANK_TRANSFER") {
-        if (!data.bankCBU || !data.bankAlias) return errors;
-      }
       const payload = {
         ...data,
         // La ciudad viene como "Ciudad, Provincia"
@@ -121,10 +98,7 @@ export default function InstructorProfile() {
         state: cityAndState.split(",")[1]?.trim() || data.state,
       };
 
-      const res = await upsertInstructorProfile(payload);
-      console.log("payload", payload);
-
-      console.log("res", res);
+      await upsertInstructorProfile(payload);
 
       showToast(
         "Se han actualizado los datos de tu perfil",
@@ -176,9 +150,6 @@ export default function InstructorProfile() {
           <Settings className="text-gray-700" /> Configura tu perfil de
           Instructor
         </h3>
-        {Object.keys(errors).length > 0 && (
-          <pre className="text-red-600">{JSON.stringify(errors, null, 2)}</pre>
-        )}
         <div className="flex gap-8 flex-col lg:flex-row">
           <div>
             {/* Headline */}
@@ -336,21 +307,36 @@ export default function InstructorProfile() {
             maskSrc={mask01}
             imgCircles={banner1}
           />
-          <div>
-            <h3 className="text-2xl mb-6">Método de pago</h3>
-            <PaymentRadio
-              control={control}
-              name="payoutMethod"
-              rules={{
-                validate: (
-                  value: "PAYPAL" | "MERCADO_PAGO" | "BANK_TRANSFER",
-                ) =>
-                  Object.values(paymentMethods).includes(value)
-                    ? true
-                    : "Método de pago inválido",
-              }}
-            />
-          </div>
+          {hasMercadoPagoConnected ? (
+            <div>
+              <h3 className="text-2xl mb-6">¡Mercado Pago conectado!</h3>
+              <p className="mb-4">
+                Ya tenés tu cuenta de Mercado Pago conectada. Esto significa que
+                tus alumnos podrán comprar tus cursos y el dinero se acreditará
+                automáticamente en tu cuenta de Mercado Pago, descontando la
+                comisión de la plataforma.
+              </p>
+              <p className="mb-6 text-sm text-muted-foreground">
+                Vitalica no retiene tu dinero ni realiza pagos manuales. La
+                conexión es segura y se realiza directamente con Mercado Pago.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <h3 className="text-2xl mb-6">Método de pago</h3>
+              <p className="mb-4">
+                Para poder vender tus cursos, necesitás conectar tu cuenta de
+                Mercado Pago. Cada vez que un alumno compre uno de tus cursos,
+                el dinero se acreditará automáticamente en tu cuenta de Mercado
+                Pago, descontando la comisión de la plataforma.
+              </p>
+              <p className="mb-6 text-sm text-muted-foreground">
+                Vitalica no retiene tu dinero ni realiza pagos manuales. La
+                conexión es segura y se realiza directamente con Mercado Pago.
+              </p>
+              <MercadoPagoConnect />
+            </div>
+          )}
           <CirclesImg
             className="hidden 2xl:block"
             maskSrc={mask01}

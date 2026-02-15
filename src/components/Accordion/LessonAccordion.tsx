@@ -6,15 +6,31 @@ import { Badge } from "../ui/badge";
 interface LessonItemProps {
   lesson: Lesson;
   index: number;
+  onFreeClick: (lesson: Lesson) => void;
+  onPayClick: () => void;
 }
 
 //TODO: Si presiona en una clase que no es gratis redirigila a pagar
 
-export function LessonItem({ lesson, index }: LessonItemProps) {
+export function LessonItem({
+  lesson,
+  index,
+  onFreeClick,
+  onPayClick,
+}: LessonItemProps) {
   const { title, isFree, type, lessonMaterial } = lesson;
+
+  const handleClick = () => {
+    if (isFree) {
+      onFreeClick(lesson);
+    } else {
+      onPayClick();
+    }
+  };
 
   return (
     <motion.div
+      onClick={handleClick}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{

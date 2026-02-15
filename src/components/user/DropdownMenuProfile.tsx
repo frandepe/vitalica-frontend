@@ -12,7 +12,14 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { CreditCard, Crown, LogOut, Settings, UserCircle } from "lucide-react";
+import {
+  CreditCard,
+  Crown,
+  LogOut,
+  Settings,
+  Sparkles,
+  UserCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMedia } from "@/hooks/useMedia";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,7 +31,7 @@ export default function ProfileMenu() {
   const isMobile = useMedia();
 
   if (isMobile) {
-    // 👉 Drawer en mobile
+    // Drawer en mobile
     return (
       <Drawer>
         <DrawerTrigger asChild>
@@ -58,6 +65,15 @@ export default function ProfileMenu() {
 
           {/* Menu Items */}
           <div className="flex-1 overflow-y-auto divide-y divide-border">
+            {!user.onboarding?.hasCompletedOnboarding && (
+              <button
+                onClick={() => navigate("/primeros-pasos")}
+                className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
+              >
+                <Sparkles className="h-4 w-4" fill="#72d0ba" />
+                Cómo empezar
+              </button>
+            )}
             <button
               onClick={() => navigate("/perfil")}
               className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
@@ -65,6 +81,7 @@ export default function ProfileMenu() {
               <UserCircle className="h-4 w-4" />
               Perfil
             </button>
+
             <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent">
               <CreditCard className="h-4 w-4" />
               Billing
@@ -132,6 +149,15 @@ export default function ProfileMenu() {
         <DropdownSeparator />
 
         {/* Menu Items */}
+        {!user.onboarding?.hasCompletedOnboarding && (
+          <DropdownItem
+            className="gap-2 bg-muted hover:bg-primary-light"
+            onClick={() => navigate("/primeros-pasos")}
+          >
+            <Sparkles className="h-4 w-4" fill="#72d0ba" />
+            Cómo empezar
+          </DropdownItem>
+        )}
         <DropdownItem className="gap-2" onClick={() => navigate("/perfil")}>
           <UserCircle className="h-4 w-4" />
           Perfil

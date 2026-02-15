@@ -15,7 +15,7 @@ export const getValidationIssues = (course?: ICourse | null) => {
   if (!course.title) {
     issues.push({
       type: "error",
-      message: "Falta asignar un título al curso",
+      message: "Falta asignar un título al curso (Paso 1)",
       field: "title",
     });
   }
@@ -23,7 +23,7 @@ export const getValidationIssues = (course?: ICourse | null) => {
   if (!course.description) {
     issues.push({
       type: "error",
-      message: "Falta agregar una descripción",
+      message: "Falta agregar una descripción (Paso 1)",
       field: "description",
     });
   }
@@ -31,7 +31,7 @@ export const getValidationIssues = (course?: ICourse | null) => {
   if (!course.specialty) {
     issues.push({
       type: "error",
-      message: "Falta asignar una especialidad",
+      message: "Falta asignar una especialidad (Paso 1)",
       field: "specialty",
     });
   }
@@ -39,8 +39,19 @@ export const getValidationIssues = (course?: ICourse | null) => {
   if (course.price === null) {
     issues.push({
       type: "error",
-      message: "Falta definir el precio del curso",
+      message: "Falta definir el precio del curso (Paso 3)",
       field: "price",
+    });
+  }
+
+  if (
+    course.requirementsAndMaterials === null ||
+    course.requirementsAndMaterials === ""
+  ) {
+    issues.push({
+      type: "warning",
+      message: "Falta definir los requisitos y materiales del curso (Paso 3)",
+      field: "requirementsAndMaterials",
     });
   }
 
@@ -48,7 +59,7 @@ export const getValidationIssues = (course?: ICourse | null) => {
   if (!course.modules || course.modules.length === 0) {
     issues.push({
       type: "error",
-      message: "El curso no tiene módulos",
+      message: "El curso no tiene módulos (Paso 4)",
       field: "modules",
     });
   } else {
@@ -57,14 +68,14 @@ export const getValidationIssues = (course?: ICourse | null) => {
       if (!module.title) {
         issues.push({
           type: "error",
-          message: `El módulo ${idx + 1} no tiene título`,
+          message: `El módulo ${idx + 1} no tiene título (Paso 4)`,
           field: `module-${module.id}`,
         });
       }
       if (!module.lessons || module.lessons.length === 0) {
         issues.push({
           type: "error",
-          message: `El módulo "${module.title || idx + 1}" no tiene lecciones`,
+          message: `El módulo "${module.title || idx + 1}" no tiene lecciones (Paso 4)`,
           field: `module-${module.id}`,
         });
       }
@@ -75,7 +86,7 @@ export const getValidationIssues = (course?: ICourse | null) => {
   if (!course.quizzes || course.quizzes.length <= 5) {
     issues.push({
       type: "error",
-      message: "El examen final debe tener al menos 5 preguntas",
+      message: "El examen final debe tener al menos 5 preguntas (Paso 5)",
       field: "quizzes",
     });
   }

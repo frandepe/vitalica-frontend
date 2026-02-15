@@ -211,7 +211,7 @@ const RegisterPage = () => {
               <Link
                 to="/politicas-de-privacidad"
                 target="_blank"
-                className="hover:underline text-secondary transition-colors cursor-pointer"
+                className="hover:underline text-black/60 transition-colors cursor-pointer"
               >
                 Ver políticas
               </Link>
@@ -240,7 +240,7 @@ const RegisterPage = () => {
             ¿Ya tenés una cuenta?{" "}
             <Link
               to="/auth/login"
-              className="text-secondary hover:underline transition-colors cursor-pointer"
+              className="text-primary hover:underline transition-colors cursor-pointer"
             >
               Ingresar
             </Link>

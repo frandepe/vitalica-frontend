@@ -20,7 +20,7 @@ interface Hero7Props {
 }
 
 const PromoteInstructor = ({
-  heading = "Lleva tu perfil al siguiente nivel",
+  heading = "Llevá tu perfil al siguiente nivel",
   description = "Completa tu registro como instructor y empieza a crear cursos que inspiren a otros profesionales. Tu conocimiento merece ser compartido",
   button = {
     text: "¡Empezar ahora!",

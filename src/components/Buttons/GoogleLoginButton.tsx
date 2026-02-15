@@ -26,7 +26,7 @@ export default function GoogleLoginButton() {
             if (data.success) {
               localStorage.setItem("token", data.data.token);
               setUser(data.data.user);
-              navigate("/");
+              navigate("/primeros-pasos");
             } else {
               console.error("Error al loguear con Google:", data.message);
             }
@@ -44,7 +44,7 @@ export default function GoogleLoginButton() {
           size: "large",
           shape: "rectangular",
           text: "continue_with",
-        }
+        },
       );
     };
   }, [setUser]);

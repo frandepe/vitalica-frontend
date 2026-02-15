@@ -23,7 +23,7 @@ export function Navbar() {
       title: "Product",
       description: "Managing a small business today is already tough.",
       items: [
-        { title: "Reports", href: "/reports" },
+        { title: "Enseñá en Vitalica", href: "/dar-cursos" },
         { title: "Statistics", href: "/statistics" },
         { title: "Dashboards", href: "/dashboards" },
         { title: "Recordings", href: "/recordings" },
@@ -42,9 +42,9 @@ export function Navbar() {
   ];
 
   const showNavbar = useHideOnScroll(50);
-  const { isActive } = useAuth();
+  const { isActive, user } = useAuth();
   const navigate = useNavigate();
-
+  const isInstructor = user.role === "INSTRUCTOR";
   return (
     <div
       className={`w-full z-40 fixed top-0 left-0 bg-background ${
@@ -95,7 +95,7 @@ export function Navbar() {
         </div>
 
         {/* LOGO */}
-        <div className="flex lg:justify-center">
+        <div className="flex lg:justify-center ml-4 md:ml-0">
           <img
             src="/Logo/logoVitalica.png"
             alt="Logotipo de Vitalica con la letra V en forma de pulso de actividad, completando el nombre de la marca"
@@ -109,9 +109,15 @@ export function Navbar() {
         {/* USER AREA */}
         {!isActive ? (
           <div className="flex justify-end w-full gap-4">
-            <Button variant="ghost" className="hidden md:inline">
-              Ver demo
-            </Button>
+            {!isInstructor && (
+              <Button
+                variant="ghost"
+                className="hidden md:inline"
+                onClick={() => navigate("/dar-cursos")}
+              >
+                Enseñá en Vitalica
+              </Button>
+            )}
             <div className="border-r hidden md:inline"></div>
             <Button variant="outline" onClick={() => navigate("/auth/login")}>
               Iniciar sesión
@@ -121,7 +127,14 @@ export function Navbar() {
             </Button>
           </div>
         ) : (
-          <div className="flex justify-end w-full gap-4">
+          <div className="flex justify-end items-center w-full gap-4">
+            <Button
+              variant="ghost"
+              className="hidden md:inline"
+              onClick={() => navigate("/dar-cursos")}
+            >
+              Enseñá en Vitalica
+            </Button>
             <DropdownMenuNotifications />
             <DropdownMenuProfile />
           </div>

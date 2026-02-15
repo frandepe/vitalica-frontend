@@ -10,13 +10,14 @@
   --color-primary-foreground: #ffffff; /* texto legible sobre verde */
   --color-primary-dark: #225045;
 
-  --color-secondary-light: #adebf3;
-  --color-secondary-foreground-light: #ffffff; /* texto blanco sobre azul claro */
-  --color-secondary-dark-light: #adebf3;
+  /* Secundario – Rojo anaranjado */
+  --color-secondary-light: #f7b5af;
+  --color-secondary-foreground-light: #000000;
+  --color-secondary-dark-light: #f08a82;
 
-  --color-secondary: #189cf4;
-  --color-secondary-foreground: #ffffff; /* texto blanco sobre azul */
-  --color-secondary-dark: #0e598b;
+  --color-secondary: #e84c3d;
+  --color-secondary-foreground: #ffffff;
+  --color-secondary-dark: #c7382b;
 
   /* Destructive */
   --color-destructive: #e53935;
@@ -50,13 +51,60 @@
 
   /* Badges */
   --color-info-foreground: #92400e;
+
+  /* Fonts */
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-heading: "Inter Tight", "Inter", system-ui, sans-serif;
+}
+
+/* Inter → texto y contenido */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter/Inter-VariableFont_opsz,wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Inter Tight → títulos */
+@font-face {
+  font-family: "Inter Tight";
+  src: url("/fonts/Inter_Tight/InterTight-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter Tight";
+  src: url("/fonts/Inter_Tight/InterTight-Italic-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
 }
 
 @layer base {
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: inherit;
+    font-family: var(--font-body);
     line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
   }
 }

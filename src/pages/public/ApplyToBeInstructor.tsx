@@ -123,7 +123,7 @@ const ApplyToBeInstructor = () => {
       // Para certificados, combinar existentes y nuevos
       const existingCertificates = certificateImages.existing;
       const newCertificatesBase64 = await filesToBase64Array(
-        certificateImages.new
+        certificateImages.new,
       );
       const finalCertificates = [
         ...existingCertificates,
@@ -147,13 +147,13 @@ const ApplyToBeInstructor = () => {
         "[v0] DNI - Existentes:",
         dniImages.existing.length,
         "Nuevas:",
-        dniImages.new.length
+        dniImages.new.length,
       );
       console.log(
         "[v0] Certificados - Existentes:",
         certificateImages.existing.length,
         "Nuevos:",
-        certificateImages.new.length
+        certificateImages.new.length,
       );
 
       const response = await upsertInstructorApplication(instructorData);
@@ -169,9 +169,9 @@ const ApplyToBeInstructor = () => {
             ? "Solicitud actualizada exitosamente"
             : "Solicitud enviada exitosamente",
           "success",
-          "top-right"
+          "top-right",
         );
-
+        navigate("/estado-aplicacion");
         getApplication(); // refresca la data
       }
     } catch (error) {
@@ -388,8 +388,8 @@ const ApplyToBeInstructor = () => {
               {isLoading
                 ? "Guardando..."
                 : applicationData
-                ? "Actualizar Solicitud"
-                : "Enviar Solicitud"}
+                  ? "Actualizar Solicitud"
+                  : "Enviar Solicitud"}
             </Button>
           </div>
         </form>

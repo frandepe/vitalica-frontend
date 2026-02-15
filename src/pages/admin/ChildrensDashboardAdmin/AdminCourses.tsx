@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { AdminCoursesAccordion } from "@/components/Accordion/CourseAccordion";
 import { AdminCourse } from "@/types/admin.types";
 import { getAllCoursesAdmin } from "@/api";
+import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
 
 const AdminCourses = () => {
   const [coursesData, setCoursesData] = useState<AdminCourse[] | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // estado de loading
 
   const getCourses = async () => {
+    setLoading(true); // arrancamos loading
     try {
       const response = await getAllCoursesAdmin({
         page: 1,
@@ -20,6 +23,8 @@ const AdminCourses = () => {
       console.log("response", response);
     } catch (error) {
       console.error("Error fetching courses:", error);
+    } finally {
+      setLoading(false); // terminamos loading
     }
   };
 
@@ -27,8 +32,12 @@ const AdminCourses = () => {
     getCourses();
   }, []);
 
+  if (loading) {
+    return <GlobalLoading text="Cargando cursos..." />;
+  }
+
   if (!coursesData) {
-    return <p>No hay cursos registrados</p>;
+    return <p>No registramos cursos</p>;
   }
 
   return (

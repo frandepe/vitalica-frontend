@@ -50,7 +50,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
         name="title"
         className={cn(
           "mb-4",
-          errors.title && "border-red-500 focus-visible:ring-red-500"
+          errors.title && "border-red-500 focus-visible:ring-red-500",
         )}
       />
       {errors.title && (
@@ -61,7 +61,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
         placeholder="Describí de qué trata el curso, a quién está dirigido y qué va a aprender el alumno."
         className={cn(
           "resize-y w-full h-[200px] dark:bg-card bg-background rounded-[13px]",
-          errors.description && "border-red-500 focus-visible:ring-red-500"
+          errors.description && "border-red-500 focus-visible:ring-red-500",
         )}
         {...register("description", {
           minLength: {
@@ -90,7 +90,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
         <div className="flex gap-1 items-center">
           <Label>Etiquetas</Label>
           <TooltipIconButton
-            tooltip="Las etiquetas son palabras clave que ayudan a que tu curso sea más fácil de encontrar en el buscador."
+            tooltip="Las etiquetas son palabras clave que ayudan a que tu curso sea más fácil de encontrar para los motores de búsqueda."
             side="top"
           >
             <InfoIcon size={15} className="text-secondary" />
@@ -115,7 +115,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
           <FormItem
             className={cn(
               "mt-4",
-              errors.specialty && "border-red-500 focus-visible:ring-red-500"
+              errors.specialty && "border-red-500 focus-visible:ring-red-500",
             )}
           >
             <Label>Categoría</Label>
@@ -152,7 +152,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
           <FormItem
             className={cn(
               "mt-4",
-              errors.level && "border-red-500 focus-visible:ring-red-500"
+              errors.level && "border-red-500 focus-visible:ring-red-500",
             )}
           >
             <Label>Nivel</Label>

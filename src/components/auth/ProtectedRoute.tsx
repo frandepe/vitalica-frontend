@@ -1,5 +1,4 @@
 import { useAuth } from "@/hooks/useAuth";
-import { EMPTY_USER } from "@/types/auth.types";
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
@@ -9,10 +8,11 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const location = useLocation();
-  const { isActive, user } = useAuth();
-  const isLoading = user === EMPTY_USER;
-  // Mostrar loading mientras se verifica la autenticación
-  if (isLoading) {
+  const { isActive, isInitialized } = useAuth();
+
+  // Mientras no sepamos si hay sesión (hidratación inicial),
+  // mostramos un loading y NO redirigimos todavía.
+  if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

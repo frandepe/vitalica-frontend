@@ -25,7 +25,7 @@ export default function Step6Instructor() {
   }, []);
 
   const handleExplorePrimary = () => {
-    navigate("/solicitar-ser-instructor"); // TODO: reemplazar con la ruta de cursos/instructores si hay
+    navigate("/dar-cursos");
   };
   const handleExploreSecondary = () => {
     navigate("/"); // TODO: reemplazar con la ruta de cursos/instructores si hay

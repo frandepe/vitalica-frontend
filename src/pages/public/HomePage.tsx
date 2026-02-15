@@ -1,16 +1,65 @@
-import { CirclesImg } from "@/components/Banners/HeaderBanner";
-import mask01 from "@/assets/Masks/mask-15.svg";
-import banner1 from "/Banners/banner1.jpg";
 import { Button } from "@/components/ui/button";
-import { Award, Heart, Users } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserOnboarding } from "@/api";
+import { getCourses, getUserOnboarding } from "@/api";
+import { MainCarousel } from "@/components/Carousel/MainCarousel";
+import { CourseCardProps } from "@/components/CardsAnimated/CoursePublic";
+import { MainCarouselSkeleton } from "@/components/Skeletons/MainCarouselSkeleton";
+import MuxPlayer from "@mux/mux-player-react";
+import { useAuth } from "@/hooks/useAuth";
+import { BlogTabsRole } from "@/components/Blog/BlogTabsRole";
+import {
+  FocusRailItem,
+  HeroCarousel,
+} from "@/components/Carousel/HeroCarousel";
+import { motion } from "framer-motion";
+
+const DEMO_ITEMS: FocusRailItem[] = [
+  {
+    id: 1,
+    title: "RCP",
+    alt: "Persona realizando RCP en un entrenamiento de reanimación cardiopulmonar",
+    meta: "Aprendé a actuar ante un paro cardíaco",
+    imageSrc: "/HeroCarousel/rcp2.jpg",
+  },
+  {
+    id: 2,
+    title: "Emergencias",
+    alt: "Persona aplicando maniobra de Heimlich en situación de emergencia por obstrucción",
+    meta: "Resolvés obstrucciones en segundos",
+    imageSrc: "/HeroCarousel/heimlich.jpg",
+  },
+  {
+    id: 3,
+    title: "Primeros Auxilios",
+    alt: "Atención de primeros auxilios aplicando gasa sobre una herida",
+    meta: "Tratamiento inmediato de lesiones",
+    imageSrc: "/HeroCarousel/gaza.jpg",
+  },
+  {
+    id: 4,
+    title: "Lesiones",
+    alt: "Atención de lesión deportiva durante una actividad física",
+    meta: "Actuación inmediata",
+    imageSrc: "/HeroCarousel/sport.jpg",
+  },
+  {
+    id: 5,
+    title: "Protocolos de emergencia",
+    alt: "Respuesta de primeros auxilios ante un accidente en entorno laboral",
+    meta: "Respuesta en entornos laborales",
+    imageSrc: "/HeroCarousel/job.jpg",
+  },
+];
 
 const HomePage = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const [courses, setCourses] = useState<CourseCardProps[]>([]);
+  const [loadingCarousel, setLoadingCarousel] = useState(false);
+  const { user } = useAuth();
+
   // EN MODO DESARROLLOR: Esto se ejecuta dos veces por el modo estricto de react
   useEffect(() => {
     const checkOnboarding = async () => {
@@ -29,76 +78,158 @@ const HomePage = () => {
     checkOnboarding();
   }, []);
 
+  const getCoursesFunction = async () => {
+    setLoadingCarousel(true); // inicio carga
+    try {
+      const res = await getCourses(1, 8, "");
+      setCourses(res.data);
+    } finally {
+      setLoadingCarousel(false); // fin carga
+    }
+  };
+
+  useEffect(() => {
+    getCoursesFunction();
+  }, []);
+
   return (
-    <section className="relative">
-      <div className="top-0 h-full w-full bg-white dark:bg-background">
-        <div className="absolute bottom-auto left-auto right-0 top-0 h-[500px] w-[500px] -translate-x-[30%] translate-y-[20%] rounded-full bg-[rgba(109,218,124,0.5)] opacity-50 blur-[80px]"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#d1d5db33_1px,transparent_1px),linear-gradient(to_bottom,#d1d5db33_1px,transparent_1px)] bg-[size:40px_40px]" />
-        <div className="absolute left-1/3 top-1/3 h-[500px] w-[500px] rounded-full bg-primary opacity-20 blur-[120px]" />
-      </div>
-      <div className="container h-[93.5vh] mx-auto flex flex-col-reverse lg:flex-row items-center justify-center px-6">
-        <div className="flex-1 text-center lg:text-left space-y-6 z-10">
-          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
-            Lleva tu práctica médica al
-            <span className="text-primary"> siguiente nivel</span>
-          </h1>
-          <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-lg mx-auto lg:mx-0">
-            Aprendizaje <span className="font-semibold">avanzado</span> en
-            emergencias médicas para profesionales de la salud
-          </p>
+    <section>
+      <motion.div
+        className="py-10 lg:py-0 lg:mt-10 px-6 lg:px-0"
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.12,
+            },
+          },
+        }}
+      >
+        <div className="flex-1 text-center space-y-6 z-10 mx-auto container mb-4">
+          <motion.h1
+            className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight"
+            variants={{
+              hidden: { opacity: 0, y: 30 },
+              show: {
+                opacity: 1,
+                y: 0,
+                transition: {
+                  duration: 0.7,
+                  ease: [0.22, 1, 0.36, 1], // easing premium
+                },
+              },
+            }}
+          >
+            Formación avanzada en
+            <span className="text-primary"> emergencias médicas</span>
+          </motion.h1>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-            <Button>Ver cursos</Button>
-            <Button variant={"ghost"}>Explorar</Button>
-          </div>
+          <motion.p
+            className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 lg:mx-0"
+            variants={{
+              hidden: { opacity: 0, y: 25 },
+              show: {
+                opacity: 1,
+                y: 0,
+                transition: {
+                  duration: 0.7,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+              },
+            }}
+          >
+            Conocimiento y criterio para actuar con seguridad en{" "}
+            <span className="font-semibold">situaciones críticas</span>.
+          </motion.p>
+
+          <motion.div
+            className="flex flex-col sm:flex-row gap-4 justify-center py-4"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              show: {
+                opacity: 1,
+                y: 0,
+                transition: {
+                  duration: 0.6,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+              },
+            }}
+          >
+            {/* TODO:
+            Depende el onboarding del usuario, mostrar un botón u otro. Si no hizo el onboarding, mostrar "Comenzar primeros pasos" que lo lleve al onboarding.
+            Si ya lo hizo y eligió alumno, mostrar "Ver cursos" que lo lleve al catálogo de cursos.
+            Si ya lo hizo y eligió instructor, mostrar "Enseña en Vitalica".
+            Si ya tiene el Rol de instructor, mostrar "Panel de instructor".
+            */}
+            <Button onClick={() => navigate("/buscar?search=&page=1&limit=10")}>
+              Ver cursos
+            </Button>
+          </motion.div>
         </div>
 
-        <div className="flex-1 flex justify-center relative">
-          <CirclesImg maskSrc={mask01} imgCircles={banner1} />
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 60, scale: 0.98 },
+            show: {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              transition: {
+                duration: 0.9,
+                ease: [0.22, 1, 0.36, 1],
+                delay: 0.2,
+              },
+            },
+          }}
+        >
+          <HeroCarousel items={DEMO_ITEMS} autoPlay={false} loop={true} />
+        </motion.div>
+      </motion.div>
 
-          {/* Top floating stat card */}
-          <div className="absolute -top-1 right-0 lg:right-1 bg-white dark:bg-card p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 dark:border-border z-20 hidden md:block">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-950 rounded-xl">
-                <Heart className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-muted-foreground font-medium">
-                  Cursos online
-                </p>
-                <p className="font-bold text-2xl text-gray-900 dark:text-foreground">
-                  20+
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom left stat card */}
-          <div className="absolute bottom-0 left-0 lg:left-1 bg-white dark:bg-card p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 dark:border-border z-20 hidden lg:block">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-xl">
-                <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-muted-foreground font-medium">
-                  Instructores
-                </p>
-                <p className="font-bold text-2xl text-gray-900 dark:text-foreground">
-                  10+
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Right side badge */}
-          <div className="absolute top-1/2 -translate-y-1/2 right-0 lg:right-1 bg-white dark:bg-card p-4 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 dark:border-border z-20 hidden sm:block">
-            <Award className="w-7 h-7 text-primary" />
-          </div>
+      <div className="mb-20">
+        {loadingCarousel ? (
+          <MainCarouselSkeleton />
+        ) : (
+          <MainCarousel
+            title="Cursos disponibles"
+            subtitle="Lo mínimo que deberías saber para responder ante una emergencia."
+            courses={courses}
+          />
+        )}
+      </div>
+      <div className="container mx-auto px-4 lg:px-0 mb-20">
+        <h2 className="text-3xl mb-10">Cómo funciona Vitalica</h2>
+        <div className=" aspect-video rounded-xl overflow-hidden">
+          <MuxPlayer
+            playbackId={"demo_playback_id"}
+            className="w-full h-full mux-custom "
+            metadata={{
+              video_id: "demo_playback_id",
+              video_title: "Video promocional del curso",
+              viewer_user_id: user?.id?.toString() || "no-user-id",
+            }}
+            accentColor="#20ab9f"
+          />
         </div>
       </div>
-      <div className="h-[700px] bg-red-700">cards</div>
+
+      <div className="container mx-auto px-4 lg:px-0">
+        <h2 className="text-3xl mb-4">Guías para</h2>
+        <BlogTabsRole />
+      </div>
+      {/* All: video de como funciona vitalica */}
+      {/* All: validamos instructores de las siguientes instituciones... */}
+      {/* Rol no instructor: ¿Sos instructor? */}
+      {/* Centro de conocimiento (dos tabs, instructor y alumno) Blogs para cada uno */}
+      {/* FAQ */}
     </section>
   );
 };
 
 export default HomePage;
+// Soporte las 24 horas, todos los días
+// Pago seguro
