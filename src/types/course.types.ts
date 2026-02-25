@@ -1,12 +1,10 @@
 import { SpecialtyLabels } from "@/constants";
-import { InstructorProfile } from "./instructor.types";
 
 export type ISpecialty = keyof typeof SpecialtyLabels;
 
 export interface ICourse {
   id: string;
   instructorId: string;
-  instructor?: InstructorProfile;
 
   title?: string;
   slug: string;
@@ -40,6 +38,20 @@ export interface ICourse {
   updatedAt: string;
   deletedAt?: string;
   requirementsAndMaterials?: string;
+
+  // Instructor
+  instructor?: {
+    id: string;
+    bio: string;
+    headline: string;
+    user: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      avatarUrl: string | null;
+      slug: string;
+    };
+  };
 
   // Relaciones
   reviews?: CourseReview[];
@@ -84,7 +96,7 @@ export interface CourseModule {
 export interface LessonMaterial {
   id: string;
   lessonId: string;
-  type: LessonMaterialType; // podés usar un enum o string literal según cómo lo manejes en la UI
+  type: LessonMaterialType;
   mimeType: string;
   key: string;
   createdAt: Date;

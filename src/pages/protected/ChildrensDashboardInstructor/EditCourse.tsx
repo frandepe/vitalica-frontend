@@ -51,12 +51,21 @@ interface LessonTypes {
   };
 }
 
+type UploadStatus =
+  | "Preparando subida…"
+  | "Subiendo video…"
+  | "Procesando el video, esto puede tardar varios minutos…"
+  | "Guardando video…"
+  | "¡Video guardado!"
+  | "Ocurrió un error al subir el video";
+
 export default function EditCourse() {
   const [lessonTypes, setLessonTypes] = useState<LessonTypes>({});
   const [isLoading, setIsLoading] = useState(false);
   const { courseId } = useParams();
   const [courseData, setCourseData] = useState<ICourse | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<string>("");
+  const [uploadStatus, setUploadStatus] =
+    useState<UploadStatus>("Preparando subida…");
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const { setBackendErrors, getGeneralErrors, clearErrors } =
     useBackendErrors();
@@ -322,7 +331,7 @@ export default function EditCourse() {
       // pero no me permite trackear el progreso fácilmente.
 
       // 3) Mostrar feedback mientras Mux procesa
-      setUploadStatus("Procesando el video, por favor no cierre la página…");
+      setUploadStatus("Procesando el video, esto puede tardar varios minutos…");
 
       let playbackId: string | null = null;
       let assetId: string | null = null;
@@ -335,7 +344,8 @@ export default function EditCourse() {
           return;
         }
 
-        if (statusRes.status === "asset_created") {
+        // if (statusRes.status === "asset_created") {
+        if (statusRes.status === "ready") {
           assetId = statusRes.assetId;
           playbackId = statusRes.playbackId;
         } else {

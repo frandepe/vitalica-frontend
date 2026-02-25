@@ -1,18 +1,19 @@
 import { motion } from "framer-motion";
-import { FileText, FileDown } from "lucide-react";
-import type { Lesson } from "@/types/course.types";
+import { FileText, FileDown, Check } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { useNavigate, useParams } from "react-router-dom";
+import { ILessonWithProgress } from "@/types/courseProgress.types";
 
 interface LessonItemProps {
-  lesson: Lesson;
+  lesson: ILessonWithProgress;
   index: number;
 }
 
 export function LessonItemCoursePlayer({ lesson, index }: LessonItemProps) {
-  const { title, type, lessonMaterial, muxPlaybackId } = lesson;
+  const { title, type, lessonMaterial, muxPlaybackId, completed } = lesson;
   const navigate = useNavigate();
   const { slug } = useParams();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -25,13 +26,12 @@ export function LessonItemCoursePlayer({ lesson, index }: LessonItemProps) {
       }}
     >
       <Card
-        className="cursor-pointer transition-all hover:shadow-md"
+        className="relative cursor-pointer transition-all hover:shadow-md"
         onClick={() => navigate(`/mis-cursos/${slug}/${lesson.id}`)}
       >
         <CardContent className="p-3">
           <div className="flex gap-3">
             {/* Thumbnail / Icon */}
-            {/* /TODO: precargar la imagen de mux una sola vez (por ejemplo en backend o build) para que quede en cache de Mux/CDN. */}
             {type === "videoFile" ? (
               <img
                 loading="lazy"
@@ -51,18 +51,22 @@ export function LessonItemCoursePlayer({ lesson, index }: LessonItemProps) {
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold text-sm line-clamp-2">{title}</h3>
 
-                {/* Lock */}
                 {lessonMaterial && lessonMaterial.length > 0 && (
                   <FileDown className="w-3 h-3 text-muted-foreground" />
                 )}
               </div>
 
-              {/* Materials */}
               <span className="text-xs text-muted-foreground">
                 {type === "videoFile" ? "Video" : "Contenido"}
               </span>
             </div>
           </div>
+
+          {completed && (
+            <div className="absolute bottom-2 right-2 bg-primary text-white rounded-full p-1 shadow">
+              <Check className="w-3 h-3" />
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>

@@ -58,7 +58,7 @@ export default function CourseOverview() {
       {/* HERO BACKGROUND */}
       <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-br from-primary via-primary-light to-primary" />
 
-      <div className="relative mx-auto max-w-7xl px-6">
+      <div className="relative mx-auto container px-6 md:px-0">
         <div className="grid gap-16 lg:grid-cols-[1fr_380px]">
           {/* LEFT */}
           <div className="pt-24 text-white">
@@ -120,14 +120,20 @@ export default function CourseOverview() {
                 </div>
               )}
               <div className="lg:hidden">
-                <div className="space-y-1">
-                  <p className="text-4xl font-semibold text-black">
-                    {course.currency} ${formatPrice(course.price)}
+                {course.price! > 0 ? (
+                  <div className="space-y-1">
+                    <p className="text-4xl font-semibold text-black">
+                      {course.currency} ${formatPrice(course.price)}
+                    </p>
+                    <p className="text-sm text-neutral-500">
+                      Pago único · Acceso de por vida
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-semibold text-black mb-2">
+                    Curso gratuito
                   </p>
-                  <p className="text-sm text-neutral-500">
-                    Pago único · Acceso de por vida
-                  </p>
-                </div>
+                )}
 
                 <Button
                   onClick={handleBtnCheckout}
@@ -137,9 +143,11 @@ export default function CourseOverview() {
                   Inscribirme ahora
                 </Button>
 
-                <p className="text-center text-xs text-neutral-500">
-                  Garantía de devolución de 7 días
-                </p>
+                {course.price! > 0 && (
+                  <p className="text-center text-xs text-neutral-500">
+                    Garantía de devolución de 7 días
+                  </p>
+                )}
               </div>
             </div>
             <section className="pt-32 pb-24 space-y-16 text-neutral-900">
@@ -160,12 +168,20 @@ export default function CourseOverview() {
                     />
                   )}
                   <div className="space-y-1">
-                    <p className="text-4xl font-semibold">
-                      {course.currency} ${formatPrice(course.price)}
-                    </p>
-                    <p className="text-sm text-neutral-500">
-                      Pago único · Acceso de por vida
-                    </p>
+                    {course.price! > 0 ? (
+                      <p className="text-4xl font-semibold">
+                        {course.currency} ${formatPrice(course.price)}
+                      </p>
+                    ) : (
+                      <p className="text-2xl font-semibold text-black">
+                        Curso gratuito
+                      </p>
+                    )}
+                    {course.price! > 0 && (
+                      <p className="text-sm text-neutral-500">
+                        Pago único · Acceso de por vida
+                      </p>
+                    )}
                   </div>
 
                   <Button
@@ -176,9 +192,11 @@ export default function CourseOverview() {
                     Inscribirme ahora
                   </Button>
 
-                  <p className="text-center text-xs text-neutral-500">
-                    Garantía de devolución de 7 días
-                  </p>
+                  {course.price! > 0 && (
+                    <p className="text-center text-xs text-neutral-500">
+                      Garantía de devolución de 7 días
+                    </p>
+                  )}
 
                   <Separator />
 

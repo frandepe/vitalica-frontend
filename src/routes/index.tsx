@@ -9,7 +9,6 @@ import { Illustration, NotFound } from "@/pages/public/404Page";
 import ErrorFallback from "@/components/ErrorFallback";
 import AdminRoute from "@/components/auth/AdminRoute";
 import SubirPageTest from "@/pages/public/upload-test";
-import DownloadPageTest from "@/pages/public/download-test";
 import CourseStatus from "@/pages/protected/CourseStatus";
 import CourseLayout from "@/layouts/course-player.layout";
 import BlogsLayout from "@/layouts/blogs.layout";
@@ -30,6 +29,7 @@ const BlogLandingPage = lazy(() => import("@/pages/public/Blogs/Blogs"));
 const CourseOverview = lazy(
   () => import("@/pages/public/Courses/CourseOverview"),
 );
+const ProfileBySlug = lazy(() => import("@/pages/public/ProfileBySlug"));
 const Checkout = lazy(() => import("@/pages/public/Courses/Checkout"));
 
 // Páginas de autenticación
@@ -126,13 +126,14 @@ export const router = createBrowserRouter([
         path: "upload-test",
         element: <SubirPageTest />,
       },
-      {
-        path: "download-test",
-        element: <DownloadPageTest />, // Eliminar
-      },
+
       {
         path: "cursos/:slug",
         element: <CourseOverview />,
+      },
+      {
+        path: "perfil/:slug",
+        element: <ProfileBySlug />,
       },
       {
         path: "cursos/:courseId/pago",

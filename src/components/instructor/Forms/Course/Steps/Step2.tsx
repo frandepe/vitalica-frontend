@@ -42,7 +42,7 @@ export const Step2 = ({
     <div>
       {/* ================= Miniatura ================= */}
       <h2 className="text-xl font-semibold text-slate-700 flex items-center mb-2">
-        <ImagePlus />
+        <ImagePlus className="mr-2" />
         Miniatura{" "}
         <span className="font-normal text-muted-foreground text-sm ml-1">
           (opcional)

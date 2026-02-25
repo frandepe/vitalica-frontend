@@ -14,5 +14,4 @@ function App() {
     </AppWrapper>
   );
 }
-
 export default App;

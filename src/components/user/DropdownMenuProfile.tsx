@@ -36,7 +36,7 @@ export default function ProfileMenu() {
       <Drawer>
         <DrawerTrigger asChild>
           <img
-            src={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
+            src={user?.avatarUrl || "/Placeholders/no-image-profile.jpg"}
             alt="User avatar"
             className="h-10 w-10 rounded-full border-2 border-border hover:border-primary transition-colors cursor-pointer"
           />
@@ -48,7 +48,7 @@ export default function ProfileMenu() {
 
           <div className="flex items-center gap-3 p-4 border-b">
             <img
-              src={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
+              src={user?.avatarUrl || "/Placeholders/no-image-profile.jpg"}
               alt="User avatar"
               className="h-12 w-12 rounded-full"
             />
@@ -128,7 +128,7 @@ export default function ProfileMenu() {
     <Dropdown>
       <DropdownTrigger className="cursor-pointer">
         <img
-          src={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
+          src={user?.avatarUrl || "/Placeholders/no-image-profile.jpg"}
           alt="User avatar"
           className="h-10 w-10 rounded-full object-cover border-2 border-border hover:border-primary transition-colors cursor-pointer"
         />
@@ -137,7 +137,7 @@ export default function ProfileMenu() {
         {/* Profile Section */}
         <div className="flex items-center gap-3 p-3">
           <img
-            src={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
+            src={user?.avatarUrl || "/Placeholders/no-image-profile.jpg"}
             alt="User avatar"
             className="h-10 w-10 rounded-full object-cover"
           />

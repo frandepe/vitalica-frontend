@@ -13,22 +13,22 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFormattedDate } from "@/hooks/useFormattedDate";
 import { FeaturesSectionWithCardGradient } from "@/components/user/FeaturesSectionWithCardGradient";
 
-const grid = [
-  {
-    title: "Perfil público",
-    description: "Accede a tu perfil público y compártelo con otros.",
-    modalContent: <ShareProfile />,
-  },
-  {
-    title: "Notificaciones",
-    description: "Gestiona tus preferencias de notificación.",
-    modalContent: <NotificationConfig />,
-  },
-];
-
 const ProfilePage = () => {
   const { user } = useAuth();
   const isInstructor = user?.role.includes("INSTRUCTOR");
+
+  const grid = [
+    {
+      title: "Perfil público",
+      description: "Accede a tu perfil público y compártelo con otros.",
+      modalContent: <ShareProfile slug={user.slug} />,
+    },
+    {
+      title: "Notificaciones",
+      description: "Gestiona tus preferencias de notificación.",
+      modalContent: <NotificationConfig />,
+    },
+  ];
 
   const features = [
     {
@@ -62,7 +62,7 @@ const ProfilePage = () => {
     <div className="container mx-auto">
       <ProfileBg />
       <Avatar
-        defaultImage={user?.avatarUrl || "https://patrickprunty.com/icon.webp"}
+        defaultImage={user?.avatarUrl || "/Placeholders/no-image-profile.jpg"}
       />
       <div className="px-6 pb-6 pt-4">
         <div className="space-y-4">

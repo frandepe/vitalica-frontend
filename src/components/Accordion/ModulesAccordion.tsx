@@ -8,7 +8,7 @@ import { getFreeLessons } from "@/api";
 import MuxPlayer from "@mux/mux-player-react";
 import { Button } from "../ui/button";
 import { formatPrice } from "@/utils/format-price";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export function ModulesAccordion({
   modules,
@@ -27,6 +27,7 @@ export function ModulesAccordion({
   const [loading, setLoading] = useState(false);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const navigate = useNavigate();
+  const { slug } = useParams();
 
   const handleOpenPayModal = () => {
     setOpenPay(true);
@@ -66,7 +67,9 @@ export function ModulesAccordion({
   };
 
   const handleBtnCheckout = () => {
-    navigate(`/cursos/${courseId}/pago`);
+    price > 0
+      ? navigate(`/cursos/${courseId}/pago`)
+      : navigate(`/mis-cursos/${slug}`);
   };
 
   return (
@@ -316,17 +319,19 @@ export function ModulesAccordion({
       <UniversalModal
         open={openPay}
         onOpenChange={handleCloseModalPay}
-        title="Comprar acceso al curso"
+        title={price > 0 ? "Inscribirme en el curso" : "Curso gratuito"}
       >
         <div>
-          <div className="space-y-1">
-            <p className="text-4xl font-semibold text-black">
-              ARS ${formatPrice(price)}
-            </p>
-            <p className="text-sm text-neutral-500">
-              Pago único · Acceso de por vida
-            </p>
-          </div>
+          {price > 0 && (
+            <div className="space-y-1">
+              <p className="text-4xl font-semibold text-black">
+                ARS ${formatPrice(price)}
+              </p>
+              <p className="text-sm text-neutral-500">
+                Pago único · Acceso de por vida
+              </p>
+            </div>
+          )}
 
           <Button
             onClick={handleBtnCheckout}
@@ -336,9 +341,11 @@ export function ModulesAccordion({
             Inscribirme ahora
           </Button>
 
-          <p className="text-center text-xs text-neutral-500">
-            Garantía de devolución de 7 días
-          </p>
+          {price > 0 && (
+            <p className="text-center text-xs text-neutral-500">
+              Garantía de devolución de 7 días
+            </p>
+          )}
         </div>
       </UniversalModal>
     </div>

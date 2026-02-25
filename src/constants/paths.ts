@@ -4,6 +4,7 @@ export const API_ROUTES = {
   HEALTH: "/api/health",
   INSTRUCTOR: "/api/instructor",
   COURSE: "/api/course",
+  COURSE_PROGRESS: "/api/course/progress",
   VIDEO: "/api/video",
   ADMIN: "/api/admin",
   MP: "/api/mp",

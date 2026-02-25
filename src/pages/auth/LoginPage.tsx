@@ -49,8 +49,8 @@ const LoginPage = () => {
         localStorage.setItem("token", result.data.token);
         setUser(result.data.user); // guardamos usuario global
         const res = await getUserOnboarding();
-        const onboardingStatus =
-          res?.data?.onboarding?.hasCompletedOnboarding ?? false;
+        const onboardingStatus = res?.data?.onboarding?.hasCompletedOnboarding;
+
         if (!onboardingStatus) navigate("/primeros-pasos");
         else navigate("/");
       }

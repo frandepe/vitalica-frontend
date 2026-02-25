@@ -12,7 +12,7 @@ interface Vo2MaxCardProps {
   progress: number;
   icon: React.ReactNode;
   className?: string;
-  profileSteps: {
+  profileSteps?: {
     name: string;
     completed: boolean;
   }[];
@@ -126,8 +126,8 @@ export const ProgressCard: React.FC<Vo2MaxCardProps> = ({
       </div>
 
       {/* Right: Pasos del perfil */}
-      <div className="mt-6 lg:mt-0 flex flex-col gap-3 flex-shrink-0 min-w-[220px]">
-        {profileSteps.map((step) => (
+      <div className="mt-6 lg:mt-0 flex flex-col gap-3 flex-shrink-0">
+        {profileSteps?.map((step) => (
           <div
             key={step.name}
             className="flex items-center justify-between border-b border-slate-200 pb-1"

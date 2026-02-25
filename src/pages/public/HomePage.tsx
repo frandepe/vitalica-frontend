@@ -20,14 +20,14 @@ const DEMO_ITEMS: FocusRailItem[] = [
     id: 1,
     title: "RCP",
     alt: "Persona realizando RCP en un entrenamiento de reanimación cardiopulmonar",
-    meta: "Aprendé a actuar ante un paro cardíaco",
+    meta: "Actuar ante un paro cardíaco",
     imageSrc: "/HeroCarousel/rcp2.jpg",
   },
   {
     id: 2,
     title: "Emergencias",
     alt: "Persona aplicando maniobra de Heimlich en situación de emergencia por obstrucción",
-    meta: "Resolvés obstrucciones en segundos",
+    meta: "Resolver obstrucciones en segundos",
     imageSrc: "/HeroCarousel/heimlich.jpg",
   },
   {
@@ -66,6 +66,11 @@ const HomePage = () => {
       if (sessionStorage.getItem("onboardingToastShown")) return;
 
       const res = await getUserOnboarding();
+      console.log(
+        "res.data.onboarding.hasCompletedOnboarding",
+        res.data.onboarding.hasCompletedOnboarding,
+      );
+
       if (!res.data.onboarding || !res.data.onboarding.hasCompletedOnboarding) {
         showToast("Completá tus primeros pasos", "info", "bottom-right", {
           label: "Comenzar",
@@ -108,7 +113,7 @@ const HomePage = () => {
           },
         }}
       >
-        <div className="flex-1 text-center space-y-6 z-10 mx-auto container mb-4">
+        <div className="flex-1 text-center space-y-6 z-10 mx-auto container my-30">
           <motion.h1
             className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight"
             variants={{
@@ -172,6 +177,7 @@ const HomePage = () => {
         </div>
 
         <motion.div
+          className="my-20"
           variants={{
             hidden: { opacity: 0, y: 60, scale: 0.98 },
             show: {
@@ -201,10 +207,10 @@ const HomePage = () => {
           />
         )}
       </div>
-      <div className="container mx-auto px-4 lg:px-0 mb-20">
+      <div className="container mx-auto px-4 lg:px-0 mb-30">
         <h2 className="text-3xl mb-10">Cómo funciona Vitalica</h2>
         <div className=" aspect-video rounded-xl overflow-hidden">
-          <MuxPlayer
+          {/* <MuxPlayer
             playbackId={"demo_playback_id"}
             className="w-full h-full mux-custom "
             metadata={{
@@ -213,7 +219,7 @@ const HomePage = () => {
               viewer_user_id: user?.id?.toString() || "no-user-id",
             }}
             accentColor="#20ab9f"
-          />
+          /> */}
         </div>
       </div>
 

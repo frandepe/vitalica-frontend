@@ -1,11 +1,11 @@
-import { ICourse } from "@/types/course.types";
+import { ICourseProgressResponse } from "@/types/courseProgress.types";
 import { create } from "zustand";
 
 interface CoursePlayerState {
-  course: ICourse | null;
+  course: ICourseProgressResponse | null;
   activeLessonId: string | null;
 
-  setCourse: (course: ICourse) => void;
+  setCourse: (course: ICourseProgressResponse) => void;
   setActiveLessonId: (lessonId: string) => void;
 }
 

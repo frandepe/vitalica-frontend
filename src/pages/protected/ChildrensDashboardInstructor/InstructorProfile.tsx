@@ -131,7 +131,7 @@ export default function InstructorProfile() {
       name: "Especialidades de instructor",
       completed: watch("specialties")?.length > 0,
     },
-    { name: "Método de pago", completed: Boolean(watch("payoutMethod")) },
+    { name: "Método de pago", completed: hasMercadoPagoConnected },
   ];
 
   const progress = Math.round(

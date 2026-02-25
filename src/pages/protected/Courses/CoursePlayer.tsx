@@ -9,7 +9,6 @@
 
 // Para lo que es mux podes usar este playerSoftwareName, y para las miniaturas tene en cuenta que lo podes hacer con urls de mux tmb:
 
-import { getCourseBySlug } from "@/api";
 import { useAuth } from "@/hooks/useAuth";
 import MuxPlayer from "@mux/mux-player-react";
 import { useEffect, useState } from "react";
@@ -18,8 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, ListCheck, Menu } from "lucide-react";
+import { Star, ListCheck, Menu, ChartPie } from "lucide-react";
 import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
 import { ModulesAccordionCoursePlayer } from "@/components/Accordion/ModulesAccordionCoursePlayer";
 import { useCoursePlayerStore } from "@/store/coursePlayer.store";
@@ -35,6 +33,14 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import {
+  completeLesson,
+  getCourseWithProgress,
+} from "@/api/courseProgressEndpoints";
+import { DownloadMaterial } from "@/components/Download/DownloadMaterial";
+import { FinalQuizCoursePlayerModule } from "@/components/Quizzes/FinalQuizCoursePlayerModule";
+import { ProgressCard } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 
 export default function CoursePlayer() {
   const [loading, setLoading] = useState(true);
@@ -46,16 +52,16 @@ export default function CoursePlayer() {
   const { user } = useAuth();
   const isMobile = useMedia();
 
-  console.log("activeLesson", activeLesson);
-
   useEffect(() => {
     let cancelled = false;
 
     const loadCourse = async () => {
       setLoading(true);
 
-      const res = await getCourseBySlug(slug!);
+      const res = await getCourseWithProgress(slug!);
+      console.log("res getCourseWithProgress", res);
       if (cancelled) return;
+      // TODO: Si res.message === "No estás inscrito en este curso" redirigir a la vista de compra del curso
 
       setCourse(res.data);
       setLoading(false);
@@ -79,6 +85,31 @@ export default function CoursePlayer() {
 
     setActiveLessonId(nextLessonId);
   }, [lessonId, course, setActiveLessonId]);
+
+  // auto completar contenido de lectura después de 15s
+  useEffect(() => {
+    if (!activeLesson) return;
+    if (activeLesson.type !== "content") return;
+    if (activeLesson.completed) return;
+
+    const timer = setTimeout(() => {
+      completeLesson(activeLesson.id);
+    }, 15000);
+    console.log("timer", timer);
+
+    // si cambia la lección o se va → cancelar
+    return () => clearTimeout(timer);
+  }, [activeLesson]);
+
+  const materials =
+    activeLesson?.lessonMaterial?.map((m) => ({
+      key: m.key,
+      originalName: m.key.split(".").pop() || "archivo",
+    })) || [];
+
+  const completeLessonBtn = async (lessonId: string) => {
+    await completeLesson(lessonId);
+  };
 
   if (loading || !course) return <GlobalLoading text="Obteniendo curso..." />;
 
@@ -140,6 +171,9 @@ export default function CoursePlayer() {
                     video_title: course.title,
                     viewer_user_id: user.id.toString(),
                   }}
+                  onEnded={() => {
+                    completeLessonBtn(activeLesson.id);
+                  }}
                   accentColor="#20ab9f"
                 />
               </div>
@@ -161,35 +195,42 @@ export default function CoursePlayer() {
               </h1>
 
               {/* Instructor */}
-              <Card className="flex items-center gap-3 max-w-max p-4 shadow-sm hover:shadow-md transition-all">
-                <Avatar
-                  className="h-12 w-12 cursor-pointer"
-                  onClick={() =>
-                    alert("TODO: redireccionar al perfil del instructor")
-                  }
-                >
-                  <AvatarImage
-                    src={
-                      course.instructor?.user?.avatarUrl ||
-                      "/Placeholders/no-image-profile.png"
-                    }
-                  />
-                  <AvatarFallback>
-                    {course.instructor?.user?.firstName
-                      ?.slice(0, 2)
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold">
-                    {course.instructor?.user?.firstName}{" "}
-                    {course.instructor?.user?.lastName}
+              <a
+                href={`/perfil/${course.instructor.user.slug}`}
+                className="group flex gap-4 rounded-xl border border-border p-4 hover:bg-muted/40 transition-colors"
+                target="_blank"
+              >
+                <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-full bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground">
+                  {course.instructor.user.avatarUrl ? (
+                    <img
+                      src={course.instructor.user.avatarUrl}
+                      alt={`${course.instructor.user.firstName} ${course.instructor.user.lastName}`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    `${course.instructor.user.firstName?.[0] ?? ""}${
+                      course.instructor.user.lastName?.[0] ?? ""
+                    }`
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground group-hover:underline underline-offset-4">
+                    {course.instructor.user.firstName}{" "}
+                    {course.instructor.user.lastName}
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    {course.instructor?.headline}
+
+                  {course.instructor.bio && (
+                    <p className="mt-1 text-sm text-muted-foreground line-clamp-3">
+                      {course.instructor.bio}
+                    </p>
+                  )}
+
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Ver perfil del instructor
                   </p>
                 </div>
-              </Card>
+              </a>
             </div>
 
             <Tabs defaultValue="tab-1" className="w-full">
@@ -214,6 +255,12 @@ export default function CoursePlayer() {
                   className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
                   Sobre el curso
+                </TabsTrigger>
+                <TabsTrigger
+                  value="tab-4"
+                  className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
+                >
+                  Progreso
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="tab-1" className="pt-6 space-y-10">
@@ -261,7 +308,7 @@ export default function CoursePlayer() {
                 </div>
               </TabsContent>
               <TabsContent value="tab-2" className="pt-6 space-y-10">
-                {activeLesson?.lessonMaterial?.length}
+                <DownloadMaterial materials={materials} />
               </TabsContent>
               <TabsContent value="tab-3" className="pt-6 space-y-10">
                 {/* Additional Information */}
@@ -339,6 +386,51 @@ export default function CoursePlayer() {
                   </p>
                 </div>
                 {/* TODO: corroborar y sumar el updatedAt (que tome la ultima version PUBLISHED) */}
+              </TabsContent>
+              <TabsContent value="tab-4" className="pt-6 space-y-10">
+                {/* Progress */}
+
+                <h2 className="text-xl font-bold mb-4">Tu progreso</h2>
+
+                <ProgressCard
+                  title="Estado del curso"
+                  value={course.progress.percentage}
+                  status={
+                    course.progress.percentage === 100
+                      ? "Completado"
+                      : "Progreso"
+                  }
+                  progress={course.progress.percentage}
+                  icon={<ChartPie size={20} />}
+                  description={
+                    <>
+                      <p>
+                        Lecciones completadas:{" "}
+                        <span className="font-semibold text-primary">
+                          {course.progress.completedLessons} de{" "}
+                          {course.progress.totalLessons}
+                        </span>{" "}
+                      </p>
+                      {course.progress.lastSeenLessonId && (
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="mt-2 px-0"
+                          onClick={() =>
+                            setActiveLessonId(course.progress.lastSeenLessonId!)
+                          }
+                        >
+                          Regresar a la última lección vista
+                        </Button>
+                      )}
+                    </>
+                  }
+                />
+
+                <FinalQuizCoursePlayerModule
+                  courseId={course.id}
+                  percentage={course.progress.percentage}
+                />
               </TabsContent>
             </Tabs>
           </div>

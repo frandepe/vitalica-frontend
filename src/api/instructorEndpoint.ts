@@ -36,3 +36,20 @@ export const getInstructorProfile = async () => {
     method: "GET",
   });
 };
+
+export const getCoursesByInstructor = async (
+  instructorId: string,
+  page: number,
+  limit: number,
+  search: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.INSTRUCTOR}/courses/${instructorId}`,
+    method: "GET",
+    params: {
+      page,
+      limit,
+      search,
+    },
+  });
+};

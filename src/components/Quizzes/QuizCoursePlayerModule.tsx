@@ -225,11 +225,7 @@ export function QuizCoursePlayerModule({
                   key={index}
                   className="flex flex-col items-center space-y-2"
                 >
-                  <div
-                    className={`relative transition-all duration-500 ${
-                      index <= currentQuestion ? "animate-bounce" : ""
-                    }`}
-                  >
+                  <div className={`relative transition-all duration-500`}>
                     <CircleQuestionMark
                       className={`w-8 h-8 transition-all duration-300 ${
                         answers[index] !== null

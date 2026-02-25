@@ -290,7 +290,7 @@ export const Step4 = ({
       ...prev,
       [lessonId]: {
         progress: 100,
-        status: "Procesando…",
+        status: "Procesando el video, esto puede tardar varios minutos…",
       },
     }));
 
@@ -299,7 +299,8 @@ export const Step4 = ({
       console.log("getMuxUploadStatus res:", status);
       if (!status.success) return;
 
-      if (status.status === "asset_created") {
+      if (status.status === "ready") {
+        // if (status.status === "asset_created") {
         assetId = status.assetId;
         playbackId = status.playbackId;
       } else {
@@ -344,6 +345,13 @@ export const Step4 = ({
       console.error("Error eliminando video de la lección", error);
     } finally {
       setDeletingVideoLesson(null);
+      setLessonUploads((prev) => ({
+        ...prev,
+        [lessonId]: {
+          progress: 0,
+          status: "",
+        },
+      }));
     }
   };
 

@@ -36,6 +36,8 @@ export const BasicInformationForm = () => {
     useIntervalClick();
 
   const form = useForm({
+    mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
@@ -43,6 +45,8 @@ export const BasicInformationForm = () => {
       phoneNumber: user?.phoneNumber || "",
     },
   });
+
+  const { trigger } = form;
 
   const {
     register,
@@ -61,7 +65,7 @@ export const BasicInformationForm = () => {
       showToast(
         "Se han actualizado los datos de tu perfil",
         "success",
-        "bottom-right"
+        "bottom-right",
       );
       setIsResendDisabled(true);
       setTimer(20);
@@ -69,7 +73,7 @@ export const BasicInformationForm = () => {
       showToast(
         "Error al actualizar datos. Vuelva a intentarlo más tarde",
         "error",
-        "bottom-right"
+        "bottom-right",
       );
     }
   };
@@ -164,7 +168,10 @@ export const BasicInformationForm = () => {
                   <FormItemAlias>
                     <Select
                       value={String(field.value)}
-                      onValueChange={field.onChange}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        trigger("phoneNumber");
+                      }}
                     >
                       <FormControlAlias>
                         <SelectTrigger>
@@ -203,6 +210,7 @@ export const BasicInformationForm = () => {
                       return "Debes seleccionar un código de país si ingresas un número";
                     return true;
                   },
+                  onChange: () => trigger("phoneCountryCode"),
                 })}
               />
             </div>

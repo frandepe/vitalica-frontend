@@ -3,6 +3,7 @@ import { ICourse } from "@/types/course.types";
 
 import { BookOpen, MessageSquare } from "lucide-react";
 import { ModulesAccordion } from "../Accordion/ModulesAccordion";
+import { InstructorModalCard } from "../CardsAnimated/InstructorModalCard";
 
 function CourseOverviewTabs(course: ICourse) {
   const hasModuleDescriptions = course.modules?.some((module) =>
@@ -64,44 +65,20 @@ function CourseOverviewTabs(course: ICourse) {
             <h2 className="text-lg font-semibold tracking-tight text-foreground mb-4">
               Instructor
             </h2>
-
-            <a
+            <InstructorModalCard
+              name={
+                course.instructor.user.firstName +
+                " " +
+                course.instructor.user.lastName
+              }
+              headline={course.instructor.headline}
+              bio={course.instructor.bio}
+              imageUrl={
+                course.instructor.user.avatarUrl ||
+                "/Placeholders/no-image-profile.jpg"
+              }
               href={`/perfil/${course.instructor.user.slug}`}
-              className="group flex gap-4 rounded-xl border border-border p-4 hover:bg-muted/40 transition-colors"
-            >
-              {/* Avatar */}
-              <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-full bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground">
-                {course.instructor.user.avatarUrl ? (
-                  <img
-                    src={course.instructor.user.avatarUrl}
-                    alt={`${course.instructor.user.firstName} ${course.instructor.user.lastName}`}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  `${course.instructor.user.firstName?.[0] ?? ""}${
-                    course.instructor.user.lastName?.[0] ?? ""
-                  }`
-                )}
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-foreground group-hover:underline underline-offset-4">
-                  {course.instructor.user.firstName}{" "}
-                  {course.instructor.user.lastName}
-                </p>
-
-                {course.instructor.bio && (
-                  <p className="mt-1 text-sm text-muted-foreground line-clamp-3">
-                    {course.instructor.bio}
-                  </p>
-                )}
-
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Ver perfil del instructor
-                </p>
-              </div>
-            </a>
+            />
           </section>
         )}
       </TabsContent>

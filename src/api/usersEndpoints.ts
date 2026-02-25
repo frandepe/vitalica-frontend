@@ -25,6 +25,13 @@ export const getUserOnboarding = async () => {
   });
 };
 
+export const getProfileBySlug = async (slug: string) => {
+  return apiRequest({
+    url: `${API_ROUTES.USERS}/profile/${slug}`,
+    method: "GET",
+  });
+};
+
 export const updateUserOnboarding = async (data: IOnboarding) => {
   return apiRequest({
     url: `${API_ROUTES.USERS}/onboarding`,

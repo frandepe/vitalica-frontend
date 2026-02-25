@@ -3,16 +3,16 @@ import { CheckIcon, CopyIcon, ExternalLink, Link } from "lucide-react";
 import { TooltipIconButton } from "../TooltipIconButton";
 import { Button } from "../ui/button";
 
-export default function ShareProfile() {
+export default function ShareProfile({ slug }: { slug: string }) {
   const [copied, setCopied] = useState<boolean>(false);
 
-  const shareUrl = "https://writer.so/app/projects/123?share=true";
-
   const handleCopy = () => {
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
+    navigator.clipboard
+      .writeText(`www.vitalica.com.ar/perfil/${slug}`)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      });
   };
 
   return (
@@ -21,13 +21,11 @@ export default function ShareProfile() {
         <p className="font-semibold text-gray-700">Compartir perfil</p>
 
         <div className="flex justify-between items-center border border-gray-300 rounded-md px-3 py-2">
-          <p className="truncate max-w-xs">{shareUrl}</p>
+          <p className="truncate max-w-xs">{`www.vitalica.com.ar/perfil/${slug}`}</p>
           <TooltipIconButton tooltip="Copiar link" side="top">
-            <button
+            <div
               onClick={handleCopy}
               aria-label={copied ? "Copied" : "Copy to clipboard"}
-              disabled={copied}
-              type="button"
               className="flex items-center cursor-pointer"
             >
               {copied ? (
@@ -38,7 +36,7 @@ export default function ShareProfile() {
               ) : (
                 <CopyIcon className="h-4 w-4" aria-hidden="true" />
               )}
-            </button>
+            </div>
           </TooltipIconButton>
         </div>
       </div>
@@ -54,7 +52,7 @@ export default function ShareProfile() {
           className="flex-1 gap-2"
           asChild
         >
-          <a href={shareUrl} target="_blank" rel="noopener noreferrer">
+          <a href={`/perfil/${slug}`} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="h-4 w-4" />
             Ver perfil público
           </a>

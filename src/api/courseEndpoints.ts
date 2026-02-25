@@ -187,6 +187,15 @@ export const getModuleQuizzes = async (
   });
 };
 
+export const getFinalCourseQuizzes = async (
+  courseId: string,
+): Promise<ApiResponse<any[]>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/quiz/final/${courseId}`,
+    method: "GET",
+  });
+};
+
 export const deleteModuleQuiz = async (
   quizId: string,
 ): Promise<ApiResponse> => {

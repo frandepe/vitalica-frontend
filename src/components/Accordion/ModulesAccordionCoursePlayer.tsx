@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { CourseModule } from "@/types/course.types";
+
 import { LessonItemCoursePlayer } from "./LessonAccordionCoursePlayer";
 
 import { BookOpenText, ChevronDown, Loader2 } from "lucide-react";
@@ -14,11 +14,12 @@ import {
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { UniversalModal } from "../UniversalModal";
+import { ICourseModuleWithProgress } from "@/types/courseProgress.types";
 
 export function ModulesAccordionCoursePlayer({
   modules,
 }: {
-  modules: CourseModule[];
+  modules: ICourseModuleWithProgress[];
 }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -105,7 +106,7 @@ export function ModulesAccordionCoursePlayer({
                   </div>
 
                   <motion.h3
-                    title={item.title}
+                    title={item.title} // muestra completo al hover
                     className="text-lg font-semibold truncate"
                     animate={{
                       x: isActive || isHovered ? 4 : 0,
@@ -120,7 +121,9 @@ export function ModulesAccordionCoursePlayer({
                       damping: 30,
                     }}
                   >
-                    {item.title}
+                    {item.title.length > 10
+                      ? item.title.slice(0, 10) + "…"
+                      : item.title}
                   </motion.h3>
 
                   <div className="flex items-center gap-3 ml-auto">
@@ -172,6 +175,7 @@ export function ModulesAccordionCoursePlayer({
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
+                    <p className="text-sm text-foreground/70">{item.title}</p>
                     <div className="pr-4 py-6 space-y-1">
                       {item?.lessons?.length! > 0 ? (
                         item.lessons!.map((lesson, idx) => (
@@ -187,7 +191,6 @@ export function ModulesAccordionCoursePlayer({
                         </p>
                       )}
                     </div>
-
                     <Card className="mx-1 mb-4 max-w-max">
                       <Button
                         onClick={() => handleOpenExam(item.id)}
