@@ -440,6 +440,9 @@ export default function CoursePlayer() {
                       {course.finalQuiz.lastExamAttemptAt && (
                         <div className="text-sm text-slate-700 dark:text-slate-300 space-y-1 p-1 max-w-max">
                           {/* Último intento */}
+                          <h3 className="font-bold mb-1 underline">
+                            Examen final:
+                          </h3>
                           {course.finalQuiz.lastExamAttemptAt && (
                             <div>
                               Último intento:{" "}
