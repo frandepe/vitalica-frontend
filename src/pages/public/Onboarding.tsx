@@ -54,15 +54,41 @@ const Onboarding = () => {
     navigate("/");
   };
 
+  const handleBack = () => {
+    setStep((currentStep) => {
+      if (currentStep <= 0) return 0;
+
+      switch (currentStep) {
+        case 1:
+          return 0;
+        case 2:
+          return 1;
+        case 3:
+          return 1;
+        case 4:
+          return 2;
+        case 5:
+          return 3;
+        default:
+          return Math.max(currentStep - 1, 0);
+      }
+    });
+  };
+
   const completed = step === 5 || step === 6;
 
   return (
     <FormProvider {...methods}>
       <BeamsBackground intensity="medium">
         {!completed && (
-          <div className="absolute top-4 left-4 z-50">
+          <div className="absolute top-4 left-4 z-50 flex gap-2">
+            {step > 0 && (
+              <Button variant="link" size="sm" onClick={handleBack}>
+                Atras
+              </Button>
+            )}
             <Button variant="link" size="sm" onClick={handleSkip}>
-              Completar más tarde
+              Completar mas tarde
             </Button>
           </div>
         )}

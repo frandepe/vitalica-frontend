@@ -234,10 +234,11 @@ export default function Step2({
 }: {
   setStep: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const [active, setActive] = useState<ProductId>("STUDENT");
-
   // obtener funciones de react-hook-form
-  const { setValue } = useFormContext<{ userType: ProductId }>();
+  const { setValue, getValues } = useFormContext<{ userType?: ProductId }>();
+  const [active, setActive] = useState<ProductId>(
+    () => getValues("userType") || "STUDENT",
+  );
 
   const data = PRODUCT_DATA[active];
   const isStudent = active === "STUDENT";

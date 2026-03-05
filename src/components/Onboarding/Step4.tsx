@@ -7,7 +7,11 @@ export default function Step4({
 }: {
   setStep: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  const { setValue } = useFormContext();
+  const { setValue, watch } = useFormContext<{
+    primaryGoal?: string;
+    hasCompletedOnboarding: boolean;
+  }>();
+  const selectedGoal = watch("primaryGoal") || "";
 
   const handleSelectGoal = (goal: string) => {
     setValue("primaryGoal", goal);
@@ -25,7 +29,7 @@ export default function Step4({
       </p>
 
       <RadioGroup
-        defaultValue=""
+        value={selectedGoal}
         className="w-full max-w-md space-y-3"
         onValueChange={handleSelectGoal}
       >
