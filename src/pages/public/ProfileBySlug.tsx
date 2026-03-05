@@ -240,7 +240,10 @@ const ProfileBySlug = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                     >
-                      <PublicCourseCard course={course} />
+                      <PublicCourseCard
+                        course={course}
+                        href={`/cursos/${course.slug}`}
+                      />
                     </motion.div>
                   ))}
                 </div>
@@ -273,7 +276,10 @@ const ProfileBySlug = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <PublicCourseCard course={enrollment.course} />
+                    <PublicCourseCard
+                      course={enrollment.course}
+                      href={`/cursos/${enrollment.course.slug}`}
+                    />
                   </motion.div>
                 ))}
               </div>

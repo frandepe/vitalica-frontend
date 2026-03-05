@@ -1,6 +1,6 @@
 import * as React from "react";
 import { motion, AnimatePresence, PanInfo, Transition } from "framer-motion";
-import { ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/utils/cn";
 
 export type FocusRailItem = {
@@ -96,7 +96,7 @@ export function HeroCarousel({
   };
 
   const onDragEnd = (
-    e: MouseEvent | TouchEvent | PointerEvent,
+    _e: MouseEvent | TouchEvent | PointerEvent,
     { offset, velocity }: PanInfo,
   ) => {
     const swipe = swipePower(offset.x, velocity.x);

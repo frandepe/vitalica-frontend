@@ -12,12 +12,12 @@
 import { useAuth } from "@/hooks/useAuth";
 import MuxPlayer from "@mux/mux-player-react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Star, ListCheck, Menu, ChartPie } from "lucide-react";
+import { Star, ListCheck, Menu, ChartPie, Info } from "lucide-react";
 import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
 import { ModulesAccordionCoursePlayer } from "@/components/Accordion/ModulesAccordionCoursePlayer";
 import { useCoursePlayerStore } from "@/store/coursePlayer.store";
@@ -41,6 +41,9 @@ import { DownloadMaterial } from "@/components/Download/DownloadMaterial";
 import { FinalQuizCoursePlayerModule } from "@/components/Quizzes/FinalQuizCoursePlayerModule";
 import { ProgressCard } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { TooltipIconButton } from "@/components/TooltipIconButton";
+import { GiveReview } from "@/components/Reviews/GiveReview";
+// import { CertificateDownloadButton } from "@/templates/certificate.template";
 
 export default function CoursePlayer() {
   const [loading, setLoading] = useState(true);
@@ -51,6 +54,7 @@ export default function CoursePlayer() {
   const activeLesson = useActiveLesson();
   const { user } = useAuth();
   const isMobile = useMedia();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -95,7 +99,6 @@ export default function CoursePlayer() {
     const timer = setTimeout(() => {
       completeLesson(activeLesson.id);
     }, 15000);
-    console.log("timer", timer);
 
     // si cambia la lección o se va → cancelar
     return () => clearTimeout(timer);
@@ -108,7 +111,8 @@ export default function CoursePlayer() {
     })) || [];
 
   const completeLessonBtn = async (lessonId: string) => {
-    await completeLesson(lessonId);
+    const res = await completeLesson(lessonId);
+    console.log("rescomplet", { res, lessonId });
   };
 
   if (loading || !course) return <GlobalLoading text="Obteniendo curso..." />;
@@ -262,6 +266,12 @@ export default function CoursePlayer() {
                 >
                   Progreso
                 </TabsTrigger>
+                <TabsTrigger
+                  value="tab-5"
+                  className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
+                >
+                  Reseña
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="tab-1" className="pt-6 space-y-10">
                 {/* Course Content */}
@@ -393,7 +403,11 @@ export default function CoursePlayer() {
                 <h2 className="text-xl font-bold mb-4">Tu progreso</h2>
 
                 <ProgressCard
-                  title="Estado del curso"
+                  title={
+                    course.progress.percentage < 100
+                      ? "Continua con el curso para desbloquear el examen final"
+                      : "Completá el examen final para obtener tu certificado"
+                  }
                   value={course.progress.percentage}
                   status={
                     course.progress.percentage === 100
@@ -423,11 +437,128 @@ export default function CoursePlayer() {
                           Regresar a la última lección vista
                         </Button>
                       )}
+                      {course.finalQuiz.lastExamAttemptAt && (
+                        <div className="text-sm text-slate-700 dark:text-slate-300 space-y-1 p-1 max-w-max">
+                          {/* Último intento */}
+                          {course.finalQuiz.lastExamAttemptAt && (
+                            <div>
+                              Último intento:{" "}
+                              {useFormattedDate(
+                                course.finalQuiz.lastExamAttemptAt,
+                              )}
+                            </div>
+                          )}
+
+                          {/* Intentos usados */}
+                          <div className="flex items-center gap-1">
+                            Intentos: {course.finalQuiz.finalExamAttempts ?? 0}{" "}
+                            de 3
+                            {course.finalQuiz.finalExamAttempts != null && (
+                              <TooltipIconButton
+                                tooltip={(() => {
+                                  const remaining =
+                                    3 - course.finalQuiz.finalExamAttempts;
+
+                                  if (remaining > 1) {
+                                    return `Te quedan ${remaining} intentos. Si los agotás, se bloqueará el examen por 7 días.`;
+                                  }
+
+                                  if (remaining === 1) {
+                                    return "Es tu último intento. Si no aprobás, el examen se bloqueará por 7 días.";
+                                  }
+
+                                  // Agotó los intentos — mostrar fecha exacta de desbloqueo
+                                  const unblocksAt = course.finalQuiz.unblocksAt
+                                    ? useFormattedDate(
+                                        course.finalQuiz.unblocksAt,
+                                      )
+                                    : null;
+
+                                  return unblocksAt
+                                    ? `Agotaste los intentos. El examen se desbloqueará el ${unblocksAt}.`
+                                    : "Agotaste los intentos. Contactá a soporte para más información.";
+                                })()}
+                                side="top"
+                              >
+                                <Info className="h-4 w-4 text-destructive" />
+                              </TooltipIconButton>
+                            )}
+                          </div>
+
+                          {/* Próximo intento */}
+                          {course.finalQuiz.unblocksAt && (
+                            <div>
+                              Próximo intento disponible:{" "}
+                              {useFormattedDate(course.finalQuiz.unblocksAt)}
+                            </div>
+                          )}
+
+                          {/* Feedback de aprobación */}
+                          {course.finalQuiz.finalExamPassedAt ? (
+                            <div>
+                              <p className="text-success">¡Examen aprobado!</p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="mt-2"
+                                onClick={() =>
+                                  navigate(
+                                    `/certificado/${course.finalQuiz.enrollmentId}`,
+                                  )
+                                }
+                              >
+                                Ver certificado
+                              </Button>
+                              {/* <CertificateDownloadButton
+                                courseName={course.title!}
+                                enrollmentId={course.id}
+                                finalExamPassedAt={
+                                  course.finalQuiz.lastExamAttemptAt
+                                }
+                                instructorName={
+                                  course.instructor.user.firstName +
+                                  " " +
+                                  course.instructor.user.lastName
+                                }
+                                issuedBy="ACES"
+                                studentName={""}
+                              /> */}
+                            </div>
+                          ) : (
+                            <div className="text-yellow-700">
+                              No aprobaste el examen final.
+                              {/* Si tiene intentos restantes y cooldown */}
+                              {course.finalQuiz.finalExamAttempts != null &&
+                                course.finalQuiz.finalExamAttempts < 3 &&
+                                course.finalQuiz.lastExamAttemptAt && (
+                                  <p>
+                                    Podés reintentar a partir de:{" "}
+                                    {useFormattedDate(
+                                      new Date(
+                                        new Date(
+                                          course.finalQuiz.lastExamAttemptAt,
+                                        ).getTime() +
+                                          24 * 60 * 60 * 1000,
+                                      ),
+                                    )}
+                                  </p>
+                                )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </>
                   }
                 />
 
                 <FinalQuizCoursePlayerModule
+                  courseId={course.id}
+                  percentage={course.progress.percentage}
+                  lastExamAttemptAt={course.finalQuiz.lastExamAttemptAt}
+                />
+              </TabsContent>
+              <TabsContent value="tab-5" className="pt-6 space-y-10">
+                <GiveReview
                   courseId={course.id}
                   percentage={course.progress.percentage}
                 />

@@ -5,6 +5,7 @@ export const API_ROUTES = {
   INSTRUCTOR: "/api/instructor",
   COURSE: "/api/course",
   COURSE_PROGRESS: "/api/course/progress",
+  COURSE_REVIEWS: "/api/course/review",
   VIDEO: "/api/video",
   ADMIN: "/api/admin",
   MP: "/api/mp",

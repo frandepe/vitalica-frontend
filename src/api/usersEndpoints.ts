@@ -39,3 +39,19 @@ export const updateUserOnboarding = async (data: IOnboarding) => {
     data,
   });
 };
+
+export const getMyCoursesEnrrolled = async (
+  page: number,
+  limit: number,
+  search: string,
+) => {
+  return apiRequest({
+    url: `${API_ROUTES.USERS}/courses`,
+    method: "GET",
+    params: {
+      page,
+      limit,
+      search,
+    },
+  });
+};

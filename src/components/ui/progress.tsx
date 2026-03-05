@@ -105,7 +105,7 @@ export const ProgressCard: React.FC<Vo2MaxCardProps> = ({
             <motion.span className="text-5xl lg:text-6xl font-bold tracking-tighter">
               {rounded}
             </motion.span>
-            <p className="text-lg lg:text-xl font-medium text-muted-foreground">
+            <p className="text-lg lg:text-md font-medium text-muted-foreground">
               {status}
             </p>
           </div>

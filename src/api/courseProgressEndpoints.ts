@@ -28,3 +28,23 @@ export const getCourseWithProgress = async (
     method: "GET",
   });
 };
+
+export const submitFinalExam = async (
+  courseId: string,
+  answers: Record<string, number>,
+) => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE_PROGRESS}/quiz/final/${courseId}/submit`,
+    method: "POST",
+    data: { answers },
+  });
+};
+
+export const getCertificateByEnrollmentId = async (
+  enrollmentId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE_PROGRESS}/certificate/${enrollmentId}`,
+    method: "GET",
+  });
+};

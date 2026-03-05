@@ -2,65 +2,27 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCourses, getUserOnboarding } from "@/api";
+import { getCourses, getMyCoursesEnrrolled, getUserOnboarding } from "@/api";
 import { MainCarousel } from "@/components/Carousel/MainCarousel";
 import { CourseCardProps } from "@/components/CardsAnimated/CoursePublic";
 import { MainCarouselSkeleton } from "@/components/Skeletons/MainCarouselSkeleton";
-import MuxPlayer from "@mux/mux-player-react";
-import { useAuth } from "@/hooks/useAuth";
 import { BlogTabsRole } from "@/components/Blog/BlogTabsRole";
-import {
-  FocusRailItem,
-  HeroCarousel,
-} from "@/components/Carousel/HeroCarousel";
+import { HeroCarousel } from "@/components/Carousel/HeroCarousel";
 import { motion } from "framer-motion";
-
-const DEMO_ITEMS: FocusRailItem[] = [
-  {
-    id: 1,
-    title: "RCP",
-    alt: "Persona realizando RCP en un entrenamiento de reanimación cardiopulmonar",
-    meta: "Actuar ante un paro cardíaco",
-    imageSrc: "/HeroCarousel/rcp2.jpg",
-  },
-  {
-    id: 2,
-    title: "Emergencias",
-    alt: "Persona aplicando maniobra de Heimlich en situación de emergencia por obstrucción",
-    meta: "Resolver obstrucciones en segundos",
-    imageSrc: "/HeroCarousel/heimlich.jpg",
-  },
-  {
-    id: 3,
-    title: "Primeros Auxilios",
-    alt: "Atención de primeros auxilios aplicando gasa sobre una herida",
-    meta: "Tratamiento inmediato de lesiones",
-    imageSrc: "/HeroCarousel/gaza.jpg",
-  },
-  {
-    id: 4,
-    title: "Lesiones",
-    alt: "Atención de lesión deportiva durante una actividad física",
-    meta: "Actuación inmediata",
-    imageSrc: "/HeroCarousel/sport.jpg",
-  },
-  {
-    id: 5,
-    title: "Protocolos de emergencia",
-    alt: "Respuesta de primeros auxilios ante un accidente en entorno laboral",
-    meta: "Respuesta en entornos laborales",
-    imageSrc: "/HeroCarousel/job.jpg",
-  },
-];
+import { MainCourseCard } from "@/components/CardsAnimated/MainCourseCard";
+import { DEMO_ITEMS } from "@/components/Carousel/utils/demo-items";
+import { PublicCourseCard } from "@/components/CardsAnimated/PublicCourseCard";
 
 const HomePage = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [courses, setCourses] = useState<CourseCardProps[]>([]);
+  const [coursesMy, setCoursesMy] = useState<CourseCardProps[]>([]);
   const [loadingCarousel, setLoadingCarousel] = useState(false);
-  const { user } = useAuth();
+  const [loadingMyCoursesCarousel, setLoadingMyCoursesCarousel] =
+    useState(false);
 
-  // EN MODO DESARROLLOR: Esto se ejecuta dos veces por el modo estricto de react
+  // EN MODO DESARROLLO: Esto se ejecuta dos veces por el modo estricto de react
   useEffect(() => {
     const checkOnboarding = async () => {
       if (sessionStorage.getItem("onboardingToastShown")) return;
@@ -92,6 +54,20 @@ const HomePage = () => {
       setLoadingCarousel(false); // fin carga
     }
   };
+
+  const getMyCourses = async () => {
+    setLoadingMyCoursesCarousel(true); // inicio carga
+    try {
+      const res = await getMyCoursesEnrrolled(1, 8, "");
+      setCoursesMy(res.data);
+    } finally {
+      setLoadingMyCoursesCarousel(false); // fin carga
+    }
+  };
+
+  useEffect(() => {
+    getMyCourses();
+  }, []);
 
   useEffect(() => {
     getCoursesFunction();
@@ -197,13 +173,32 @@ const HomePage = () => {
       </motion.div>
 
       <div className="mb-20">
+        {loadingMyCoursesCarousel ? (
+          <MainCarouselSkeleton />
+        ) : (
+          <MainCarousel
+            title="Seguir aprendiendo"
+            subtitle="Continuá con tu formación"
+            items={coursesMy}
+            renderItem={(course) => (
+              <PublicCourseCard
+                course={course}
+                href={`/mis-cursos/${course.slug}`} // TODO: redireccionar a la ultima leccion que visito el usuario de ese curso
+              />
+            )}
+          />
+        )}
+      </div>
+
+      <div className="mb-20">
         {loadingCarousel ? (
           <MainCarouselSkeleton />
         ) : (
           <MainCarousel
-            title="Cursos disponibles"
-            subtitle="Lo mínimo que deberías saber para responder ante una emergencia."
-            courses={courses}
+            title="Cursos destacados"
+            subtitle="Los más elegidos"
+            items={courses}
+            renderItem={(course) => <MainCourseCard course={course} />}
           />
         )}
       </div>

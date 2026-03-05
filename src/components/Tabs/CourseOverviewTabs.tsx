@@ -4,6 +4,7 @@ import { ICourse } from "@/types/course.types";
 import { BookOpen, MessageSquare } from "lucide-react";
 import { ModulesAccordion } from "../Accordion/ModulesAccordion";
 import { InstructorModalCard } from "../CardsAnimated/InstructorModalCard";
+import { Reviews } from "../Reviews/Reviews";
 
 function CourseOverviewTabs(course: ICourse) {
   const hasModuleDescriptions = course.modules?.some((module) =>
@@ -29,7 +30,7 @@ function CourseOverviewTabs(course: ICourse) {
           value="tab-3"
           className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
         >
-          Testimonios
+          Reseñas
         </TabsTrigger>
       </TabsList>
 
@@ -122,35 +123,7 @@ function CourseOverviewTabs(course: ICourse) {
       </TabsContent>
 
       <TabsContent value="tab-3" className="pt-6">
-        {!course.reviews || course.reviews.length === 0 ? (
-          // EMPTY STATE
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <MessageSquare className="h-5 w-5" />
-            </div>
-
-            <h3 className="text-base font-semibold text-foreground">
-              Este curso aún no tiene reseñas
-            </h3>
-
-            <p className="mt-2 max-w-md text-sm text-muted-foreground">
-              Sé uno de los primeros en realizar el curso y compartir tu
-              experiencia. Tus comentarios ayudarán a mejorar el contenido y a
-              otros estudiantes a decidir.
-            </p>
-
-            <p className="mt-4 text-xs text-muted-foreground">
-              Las reseñas solo pueden dejarse después de completar una lección.
-            </p>
-          </div>
-        ) : (
-          // LISTADO DE REVIEWS (placeholder por ahora)
-          <div className="space-y-4">
-            {/* {course.reviews.map((review) => (
-        <ReviewItem key={review.id} review={review} />
-      ))} */}
-          </div>
-        )}
+        <Reviews courseId={course.id} />
       </TabsContent>
     </Tabs>
   );

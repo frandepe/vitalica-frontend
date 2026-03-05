@@ -7,14 +7,11 @@ import { LessonItemCoursePlayer } from "./LessonAccordionCoursePlayer";
 
 import { BookOpenText, ChevronDown, Loader2 } from "lucide-react";
 import { getModuleQuizzes } from "@/api";
-import {
-  QuizCoursePlayerModule,
-  QuizQuestion,
-} from "../Quizzes/QuizCoursePlayerModule";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { UniversalModal } from "../UniversalModal";
 import { ICourseModuleWithProgress } from "@/types/courseProgress.types";
+import { QuizCoursePlayer } from "../Quizzes/QuizCoursePlayer";
 
 export function ModulesAccordionCoursePlayer({
   modules,
@@ -25,9 +22,9 @@ export function ModulesAccordionCoursePlayer({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const [openModuleId, setOpenModuleId] = useState<string | null>(null);
-  const [quizzesByModule, setQuizzesByModule] = useState<
-    Record<string, QuizQuestion[]>
-  >({});
+  const [quizzesByModule, setQuizzesByModule] = useState<Record<string, any>>(
+    {},
+  );
   const [loadingModule, setLoadingModule] = useState<string | null>(null);
 
   const handleOpenExam = async (moduleId: string) => {
@@ -218,14 +215,13 @@ export function ModulesAccordionCoursePlayer({
                             </span>
                           </div>
                         ) : (
-                          <QuizCoursePlayerModule
+                          <QuizCoursePlayer
                             quizzes={quizzes}
                             moduleTitle={`Módulo ${item.order}: ${item.title}`}
-                            onComplete={(score, total) => {
-                              console.log(
-                                `Quiz completado: ${score}/${total} correctas`,
-                              );
-                            }}
+                            onComplete={(answers: any) =>
+                              console.log("Respuestas enviadas", answers)
+                            }
+                            isPractice={true}
                           />
                         )}
                       </UniversalModal>

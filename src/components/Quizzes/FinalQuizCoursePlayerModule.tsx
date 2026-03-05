@@ -1,31 +1,44 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { UniversalModal } from "../UniversalModal";
 import { Button } from "../ui/button";
 
 import { getFinalCourseQuizzes } from "@/api";
 import { BookOpenText, Loader2 } from "lucide-react";
-import { QuizCoursePlayerModule } from "./QuizCoursePlayerModule";
 import { motion } from "framer-motion";
+import { QuizCoursePlayer } from "./QuizCoursePlayer";
+import { submitFinalExam } from "@/api/courseProgressEndpoints";
+import { IFinalQuizResult } from "@/types/courseProgress.types";
 
 interface Props {
   courseId: string;
   percentage: number;
+  lastExamAttemptAt: Date | null;
 }
 
 export const FinalQuizCoursePlayerModule = ({
   courseId,
   percentage,
+  lastExamAttemptAt,
 }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [finalQuizResponse, setFinalQuizResponse] =
+    useState<IFinalQuizResult>();
+
+  const canRetry = useMemo(() => {
+    if (!lastExamAttemptAt) return true;
+    const hoursSinceLastAttempt =
+      (Date.now() - new Date(lastExamAttemptAt).getTime()) / (1000 * 60 * 60);
+    return hoursSinceLastAttempt >= 24;
+  }, [lastExamAttemptAt]);
+
   const handleOpenExam = async () => {
     setOpen(true);
 
     try {
       setLoading(true);
       const res = await getFinalCourseQuizzes(courseId);
-      console.log("res", res);
 
       // Guardamos los quizzes del módulo en el estado
       if (res.success && res.data) {
@@ -41,6 +54,12 @@ export const FinalQuizCoursePlayerModule = ({
     setOpen(false);
   };
 
+  const submitQuizzes = async (answers: Record<string, number>) => {
+    const res = await submitFinalExam(courseId, answers);
+    setFinalQuizResponse(res);
+    console.log("resSubmit", res);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -53,9 +72,9 @@ export const FinalQuizCoursePlayerModule = ({
     >
       <Button
         onClick={handleOpenExam}
-        variant="link"
-        disabled={loading || percentage < 100}
-        className="bg-gradient-to-r from-primary/10 to-gray-200 w-full"
+        variant={loading || percentage < 100 ? "outline" : "default"}
+        disabled={loading || percentage < 100 || !canRetry}
+        className="w-full"
       >
         {loading ? (
           <Loader2 size={18} className="mr-1 animate-spin" />
@@ -69,6 +88,7 @@ export const FinalQuizCoursePlayerModule = ({
           Completá el curso para desbloquear el examen final
         </p>
       )}
+
       <UniversalModal
         open={open}
         onOpenChange={handleCloseModal}
@@ -82,12 +102,15 @@ export const FinalQuizCoursePlayerModule = ({
             </span>
           </div>
         ) : (
-          <QuizCoursePlayerModule
+          <QuizCoursePlayer
             quizzes={quizzes}
             moduleTitle={`Examen final del curso`}
-            onComplete={(score, total) => {
-              console.log(`Quiz completado: ${score}/${total} correctas`);
-            }}
+            onComplete={(answers: Record<string, number>) =>
+              // console.log("Respuestas enviadas", answers)
+              submitQuizzes(answers)
+            }
+            isPractice={false}
+            finalResult={finalQuizResponse}
           />
         )}
       </UniversalModal>

@@ -1,5 +1,5 @@
 import { Crown, Star, Sparkles } from "lucide-react";
-import { Temporal } from "@js-temporal/polyfill";
+import { parseISO, differenceInDays, startOfDay } from "date-fns";
 
 interface UserBadgeProps {
   role: string;
@@ -7,14 +7,15 @@ interface UserBadgeProps {
 }
 
 const RoleBadge: React.FC<UserBadgeProps> = ({ role, createdAt }) => {
+  // Convertir fecha ignorando hora (equivalente a Temporal.PlainDate)
   const createdDate =
     typeof createdAt === "string"
-      ? Temporal.PlainDate.from(createdAt.split("T")[0])
-      : Temporal.PlainDate.from(createdAt.toISOString().split("T")[0]);
+      ? startOfDay(parseISO(createdAt))
+      : startOfDay(createdAt);
 
-  const today = Temporal.Now.plainDateISO();
+  const today = startOfDay(new Date());
 
-  const daysSinceCreation = today.since(createdDate).total({ unit: "days" });
+  const daysSinceCreation = differenceInDays(today, createdDate);
 
   let statusLabel = "";
   let Icon: React.ElementType | null = null;

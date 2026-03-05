@@ -5,12 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputPassword } from "@/components/ui/password-input";
 import GoogleLoginButton from "@/components/Buttons/GoogleLoginButton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { registerUser, sendValidationEmail } from "@/api";
 import { useToast } from "@/components/ui/toast";
 import { DataValidationEmail, RegisterFormValues } from "@/types/auth.types";
 import { EmailConfirm } from "@/components/user/auth/EmailConfirm";
 import { useBackendErrors } from "@/hooks/useBackendErrors";
+import { ArrowLeft } from "lucide-react";
 
 const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
@@ -19,6 +20,7 @@ const RegisterPage = () => {
   const [userData, setUserData] = useState<DataValidationEmail>();
   const { setBackendErrors, getGeneralErrors, clearErrors } =
     useBackendErrors();
+  const navigate = useNavigate();
 
   const {
     control,
@@ -78,7 +80,14 @@ const RegisterPage = () => {
   }
 
   return (
-    <section className="flex-1 flex items-center justify-center p-8">
+    <section className="flex-1 flex items-center justify-center md:p-8 relative">
+      <Button
+        variant="link"
+        className="absolute top-2 right-2"
+        onClick={() => navigate("/")}
+      >
+        <ArrowLeft />
+      </Button>
       <div className="w-full max-w-md">
         <div className="flex flex-col gap-6">
           <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">

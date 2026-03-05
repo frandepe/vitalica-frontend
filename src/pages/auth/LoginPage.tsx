@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,7 +71,14 @@ const LoginPage = () => {
   }
 
   return (
-    <section className="flex-1 flex items-center justify-center p-8">
+    <section className="flex-1 flex items-center justify-center md:p-8 relative">
+      <Button
+        variant="link"
+        className="absolute top-2 right-2"
+        onClick={() => navigate("/")}
+      >
+        <ArrowLeft />
+      </Button>
       <div className="w-full max-w-md">
         <div className="flex flex-col gap-6">
           <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">

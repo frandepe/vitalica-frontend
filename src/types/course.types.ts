@@ -54,7 +54,7 @@ export interface ICourse {
   };
 
   // Relaciones
-  reviews?: CourseReview[];
+  // reviews?: CourseReview[];
   modules?: CourseModule[];
   quizzes?: CourseQuiz[];
 }

@@ -17,4 +17,5 @@ export interface ApiResponse<T = any> {
   message?: string; // mensaje general opcional
   errors?: BackendError[]; // array de errores por campo opcional
   data?: T; // datos devueltos por la API
+  meta?: T;
 }

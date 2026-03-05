@@ -15,6 +15,7 @@ import {
 import {
   CreditCard,
   Crown,
+  GraduationCap,
   LogOut,
   Settings,
   Sparkles,
@@ -52,8 +53,8 @@ export default function ProfileMenu() {
               alt="User avatar"
               className="h-12 w-12 rounded-full"
             />
-            <div className="flex flex-col gap-1">
-              <p className="text-sm font-medium text-foreground">
+            <div className="flex flex-col gap-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">
                 {user?.email}
               </p>
               <div className="flex items-center gap-1">
@@ -86,16 +87,23 @@ export default function ProfileMenu() {
               <CreditCard className="h-4 w-4" />
               Billing
             </button>
+            <button
+              className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
+              onClick={() => navigate("/mis-cursos")}
+            >
+              <GraduationCap className="h-4 w-4" />
+              Mis cursos
+            </button>
             <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent">
               <Settings className="h-4 w-4" />
               Settings
             </button>
             {user?.role === "INSTRUCTOR" && (
-              <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent">
-                <Settings
-                  className="h-4 w-4"
-                  onClick={() => navigate("/perfil/panel-administrativo")}
-                />
+              <button
+                className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
+                onClick={() => navigate("/perfil/panel-administrativo")}
+              >
+                <Settings className="h-4 w-4" />
                 Panel de Instructor
               </button>
             )}
@@ -141,8 +149,10 @@ export default function ProfileMenu() {
             alt="User avatar"
             className="h-10 w-10 rounded-full object-cover"
           />
-          <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium text-foreground">{user?.email}</p>
+          <div className="flex flex-col gap-1 min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">
+              {user?.email}
+            </p>
             <RoleBadge role={user?.role} createdAt={user?.createdAt} />
           </div>
         </div>
@@ -165,6 +175,10 @@ export default function ProfileMenu() {
         <DropdownItem className="gap-2">
           <CreditCard className="h-4 w-4" />
           Billing
+        </DropdownItem>
+        <DropdownItem className="gap-2" onClick={() => navigate("/mis-cursos")}>
+          <GraduationCap className="h-4 w-4" />
+          Mis cursos
         </DropdownItem>
         {user?.role === "INSTRUCTOR" && (
           <DropdownItem

@@ -16,11 +16,15 @@ interface PublicCourseCardProps {
     muxPlaybackId: string | null;
   };
   className?: string;
+  href: string;
 }
 
-const PublicCourseCard = ({ course, className }: PublicCourseCardProps) => {
-  const { title, slug, thumbnailUrl, avgRating, specialty, muxPlaybackId } =
-    course;
+const PublicCourseCard = ({
+  course,
+  className,
+  href,
+}: PublicCourseCardProps) => {
+  const { title, thumbnailUrl, avgRating, specialty, muxPlaybackId } = course;
 
   const navigate = useNavigate();
 
@@ -41,7 +45,7 @@ const PublicCourseCard = ({ course, className }: PublicCourseCardProps) => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      onClick={() => navigate(`/cursos/${slug}`)}
+      onClick={() => navigate(href)}
       className={cn(
         "w-full max-w-sm h-[320px] rounded-2xl border border-border bg-card p-4 shadow-sm cursor-pointer flex flex-col hover:shadow-md transition-shadow",
         className,

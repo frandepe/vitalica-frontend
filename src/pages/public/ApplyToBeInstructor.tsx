@@ -225,7 +225,7 @@ const ApplyToBeInstructor = () => {
                 </Label>
                 <Input
                   id="dni-number"
-                  placeholder="12345678"
+                  placeholder="Ej: 25000222"
                   {...register("dniNumber", {
                     required: "Este campo es obligatorio",
                     pattern: {
@@ -272,6 +272,7 @@ const ApplyToBeInstructor = () => {
                     {...register("certificateType", {
                       required: "Este campo es obligatorio",
                     })}
+                    placeholder="Soporte Vital Básico, Instructor Avanzado, etc"
                   />
                   {errors.certificateType && (
                     <p className="text-destructive text-sm">
@@ -287,6 +288,7 @@ const ApplyToBeInstructor = () => {
                     {...register("issuedBy", {
                       required: "Este campo es obligatorio",
                     })}
+                    placeholder="ACES, AIDER, Cruz Roja, FAC, etc"
                   />
                   {errors.issuedBy && (
                     <p className="text-destructive text-sm">
@@ -296,10 +298,13 @@ const ApplyToBeInstructor = () => {
                 </div>
 
                 <div className="space-y-2 col-span-2">
-                  <Label htmlFor="enrollment-number">Número de matrícula</Label>
+                  <Label htmlFor="enrollment-number">
+                    ID de instructor / Número de credencial
+                  </Label>
                   <Input
                     id="enrollment-number"
                     {...register("enrollmentNumber")}
+                    placeholder="ABC-123"
                   />
                 </div>
 

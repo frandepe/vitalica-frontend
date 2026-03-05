@@ -22,6 +22,7 @@ const ContactPage = lazy(() => import("@/pages/public/ContactPage"));
 const ApplyToBeInstructor = lazy(
   () => import("@/pages/public/ApplyToBeInstructor"),
 );
+const MyCourses = lazy(() => import("@/pages/protected/MyCourses"));
 const TeachesOnVitalica = lazy(
   () => import("@/pages/public/TeachesOnVitalica"),
 );
@@ -31,6 +32,9 @@ const CourseOverview = lazy(
 );
 const ProfileBySlug = lazy(() => import("@/pages/public/ProfileBySlug"));
 const Checkout = lazy(() => import("@/pages/public/Courses/Checkout"));
+const CertificatePage = lazy(
+  () => import("@/pages/public/Courses/CertificatePage"),
+);
 
 // Páginas de autenticación
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
@@ -115,6 +119,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "mis-cursos",
+        element: (
+          <ProtectedRoute>
+            <MyCourses />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "dar-cursos",
         element: <TeachesOnVitalica />,
       },
@@ -138,6 +150,10 @@ export const router = createBrowserRouter([
       {
         path: "cursos/:courseId/pago",
         element: <Checkout />,
+      },
+      {
+        path: "certificado/:enrollmentId",
+        element: <CertificatePage />,
       },
       {
         path: "perfil",
