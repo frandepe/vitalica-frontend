@@ -1,14 +1,16 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
+import { useEffect } from "react";
 import { Toolbar } from "./Toolbar";
 
 interface Props {
   value: string;
   onChange: (value: string) => void;
+  onBlur?: () => void;
 }
 
-export function RichTextEditor({ value, onChange }: Props) {
+export function RichTextEditor({ value, onChange, onBlur }: Props) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -30,7 +32,21 @@ export function RichTextEditor({ value, onChange }: Props) {
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    onBlur: () => {
+      onBlur?.();
+    },
   });
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const incomingContent = value || "<p></p>";
+    const currentContent = editor.getHTML();
+
+    if (currentContent !== incomingContent) {
+      editor.commands.setContent(incomingContent, { emitUpdate: false });
+    }
+  }, [editor, value]);
 
   if (!editor) return null;
 

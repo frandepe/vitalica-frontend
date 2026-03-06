@@ -1,4 +1,8 @@
-import { LessonType, SaveCourseDraftPayload } from "@/types/course.types";
+import {
+  CoursePublishValidation,
+  LessonType,
+  SaveCourseDraftPayload,
+} from "@/types/course.types";
 import { apiRequest } from "./configEndpoint";
 import { ApiResponse } from "@/types/endpoints.types";
 
@@ -266,6 +270,15 @@ export const getCourseStatus = async (
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/status/${courseId}`,
+    method: "GET",
+  });
+};
+
+export const validateCourseForPublication = async (
+  courseId: string,
+): Promise<ApiResponse<CoursePublishValidation>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/validate/${courseId}`,
     method: "GET",
   });
 };

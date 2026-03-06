@@ -3,11 +3,12 @@ import { Step1 } from "@/components/Instructor/Forms/Course/Steps/Step1";
 import { Step, Stepper } from "@/components/Instructor/Stepper";
 import { Form } from "@/components/ui/form";
 import {
+  CoursePublishValidation,
   ICourse,
   LessonFormValues,
   NewCourseFormValues,
 } from "@/types/course.types";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import banner1 from "/Banners/banner4.jpg";
 import mask01 from "@/assets/Masks/mask-20.svg";
@@ -28,6 +29,7 @@ import {
   saveCourseAsDraft,
   saveCourseThumbnail,
   submitCourseForReview,
+  validateCourseForPublication,
 } from "@/api";
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import { useToast } from "@/components/ui/toast";
@@ -39,6 +41,11 @@ import {
   getMuxUploadStatus,
   savePromoVideoToCourse,
 } from "@/api/videoEndpoints";
+import {
+  isUploadAbortError,
+  uploadFileToMux,
+  waitForMuxAssetReady,
+} from "@/utils/mux-upload";
 
 // TODO: (Posible TODO)
 // click siguiente →
@@ -67,6 +74,11 @@ export default function EditCourse() {
   const [uploadStatus, setUploadStatus] =
     useState<UploadStatus>("Preparando subida…");
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [publishValidation, setPublishValidation] =
+    useState<CoursePublishValidation | null>(null);
+  const promoUploadAbortRef = useRef<AbortController | null>(null);
+  const redirectHandledRef = useRef(false);
   const { setBackendErrors, getGeneralErrors, clearErrors } =
     useBackendErrors();
   const { showToast } = useToast();
@@ -153,6 +165,40 @@ export default function EditCourse() {
     }
   }, [courseData, reset]);
 
+  useEffect(() => {
+    return () => {
+      promoUploadAbortRef.current?.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!courseData) return;
+    if (redirectHandledRef.current) return;
+
+    if (["PUBLISHED", "ARCHIVED", "UNDER_REVIEW"].includes(courseData.status)) {
+      redirectHandledRef.current = true;
+      showToast(
+        "No podés editar este curso en su estado actual",
+        "warning",
+        "bottom-right",
+      );
+      navigate("/");
+    }
+  }, [courseData, navigate, showToast]);
+
+  useEffect(() => {
+    if (currentStep !== 6 || !courseId) return;
+
+    const loadPublishValidation = async () => {
+      const response = await validateCourseForPublication(courseId);
+      if (response.success && response.data) {
+        setPublishValidation(response.data);
+      }
+    };
+
+    loadPublishValidation();
+  }, [courseId, currentStep]);
+
   const handleLessonTypeChange = (
     sectionIndex: number,
     lessonIndex: number,
@@ -185,7 +231,21 @@ export default function EditCourse() {
         duration: durationHours * 60 + durationMinutes,
       };
 
-      await saveCourseAsDraft(payload);
+      const resp = await saveCourseAsDraft(payload);
+      console.log("resp se gaurda en borrador", resp);
+
+      const validationResponse = await validateCourseForPublication(courseId!);
+      if (validationResponse.success && validationResponse.data) {
+        setPublishValidation(validationResponse.data);
+
+        console.log("validationResponse.data", validationResponse.data);
+        if (!validationResponse.data.isValid) {
+          setBackendErrors(
+            validationResponse.data.errors.map((message) => ({ message })),
+          );
+          return;
+        }
+      }
 
       const res = await submitCourseForReview(courseId!);
 
@@ -230,7 +290,7 @@ export default function EditCourse() {
 
     try {
       const res = await saveCourseAsDraft(payload);
-      console.log("res", res);
+      console.log("res.errors", res);
 
       if (res.errors && res.errors.length > 0) {
         setBackendErrors(res.errors);
@@ -238,6 +298,7 @@ export default function EditCourse() {
       }
       if (res.success) {
         showToast("Borrador guardado", "success", "top-right");
+        reset(data);
       }
       clearErrors();
     } catch (error) {
@@ -247,15 +308,39 @@ export default function EditCourse() {
     }
   });
 
-  const validationIssues = getValidationIssues(courseData!);
+  const watchedCourseValues = watch();
+  const previewCourse = useMemo<ICourse | null>(() => {
+    if (!courseData) return null;
+
+    const durationInMinutes =
+      (watchedCourseValues.durationHours || 0) * 60 +
+      (watchedCourseValues.durationMinutes || 0);
+
+    return {
+      ...courseData,
+      ...watchedCourseValues,
+      level: watchedCourseValues.level ?? undefined,
+      duration: durationInMinutes,
+      modules: watchedCourseValues.modules as ICourse["modules"],
+      quizzes: watchedCourseValues.quizzes as ICourse["quizzes"],
+    };
+  }, [courseData, watchedCourseValues]);
+
+  const minimumFinalQuizQuestions =
+    publishValidation?.minimumFinalQuizQuestions ?? 5;
+  const validationIssues = getValidationIssues(
+    previewCourse,
+    minimumFinalQuizQuestions,
+  );
   const errorCount = validationIssues.filter((i) => i.type === "error").length;
   const warningCount = validationIssues.filter(
     (i) => i.type === "warning",
   ).length;
-  const totalLessons = courseData?.modules!.reduce(
-    (acc, module) => acc + module.lessons!.length,
-    0,
-  );
+  const totalLessons =
+    previewCourse?.modules?.reduce(
+      (acc, module) => acc + (module.lessons?.length || 0),
+      0,
+    ) ?? 0;
   const completionPercentage = Math.round(
     ((14 - validationIssues.length) / 14) * 100,
   ); // 14 possible fields to complete
@@ -275,8 +360,12 @@ export default function EditCourse() {
 
   const handlePromoVideoUpload = async (file: File) => {
     if (!courseId) return;
+
+    promoUploadAbortRef.current?.abort();
+    const abortController = new AbortController();
+    promoUploadAbortRef.current = abortController;
+
     try {
-      // 1) Crear Direct Upload
       setUploadProgress(0);
       setUploadStatus("Preparando subida…");
 
@@ -289,71 +378,22 @@ export default function EditCourse() {
 
       const { uploadUrl, uploadId } = res1.data;
 
-      // 2) Subir archivo a Mux con barra de progreso
       setUploadStatus("Subiendo video…");
+      await uploadFileToMux(
+        uploadUrl,
+        file,
+        (progress) => setUploadProgress(progress),
+        abortController.signal,
+      );
 
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-
-        xhr.open("PUT", uploadUrl);
-
-        xhr.setRequestHeader("Content-Type", file.type);
-
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) {
-            const progress = Math.round((e.loaded / e.total) * 100);
-            console.log("Progreso:", progress + "%");
-
-            // llamá a tu hook o setState
-            setUploadProgress(progress);
-          }
-        };
-
-        xhr.onload = () => {
-          if (xhr.status === 200) {
-            resolve();
-          } else {
-            reject("Error subiendo archivo a Mux");
-          }
-        };
-
-        xhr.onerror = () => reject("Error en la subida");
-
-        xhr.send(file);
-      });
-
-      // El paso dos se puede reemplazar con esto:
-      // await fetch(uploadUrl, {
-      //   method: "PUT",
-      //   headers: { "Content-Type": file.type },
-      //   body: file,
-      // });
-      // pero no me permite trackear el progreso fácilmente.
-
-      // 3) Mostrar feedback mientras Mux procesa
       setUploadStatus("Procesando el video, esto puede tardar varios minutos…");
 
-      let playbackId: string | null = null;
-      let assetId: string | null = null;
+      const { assetId, playbackId } = await waitForMuxAssetReady(
+        uploadId,
+        getMuxUploadStatus,
+        { signal: abortController.signal },
+      );
 
-      while (!assetId) {
-        const statusRes = await getMuxUploadStatus(uploadId);
-
-        if (!statusRes.success) {
-          console.error(statusRes.message);
-          return;
-        }
-
-        // if (statusRes.status === "asset_created") {
-        if (statusRes.status === "ready") {
-          assetId = statusRes.assetId;
-          playbackId = statusRes.playbackId;
-        } else {
-          await new Promise((r) => setTimeout(r, 2000));
-        }
-      }
-
-      // 4) Confirmar en backend
       setUploadStatus("Guardando video…");
       const res2 = await savePromoVideoToCourse(courseId, uploadId);
 
@@ -362,7 +402,6 @@ export default function EditCourse() {
         return;
       }
 
-      // 5) Actualizar formulario
       form.setValue("muxPromoAssetId", assetId, { shouldDirty: true });
 
       if (playbackId) {
@@ -373,23 +412,18 @@ export default function EditCourse() {
       setUploadProgress(100);
     } catch (err) {
       console.error(err);
+      if (isUploadAbortError(err)) {
+        return;
+      }
       setUploadStatus("Ocurrió un error al subir el video");
+    } finally {
+      if (promoUploadAbortRef.current === abortController) {
+        promoUploadAbortRef.current = null;
+      }
     }
   };
 
   if (isLoading) return <GlobalLoading text="Autoguardado..." />;
-
-  if (
-    courseData &&
-    ["PUBLISHED", "ARCHIVED", "UNDER_REVIEW"].includes(courseData.status)
-  ) {
-    showToast(
-      "No podés editar este curso en su estado actual",
-      "warning",
-      "bottom-right",
-    );
-    navigate("/");
-  }
 
   return (
     <div className="my-8">
@@ -398,9 +432,7 @@ export default function EditCourse() {
         <Stepper
           className="mt-8"
           initialStep={1}
-          onStepChange={(step) => {
-            console.log("Current step:", step);
-          }}
+          onStepChange={setCurrentStep}
           onFinalStepCompleted={onSubmit}
           onSaveToDraft={onSubmitDraft}
           isDirty={isDirty}
@@ -474,11 +506,12 @@ export default function EditCourse() {
               Vista previa y publicación
             </h2>
             <Step6
-              course={courseData!}
+              course={previewCourse}
               completionPercentage={completionPercentage}
               totalLessons={totalLessons}
               warningCount={warningCount}
               errorCount={errorCount}
+              minimumFinalQuizQuestions={minimumFinalQuizQuestions}
               validationIssues={validationIssues}
             />
           </Step>

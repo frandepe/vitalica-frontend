@@ -25,11 +25,12 @@ import { t } from "@/utils/translations";
 import { ICourse } from "@/types/course.types";
 
 interface Props {
-  course: ICourse;
+  course?: ICourse | null;
   completionPercentage: number;
   totalLessons?: number;
   warningCount: number;
   errorCount: number;
+  minimumFinalQuizQuestions?: number;
   validationIssues: {
     type: "error" | "warning";
     message: string;
@@ -43,6 +44,7 @@ export const Step6 = ({
   totalLessons,
   warningCount,
   errorCount,
+  minimumFinalQuizQuestions = 5,
   validationIssues,
 }: Props) => {
   if (!course) {
@@ -447,7 +449,7 @@ export const Step6 = ({
           )}
 
           {/* Final Exam */}
-          {course.quizzes && course.quizzes?.length > 5 ? (
+          {course.quizzes && course.quizzes?.length >= minimumFinalQuizQuestions ? (
             <Card className="p-5">
               <div className="flex items-start gap-3">
                 <div className="p-2 rounded-lg bg-primary/10">
@@ -475,7 +477,7 @@ export const Step6 = ({
                   </h3>
                   <p className="text-sm text-muted-foreground/70 italic">
                     Para poder publicarse, el curso debe incluir un examen final
-                    con un mínimo de 5 preguntas
+                    con un mínimo de {minimumFinalQuizQuestions} preguntas
                   </p>
                 </div>
               </div>

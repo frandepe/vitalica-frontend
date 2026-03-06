@@ -2,7 +2,10 @@ import { ICourse } from "@/types/course.types";
 
 // Este componente ofrece errores o warnings con sus respectivos mensajes si al curso le falta contenido
 
-export const getValidationIssues = (course?: ICourse | null) => {
+export const getValidationIssues = (
+  course?: ICourse | null,
+  minimumFinalQuizQuestions: number = 5,
+) => {
   if (!course) return []; // si es null, no hay issues
 
   const issues: {
@@ -83,10 +86,10 @@ export const getValidationIssues = (course?: ICourse | null) => {
   }
 
   // Quizzes
-  if (!course.quizzes || course.quizzes.length <= 5) {
+  if (!course.quizzes || course.quizzes.length < minimumFinalQuizQuestions) {
     issues.push({
       type: "error",
-      message: "El examen final debe tener al menos 5 preguntas (Paso 5)",
+      message: `El examen final debe tener al menos ${minimumFinalQuizQuestions} preguntas (Paso 5)`,
       field: "quizzes",
     });
   }

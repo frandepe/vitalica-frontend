@@ -32,7 +32,7 @@ import {
   Upload,
   Video,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Control,
   Controller,
@@ -66,6 +66,11 @@ import {
 } from "@/api/videoEndpoints";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import {
+  isUploadAbortError,
+  uploadFileToMux,
+  waitForMuxAssetReady,
+} from "@/utils/mux-upload";
 
 interface Props {
   courseId: string;
@@ -108,6 +113,7 @@ export const Step4 = ({
   const [replacingLessonId, setReplacingLessonId] = useState<string | null>(
     null,
   );
+  const lessonUploadAbortRef = useRef<Record<string, AbortController>>({});
 
   const {
     watch,
@@ -116,6 +122,14 @@ export const Step4 = ({
     control,
     register,
   } = useFormContext<NewCourseFormValues>();
+
+  useEffect(() => {
+    return () => {
+      Object.values(lessonUploadAbortRef.current).forEach((controller) =>
+        controller.abort(),
+      );
+    };
+  }, []);
 
   const handleAddModule = async () => {
     if (isCreatingModule) return;
@@ -231,99 +245,87 @@ export const Step4 = ({
     lessonIndex: number,
     moduleIndex: number,
   ) => {
+    lessonUploadAbortRef.current[lessonId]?.abort();
+    const abortController = new AbortController();
+    lessonUploadAbortRef.current[lessonId] = abortController;
+
     setValue(
       `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
       null,
       { shouldDirty: true },
     );
-    // 1) crear direct upload
+
     setLessonUploads((prev) => ({
       ...prev,
       [lessonId]: { progress: 0, status: "Subiendo…" },
     }));
-    const res = await createLessonDirectUpload(lessonId);
 
-    if (!res.success) return;
+    try {
+      const res = await createLessonDirectUpload(lessonId);
 
-    const { uploadUrl, uploadId } = res.data;
+      if (!res.success) return;
 
-    await new Promise<void>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
+      const { uploadUrl, uploadId } = res.data;
 
-      xhr.open("PUT", uploadUrl);
-
-      xhr.setRequestHeader("Content-Type", file.type);
-
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const progress = Math.round((e.loaded / e.total) * 100);
-          console.log("Progreso:", progress + "%");
-
+      await uploadFileToMux(
+        uploadUrl,
+        file,
+        (progress) =>
           setLessonUploads((prev) => ({
             ...prev,
             [lessonId]: {
               ...prev[lessonId],
               progress,
             },
-          }));
-        }
-      };
+          })),
+        abortController.signal,
+      );
 
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          resolve();
-        } else {
-          reject("Error subiendo archivo a Mux");
-        }
-      };
+      setLessonUploads((prev) => ({
+        ...prev,
+        [lessonId]: {
+          progress: 100,
+          status: "Procesando el video, esto puede tardar varios minutos…",
+        },
+      }));
 
-      xhr.onerror = () => reject("Error en la subida");
+      const { playbackId } = await waitForMuxAssetReady(
+        uploadId,
+        getMuxUploadStatus,
+        { signal: abortController.signal },
+      );
 
-      xhr.send(file);
-    });
+      await saveLessonVideoToCourse(lessonId, uploadId);
 
-    // 3) esperar asset
-    let playbackId: string | null = null;
-    let assetId: string | null = null;
+      setValue(
+        `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
+        playbackId,
+        { shouldDirty: true },
+      );
 
-    setLessonUploads((prev) => ({
-      ...prev,
-      [lessonId]: {
-        progress: 100,
-        status: "Procesando el video, esto puede tardar varios minutos…",
-      },
-    }));
+      setLessonUploads((prev) => ({
+        ...prev,
+        [lessonId]: {
+          progress: 100,
+          status: "¡Video guardado!",
+        },
+      }));
+    } catch (error) {
+      console.error("Error subiendo video de lección:", error);
+      if (isUploadAbortError(error)) return;
 
-    while (!assetId) {
-      const status = await getMuxUploadStatus(uploadId);
-      console.log("getMuxUploadStatus res:", status);
-      if (!status.success) return;
-
-      if (status.status === "ready") {
-        // if (status.status === "asset_created") {
-        assetId = status.assetId;
-        playbackId = status.playbackId;
-      } else {
-        await new Promise((r) => setTimeout(r, 2000));
+      setLessonUploads((prev) => ({
+        ...prev,
+        [lessonId]: {
+          progress: 0,
+          status: "Ocurrió un error al subir el video",
+        },
+      }));
+    } finally {
+      if (lessonUploadAbortRef.current[lessonId] === abortController) {
+        delete lessonUploadAbortRef.current[lessonId];
       }
     }
-
-    // 4) confirmar backend
-    await saveLessonVideoToCourse(lessonId, uploadId);
-
-    setValue(
-      `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
-      playbackId,
-      { shouldDirty: true },
-    );
-
-    setLessonUploads((prev) => ({
-      ...prev,
-      [lessonId]: {
-        progress: 100,
-        status: "¡Video guardado!",
-      },
-    }));
   };
 
   const handleDeleteLessonVideo = async (
@@ -694,18 +696,16 @@ export const Step4 = ({
 
                               {/* ========= CONTENT ========= */}
                               {lesson.type === "content" && (
-                                <RichTextEditor
-                                  value={
-                                    watch(
-                                      `modules.${moduleIndex}.lessons.${lessonIndex}.content`,
-                                    ) as string
-                                  }
-                                  onChange={(html) =>
-                                    setValue(
-                                      `modules.${moduleIndex}.lessons.${lessonIndex}.content`,
-                                      html,
-                                    )
-                                  }
+                                <Controller
+                                  name={`modules.${moduleIndex}.lessons.${lessonIndex}.content`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <RichTextEditor
+                                      value={field.value || ""}
+                                      onChange={field.onChange}
+                                      onBlur={field.onBlur}
+                                    />
+                                  )}
                                 />
                               )}
 

@@ -268,3 +268,10 @@ export interface CoursePreview {
     }[];
   }[];
 }
+
+export interface CoursePublishValidation {
+  isValid: boolean;
+  minimumFinalQuizQuestions: number;
+  finalQuizQuestionsCount: number;
+  errors: string[];
+}
