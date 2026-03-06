@@ -129,11 +129,12 @@ export default function EditCourse() {
     reset,
   } = form;
 
-  const { fields: modules, remove: removeModule } = useFieldArray({
+  const { fields: modules, remove: removeModule, move: moveModule } =
+    useFieldArray({
     control,
     name: "modules",
     keyName: "formId",
-  });
+    });
 
   useEffect(() => {
     if (!courseId) return;
@@ -487,6 +488,7 @@ export default function EditCourse() {
               modules={modules}
               register={register}
               removeModule={removeModule}
+              moveModule={moveModule}
               setValue={setValue}
               watch={watch}
               control={control}

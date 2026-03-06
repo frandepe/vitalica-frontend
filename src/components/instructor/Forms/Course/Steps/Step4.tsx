@@ -24,15 +24,31 @@ import {
 } from "@/types/course.types";
 import MuxPlayer from "@mux/mux-player-react";
 import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   CheckCircle,
   FileText,
+  GripVertical,
   Loader2,
   Plus,
   Trash2,
   Upload,
   Video,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import {
   Control,
   Controller,
@@ -72,12 +88,56 @@ import {
   waitForMuxAssetReady,
 } from "@/utils/mux-upload";
 
+interface SortableItemProps {
+  id: string;
+  className?: string;
+  children: (props: {
+    attributes: Record<string, any>;
+    listeners: Record<string, any> | undefined;
+    setActivatorNodeRef: (element: HTMLElement | null) => void;
+    isDragging: boolean;
+  }) => ReactNode;
+}
+
+const SortableItem = ({ id, className, children }: SortableItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(className, isDragging && "z-10 opacity-80")}
+    >
+      {children({
+        attributes: attributes as Record<string, any>,
+        listeners: listeners as Record<string, any> | undefined,
+        setActivatorNodeRef,
+        isDragging,
+      })}
+    </div>
+  );
+};
+
 interface Props {
   courseId: string;
   modules: CourseModuleFormValues[];
   register: UseFormRegister<NewCourseFormValues>;
   watch: UseFormWatch<NewCourseFormValues>;
   removeModule: any;
+  moveModule: any;
   handleRemoveLesson: any;
   setValue: UseFormSetValue<NewCourseFormValues>;
   handleLessonTypeChange: any;
@@ -92,6 +152,7 @@ export const Step4 = ({
   // register,
   // watch,
   removeModule,
+  moveModule,
   // setValue,
   handleLessonTypeChange,
   // control,
@@ -122,6 +183,107 @@ export const Step4 = ({
     control,
     register,
   } = useFormContext<NewCourseFormValues>();
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+  );
+  const MODULES_SORTABLE_ID = "modules-sortable";
+  const LESSONS_SORTABLE_PREFIX = "lessons-";
+
+  const getModuleDragId = (module: CourseModuleFormValues, moduleIndex: number) =>
+    module.id || `module-${moduleIndex}`;
+  const getLessonDragId = (
+    lesson: LessonFormValues,
+    moduleIndex: number,
+    lessonIndex: number,
+  ) => lesson.id || `lesson-${moduleIndex}-${lessonIndex}`;
+
+  const getModuleIndexFromDragId = (
+    modulesList: CourseModuleFormValues[],
+    dragId: string | number,
+  ) =>
+    modulesList.findIndex(
+      (module, index) => getModuleDragId(module, index) === dragId,
+    );
+
+  const onModuleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+    const activeContainerId = active.data.current?.sortable?.containerId;
+    if (activeContainerId !== MODULES_SORTABLE_ID) return;
+
+    const currentModules = (watch("modules") || []) as CourseModuleFormValues[];
+    const oldIndex = getModuleIndexFromDragId(currentModules, active.id);
+
+    let newIndex = getModuleIndexFromDragId(currentModules, over.id);
+    if (newIndex < 0) {
+      const overContainerId = over.data.current?.sortable?.containerId;
+      if (
+        typeof overContainerId === "string" &&
+        overContainerId.startsWith(LESSONS_SORTABLE_PREFIX)
+      ) {
+        const overModuleDragId = overContainerId.replace(
+          LESSONS_SORTABLE_PREFIX,
+          "",
+        );
+        newIndex = getModuleIndexFromDragId(currentModules, overModuleDragId);
+      }
+    }
+
+    if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return;
+
+    moveModule(oldIndex, newIndex);
+
+    const reordered = arrayMove(currentModules, oldIndex, newIndex).map(
+      (module, index) => ({
+        ...module,
+        order: index + 1,
+        lessons: (module.lessons || []).map((lesson, lessonIndex) => ({
+          ...lesson,
+          order: lessonIndex + 1,
+        })),
+      }),
+    );
+
+    setValue("modules", reordered, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
+
+  const onLessonDragEnd =
+    (moduleIndex: number) =>
+    ({ active, over }: DragEndEvent) => {
+      if (!over || active.id === over.id) return;
+
+      const currentLessons =
+        (watch(`modules.${moduleIndex}.lessons`) as LessonFormValues[]) || [];
+
+      const oldIndex = currentLessons.findIndex(
+        (lesson, lessonIndex) =>
+          getLessonDragId(lesson, moduleIndex, lessonIndex) === active.id,
+      );
+      const newIndex = currentLessons.findIndex(
+        (lesson, lessonIndex) =>
+          getLessonDragId(lesson, moduleIndex, lessonIndex) === over.id,
+      );
+
+      if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return;
+
+      const reordered = arrayMove(currentLessons, oldIndex, newIndex).map(
+        (lesson, index) => ({
+          ...lesson,
+          order: index + 1,
+        }),
+      );
+
+      setValue(`modules.${moduleIndex}.lessons`, reordered, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    };
 
   useEffect(() => {
     return () => {
@@ -228,10 +390,14 @@ export const Step4 = ({
       // Reordenar en frontend
       const reordered = updatedLessons.map((l: any, i: number) => ({
         ...l,
-        order: i,
+        order: i + 1,
       }));
 
-      setValue(`modules.${moduleIndex}.lessons`, reordered);
+      setValue(`modules.${moduleIndex}.lessons`, reordered, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
     } catch (error) {
       console.error("Error eliminando lección", error);
     } finally {
@@ -257,7 +423,7 @@ export const Step4 = ({
 
     setLessonUploads((prev) => ({
       ...prev,
-      [lessonId]: { progress: 0, status: "Subiendo…" },
+      [lessonId]: { progress: 0, status: "Subiendo..." },
     }));
 
     try {
@@ -285,7 +451,7 @@ export const Step4 = ({
         ...prev,
         [lessonId]: {
           progress: 100,
-          status: "Procesando el video, esto puede tardar varios minutos…",
+          status: "Procesando el video, esto puede tardar varios minutos...",
         },
       }));
 
@@ -361,21 +527,47 @@ export const Step4 = ({
     <div>
       <ScrollArea className="flex-grow">
         <div className="flex flex-col gap-4 md:gap-5">
-          {modules.map((section, moduleIndex) => {
-            const sectionBgColor =
-              sectionBackgrounds[moduleIndex % sectionBackgrounds.length];
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={onModuleDragEnd}
+          >
+            <SortableContext
+              id={MODULES_SORTABLE_ID}
+              items={modules.map((module, moduleIndex) =>
+                getModuleDragId(module, moduleIndex),
+              )}
+              strategy={verticalListSortingStrategy}
+            >
+              {modules.map((section, moduleIndex) => {
+                const sectionBgColor =
+                  sectionBackgrounds[moduleIndex % sectionBackgrounds.length];
+                const moduleDragId = getModuleDragId(section, moduleIndex);
 
-            return (
-              <Card
-                key={section.formId}
-                className="bg-white text-black border-slate-400"
-              >
+                return (
+                  <SortableItem key={moduleDragId} id={moduleDragId}>
+                    {({ attributes, listeners, setActivatorNodeRef }) => (
+                      <Card className="bg-white text-black border-slate-400">
                 <div
                   className={`flex flex-col ${sectionBgColor} px-2 md:px-3 rounded-[13px]`}
                 >
-                  <span className="font-poppins font-semibold text-sm md:text-base pt-3">
-                    Módulo {moduleIndex + 1}
-                  </span>
+                  <div className="flex items-center justify-between pt-3">
+                    <span className="font-poppins font-semibold text-sm md:text-base">
+                      Modulo {moduleIndex + 1}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Reordenar modulo ${moduleIndex + 1}`}
+                      ref={(element) => setActivatorNodeRef(element)}
+                      {...attributes}
+                      {...listeners}
+                      className="cursor-grab active:cursor-grabbing"
+                    >
+                      <GripVertical className="w-4 h-4" />
+                    </Button>
+                  </div>
                   <div className="pb-3">
                     <div className="pb-3">
                       <Label className="text-sm md:text-base">
@@ -408,7 +600,7 @@ export const Step4 = ({
                           >
                             {deletingModuleId === section.id ? (
                               <span className="text-sm text-muted-foreground">
-                                Eliminando…
+                                Eliminando...
                               </span>
                             ) : (
                               <Trash2 className="text-red-500 w-4 h-4" />
@@ -473,7 +665,7 @@ export const Step4 = ({
                               }}
                             >
                               {deletingModuleId === section.id
-                                ? "Eliminando…"
+                                ? "Eliminando..."
                                 : "Eliminar módulo"}
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -516,17 +708,38 @@ export const Step4 = ({
                       caracteres restantes
                     </span>
                     <div className="space-y-3 md:space-y-4">
-                      {watch(`modules.${moduleIndex}.lessons`)?.map(
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={onLessonDragEnd(moduleIndex)}
+                      >
+                        <SortableContext
+                          id={`${LESSONS_SORTABLE_PREFIX}${moduleDragId}`}
+                          items={(watch(`modules.${moduleIndex}.lessons`) || []).map(
+                            (lesson: LessonFormValues, lessonIndex: number) =>
+                              getLessonDragId(lesson, moduleIndex, lessonIndex),
+                          )}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          {watch(`modules.${moduleIndex}.lessons`)?.map(
                         (lesson: LessonFormValues, lessonIndex: number) => {
                           const playbackId = watch(
                             `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
                           );
                           const upload = lessonUploads[lesson.id];
+                          const lessonDragId = getLessonDragId(
+                            lesson,
+                            moduleIndex,
+                            lessonIndex,
+                          );
                           return (
-                            <div
-                              key={lessonIndex}
-                              className="border border-slate-400 px-2 md:px-3 rounded-md py-2"
-                            >
+                            <SortableItem key={lessonDragId} id={lessonDragId}>
+                              {({
+                                attributes: lessonAttributes,
+                                listeners: lessonListeners,
+                                setActivatorNodeRef: setLessonActivatorNodeRef,
+                              }) => (
+                                <div className="border border-slate-400 px-2 md:px-3 rounded-md py-2">
                               <p className="pb-2 md:pb-3 text-sm md:text-base">
                                 Lección {lessonIndex + 1}
                               </p>
@@ -611,6 +824,20 @@ export const Step4 = ({
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
                                 </AlertDialog>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label={`Reordenar leccion ${lessonIndex + 1}`}
+                                  ref={(element) =>
+                                    setLessonActivatorNodeRef(element)
+                                  }
+                                  {...lessonAttributes}
+                                  {...lessonListeners}
+                                  className="ml-2 cursor-grab active:cursor-grabbing"
+                                >
+                                  <GripVertical className="w-4 h-4" />
+                                </Button>
                               </div>
                               {errors.modules?.[moduleIndex]?.lessons?.[
                                 lessonIndex
@@ -901,10 +1128,14 @@ export const Step4 = ({
                                   </Label>
                                 </div>
                               )}
-                            </div>
+                                </div>
+                              )}
+                            </SortableItem>
                           );
                         },
-                      )}
+                          )}
+                        </SortableContext>
+                      </DndContext>
 
                       <Button
                         type="button"
@@ -933,8 +1164,12 @@ export const Step4 = ({
                   </div>
                 </div>
               </Card>
-            );
-          })}
+                    )}
+                  </SortableItem>
+                );
+              })}
+            </SortableContext>
+          </DndContext>
 
           <Button
             type="button"
@@ -960,3 +1195,5 @@ export const Step4 = ({
     </div>
   );
 };
+
+
