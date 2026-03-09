@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { descriptionCourseLimit, levels, specialties } from "@/constants";
+import { descriptionCourseLimit, levels } from "@/constants";
 
 import {
   UseFormRegister,
@@ -10,7 +10,11 @@ import {
   Controller,
   FieldErrors,
 } from "react-hook-form";
-import { CourseLevel, NewCourseFormValues } from "@/types/course.types";
+import {
+  CourseLevel,
+  ISpecialty,
+  NewCourseFormValues,
+} from "@/types/course.types";
 import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import {
   Select,
@@ -29,8 +33,22 @@ interface Step1Props {
   watch: UseFormWatch<NewCourseFormValues>;
   control?: Control<NewCourseFormValues>;
   errors: FieldErrors<NewCourseFormValues>;
+  availableSpecialties: Array<{
+    id: number;
+    value: ISpecialty;
+    label: string;
+  }>;
 }
-export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
+
+export const Step1 = ({
+  register,
+  watch,
+  control,
+  errors,
+  availableSpecialties,
+}: Step1Props) => {
+  const hasApprovedSpecialties = availableSpecialties.length > 0;
+
   return (
     <div className="w-full">
       <Label>Título</Label>
@@ -90,7 +108,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
         <div className="flex gap-1 items-center">
           <Label>Etiquetas</Label>
           <TooltipIconButton
-            tooltip="Las etiquetas son palabras clave que ayudan a que tu curso sea más fácil de encontrar para los motores de búsqueda."
+            tooltip="Las etiquetas son palabras clave que ayudan a que tu curso sea más fácil de encontrar para los motores de b�squeda."
             side="top"
           >
             <InfoIcon size={15} className="text-secondary" />
@@ -99,7 +117,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
         <Controller
           name="tags"
           control={control}
-          defaultValue={[]} // valor inicial
+          defaultValue={[]}
           render={({ field }) => (
             <TagsInputBasic value={field.value} onChange={field.onChange} />
           )}
@@ -108,6 +126,7 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
           <p className="text-red-500 text-sm mt-1">{errors.tags.message}</p>
         )}
       </div>
+
       <FormField
         control={control}
         name="specialty"
@@ -119,14 +138,24 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
             )}
           >
             <Label>Categoría</Label>
-            <Select value={String(field.value)} onValueChange={field.onChange}>
+            <Select
+              value={String(field.value)}
+              onValueChange={field.onChange}
+              disabled={!hasApprovedSpecialties}
+            >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder={"Selecciona una categoria"} />
+                  <SelectValue
+                    placeholder={
+                      hasApprovedSpecialties
+                        ? "Selecciona una categoría"
+                        : "No tenes especialidades aprobadas"
+                    }
+                  />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {specialties?.map((specialty) => (
+                {availableSpecialties.map((specialty) => (
                   <SelectItem
                     key={specialty.id}
                     title={specialty.label}
@@ -142,9 +171,16 @@ export const Step1 = ({ register, watch, control, errors }: Step1Props) => {
           </FormItem>
         )}
       />
+      {!hasApprovedSpecialties && (
+        <p className="text-amber-600 text-sm mt-1">
+          Necesitas al menos una especialidad aprobada para guardar o publicar
+          cursos.
+        </p>
+      )}
       {errors.specialty && (
         <p className="text-red-500 text-sm mt-1">{errors.specialty.message}</p>
       )}
+
       <FormField
         control={control}
         name="level"

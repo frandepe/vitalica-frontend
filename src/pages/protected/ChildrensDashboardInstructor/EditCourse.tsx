@@ -5,6 +5,7 @@ import { Form } from "@/components/ui/form";
 import {
   CoursePublishValidation,
   ICourse,
+  ISpecialty,
   LessonFormValues,
   NewCourseFormValues,
 } from "@/types/course.types";
@@ -46,6 +47,8 @@ import {
   uploadFileToMux,
   waitForMuxAssetReady,
 } from "@/utils/mux-upload";
+import { useAuth } from "@/hooks/useAuth";
+import { SpecialtyLabels } from "@/constants";
 
 // TODO: (Posible TODO)
 // click siguiente →
@@ -82,7 +85,18 @@ export default function EditCourse() {
   const { setBackendErrors, getGeneralErrors, clearErrors } =
     useBackendErrors();
   const { showToast } = useToast();
+  const { instructor } = useAuth();
   const navigate = useNavigate();
+  const approvedSpecialtyValues = (instructor?.specialties ?? []) as ISpecialty[];
+  const availableSpecialties = useMemo(
+    () =>
+      approvedSpecialtyValues.map((value, index) => ({
+        id: index + 1,
+        value,
+        label: SpecialtyLabels[value],
+      })),
+    [approvedSpecialtyValues],
+  );
 
   const defaultValues: NewCourseFormValues = {
     title: "",
@@ -167,6 +181,16 @@ export default function EditCourse() {
   }, [courseData, reset]);
 
   useEffect(() => {
+    const selectedSpecialty = watch("specialty");
+    if (
+      selectedSpecialty &&
+      !approvedSpecialtyValues.includes(selectedSpecialty)
+    ) {
+      setValue("specialty", null, { shouldDirty: true });
+    }
+  }, [approvedSpecialtyValues, setValue, watch]);
+
+  useEffect(() => {
     return () => {
       promoUploadAbortRef.current?.abort();
     };
@@ -225,6 +249,26 @@ export default function EditCourse() {
   const onSubmit = handleSubmit(async (data) => {
     setIsLoading(true);
     try {
+      if (approvedSpecialtyValues.length === 0) {
+        setBackendErrors([
+          {
+            message:
+              "No tenes especialidades aprobadas. No podes guardar ni publicar cursos.",
+          },
+        ]);
+        return;
+      }
+
+      if (data.specialty && !approvedSpecialtyValues.includes(data.specialty)) {
+        setBackendErrors([
+          {
+            message:
+              "La especialidad seleccionada no esta aprobada para tu perfil.",
+          },
+        ]);
+        return;
+      }
+
       const { durationHours, durationMinutes, ...rest } = data;
 
       const payload = {
@@ -281,6 +325,28 @@ export default function EditCourse() {
 
   const onSubmitDraft = handleSubmit(async (data) => {
     setIsLoading(true);
+
+    if (approvedSpecialtyValues.length === 0) {
+      setBackendErrors([
+        {
+          message:
+            "No tenes especialidades aprobadas. No podes guardar ni publicar cursos.",
+        },
+      ]);
+      setIsLoading(false);
+      return;
+    }
+
+    if (data.specialty && !approvedSpecialtyValues.includes(data.specialty)) {
+      setBackendErrors([
+        {
+          message:
+            "La especialidad seleccionada no esta aprobada para tu perfil.",
+        },
+      ]);
+      setIsLoading(false);
+      return;
+    }
 
     const { durationHours, durationMinutes, ...rest } = data;
 
@@ -447,7 +513,13 @@ export default function EditCourse() {
               Información básica
             </h2>
             <div className="flex flex-col xl:flex-row">
-              <Step1 watch={watch} register={register} errors={errors} />
+              <Step1
+                watch={watch}
+                register={register}
+                errors={errors}
+                control={control}
+                availableSpecialties={availableSpecialties}
+              />
               <div className="xl:flex justify-center w-full hidden">
                 <CirclesImg
                   className="hidden lg:block"

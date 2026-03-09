@@ -4,6 +4,8 @@ import { API_ROUTES } from "@/constants";
 import { ApiResponse } from "@/types/endpoints.types";
 import { ISpecialty } from "@/types/course.types";
 import {
+  AdminInstructorSpecialtyProfile,
+  AdminInstructorSpecialtyRequest,
   GetAllCoursesAdminParams,
   GetAllCoursesAdminResponse,
   UpdateCourseFeedbackParams,
@@ -60,5 +62,41 @@ export const updateFeedbackCourse = async (
     url: `${API_ROUTES.ADMIN}/course/feedback/${courseId}`,
     method: "PATCH",
     data: payload,
+  });
+};
+
+export const getInstructorsSpecialtyManagement = async (): Promise<
+  ApiResponse<AdminInstructorSpecialtyProfile[]>
+> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/instructors/specialties`,
+    method: "GET",
+  });
+};
+
+export const updateInstructorSpecialties = async (
+  instructorProfileId: string,
+  specialties: ISpecialty[],
+): Promise<ApiResponse<AdminInstructorSpecialtyProfile>> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/instructors/${instructorProfileId}/specialties`,
+    method: "PATCH",
+    data: { specialties },
+  });
+};
+
+export const resolveInstructorSpecialtyRequest = async (
+  requestId: string,
+  data: {
+    status: "APPROVED" | "REJECTED";
+    approvedSpecialties?: ISpecialty[];
+    reviewerNotes?: string;
+    reviewedBy?: string;
+  },
+): Promise<ApiResponse<AdminInstructorSpecialtyRequest>> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/instructor-specialty-requests/${requestId}/resolve`,
+    method: "PATCH",
+    data,
   });
 };

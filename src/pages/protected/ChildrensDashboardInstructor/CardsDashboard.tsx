@@ -1,5 +1,6 @@
-import { Card } from "@/components/ui/card";
+﻿import { Card } from "@/components/ui/card";
 import {
+  BadgeCheck,
   BarChart3,
   BookOpen,
   BookPlus,
@@ -12,47 +13,55 @@ import {
   Wallet,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
 const features = [
   {
     title: "Perfil",
     href: "/perfil/perfil-de-instructor",
     description:
-      "Actualiza tu información personal y profesional para que tus estudiantes te conozcan mejor.",
+      "Actualiza tu informacion personal y profesional para que tus estudiantes te conozcan mejor.",
     icon: <UserRoundPen />,
   },
   {
-    title: "Analíticas",
+    title: "Especialidades",
+    href: "/perfil/especialidades",
+    description:
+      "Consulta tus especialidades aprobadas y solicita nuevas especialidades para revision administrativa.",
+    icon: <BadgeCheck />,
+  },
+  {
+    title: "Analiticas",
     href: "/perfil/analiticas",
     description:
-      "Consulta estadísticas sobre tus cursos, estudiantes y desempeño general como instructor.",
+      "Consulta estadisticas sobre tus cursos, estudiantes y desempeno general como instructor.",
     icon: <ChartNoAxesCombined />,
   },
   {
     title: "Mis Cursos",
     href: "/perfil/cursos",
     description:
-      "Administra todos tus cursos: edita, organiza el contenido y realiza actualizaciones fácilmente.",
+      "Administra todos tus cursos: edita, organiza el contenido y realiza actualizaciones facilmente.",
     icon: <BookOpen />,
   },
   {
     title: "Nuevo curso",
     href: "/perfil/editar-curso",
     description:
-      "Crea un curso desde cero y compártelo con tu comunidad de estudiantes.",
+      "Crea un curso desde cero y compartelo con tu comunidad de estudiantes.",
     icon: <BookPlus />,
   },
   {
-    title: "Reseñas y Calificaciones",
+    title: "Resenas y Calificaciones",
     href: "/perfil/resenas",
     description:
-      "Lee la opinión de tus estudiantes, revisa sus valoraciones y mejora tu propuesta educativa.",
+      "Lee la opinion de tus estudiantes, revisa sus valoraciones y mejora tu propuesta educativa.",
     icon: <Star />,
   },
   {
     title: "Mensajes",
     href: "/perfil/mensajes",
     description:
-      "Mantente en contacto con tus estudiantes: responde consultas y envía notificaciones importantes.",
+      "Mantente en contacto con tus estudiantes: responde consultas y envia notificaciones importantes.",
     icon: <MessageCircle />,
   },
   {
@@ -66,7 +75,7 @@ const features = [
     title: "Soporte",
     href: "/perfil/soporte",
     description:
-      "Obtén ayuda sobre cualquier problema técnico o consulta relacionada con tu cuenta y cursos.",
+      "Obten ayuda sobre cualquier problema tecnico o consulta relacionada con tu cuenta y cursos.",
     icon: <LifeBuoy />,
   },
   {
@@ -110,10 +119,8 @@ const Feature = ({
       onClick={() => navigate(href)}
       className="flex flex-col gap-1 py-7 relative group/feature cursor-pointer h-full"
     >
-      {/* Fondo de hover */}
       <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-neutral-100 dark:from-neutral-800 to-transparent z-0 pointer-events-none" />
 
-      {/* Contenido */}
       <div className="relative z-10 px-10 flex flex-col h-full">
         <div className="mb-4 rounded-lg bg-blue-100 text-primary w-max p-2 group-hover/feature:bg-secondary group-hover/feature:text-white transition duration-200">
           {icon}

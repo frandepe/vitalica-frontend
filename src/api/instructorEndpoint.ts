@@ -1,6 +1,10 @@
 import { ApiResponse } from "@/types/endpoints.types";
 import { apiRequest } from "./configEndpoint";
-import { IApplyInstructor, InstructorProfile } from "@/types/instructor.types";
+import {
+  IApplyInstructor,
+  InstructorProfile,
+  InstructorSpecialtyRequest,
+} from "@/types/instructor.types";
 import { API_ROUTES } from "@/constants";
 
 export const upsertInstructorApplication = async (
@@ -33,6 +37,29 @@ export const upsertInstructorProfile = async (
 export const getInstructorProfile = async () => {
   return apiRequest({
     url: `${API_ROUTES.INSTRUCTOR}/profile`,
+    method: "GET",
+  });
+};
+
+export const createInstructorSpecialtyRequest = async (
+  requestedSpecialties: string[],
+  certificateImages: string[],
+): Promise<ApiResponse<InstructorSpecialtyRequest>> => {
+  return apiRequest({
+    url: `${API_ROUTES.INSTRUCTOR}/specialty-requests`,
+    method: "POST",
+    data: {
+      requestedSpecialties,
+      certificateImages,
+    },
+  });
+};
+
+export const getInstructorSpecialtyRequests = async (): Promise<
+  ApiResponse<InstructorSpecialtyRequest[]>
+> => {
+  return apiRequest({
+    url: `${API_ROUTES.INSTRUCTOR}/specialty-requests`,
     method: "GET",
   });
 };

@@ -1,4 +1,6 @@
 import { CourseStatus } from "./course.types";
+import { ISpecialty } from "./course.types";
+import { InstructorSpecialtyRequestStatus } from "./instructor.types";
 
 export interface AdminCourse {
   id: string;
@@ -63,4 +65,31 @@ export interface UpdateCourseFeedbackParams {
   status: CourseStatus;
   reviewerNotes: string;
   revewedBy: string;
+}
+
+export interface AdminInstructorSpecialtyRequest {
+  id: string;
+  instructorProfileId: string;
+  status: InstructorSpecialtyRequestStatus;
+  requestedSpecialties: ISpecialty[];
+  certificateUrls: string[];
+  certificateUrlIds: string[];
+  reviewedAt: string | null;
+  reviewedBy: string | null;
+  reviewerNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminInstructorSpecialtyProfile {
+  id: string;
+  userId: string;
+  specialties: ISpecialty[];
+  user: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string;
+  };
+  specialtyRequests: AdminInstructorSpecialtyRequest[];
 }

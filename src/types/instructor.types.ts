@@ -54,6 +54,26 @@ export interface ApplicationDocument {
   urlCertificate: string[];
 }
 
+export type InstructorSpecialtyRequestStatus =
+  | "SUBMITTED"
+  | "UNDER_REVIEW"
+  | "APPROVED"
+  | "REJECTED";
+
+export interface InstructorSpecialtyRequest {
+  id: string;
+  instructorProfileId: string;
+  status: InstructorSpecialtyRequestStatus;
+  requestedSpecialties: ISpecialty[];
+  certificateUrls: string[];
+  certificateUrlIds: string[];
+  reviewedAt: string | null;
+  reviewedBy: string | null;
+  reviewerNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export enum PayoutMethod {
   MERCADO_PAGO = "MERCADO_PAGO",
 }

@@ -8,6 +8,7 @@ import {
   ChartNoAxesCombined,
   BookOpen,
   Star,
+  BadgeCheck,
   ArrowLeftFromLine,
   MessageCircle,
   Wallet,
@@ -38,6 +39,12 @@ const navigationItems: NavigationItem[] = [
     name: "Perfil",
     icon: UserRoundPen,
     href: "/perfil/perfil-de-instructor",
+  },
+  {
+    id: "especialidades",
+    name: "Especialidades",
+    icon: BadgeCheck,
+    href: "/perfil/especialidades",
   },
   {
     id: "analiticas",
@@ -91,6 +98,7 @@ export default function DashboardInstructor() {
     const pathToIdMap: Record<string, string> = {
       "/perfil/panel-administrativo": "panel-administrativo",
       "/perfil/perfil-de-instructor": "perfil-de-instructor",
+      "/perfil/especialidades": "especialidades",
       "/perfil/analiticas": "analiticas",
       "/perfil/cursos": "cursos",
       "/perfil/resenas": "resenas",

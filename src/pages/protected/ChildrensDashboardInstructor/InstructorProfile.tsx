@@ -29,11 +29,11 @@ import {
   PayoutMethod,
 } from "@/types/instructor.types";
 import { UbicationSelect } from "@/components/Instructor/Forms/Profile/UbicationSelect";
-import SpecialtyChecks from "@/components/Instructor/Forms/Profile/SpecialtyChecks";
 import { MercadoPagoConnect } from "@/components/Buttons/MercadoPagoConnect";
 import { useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Controller } from "react-hook-form";
+import { t } from "@/utils/translations";
 
 export default function InstructorProfile() {
   const [searchParams] = useSearchParams();
@@ -80,6 +80,7 @@ export default function InstructorProfile() {
 
   const stateValue = watch("state");
   const cityValue = watch("city");
+  const approvedSpecialties = instructor?.specialties || [];
   // ================================
   // GET — Cargar perfil existente
   // ================================
@@ -100,8 +101,10 @@ export default function InstructorProfile() {
   // ================================
   const onSubmit = async (data: IInstructorProfile) => {
     try {
+      const profileData: Partial<IInstructorProfile> = { ...data };
+      delete profileData.specialties;
       const payload = {
-        ...data,
+        ...profileData,
         // La ciudad viene como "Ciudad, Provincia"
         city: cityAndState.split(",")[0]?.trim() || data.city,
         state: cityAndState.split(",")[1]?.trim() || data.state,
@@ -138,7 +141,7 @@ export default function InstructorProfile() {
     },
     {
       name: "Especialidades de instructor",
-      completed: watch("specialties")?.length > 0,
+      completed: approvedSpecialties.length > 0,
     },
     { name: "Método de pago", completed: hasMercadoPagoConnected },
   ];
@@ -383,44 +386,23 @@ export default function InstructorProfile() {
         <Separator className="my-6" />
 
         {/* Specialties */}
-        <h3 className="text-2xl mb-6">¿Cuáles son tus especialidades?</h3>
-
-        <SpecialtyChecks
-          control={control}
-          name="specialties"
-          rules={{
-            validate: (value: string[]) =>
-              value && value.length > 0
-                ? true
-                : "Debés elegir al menos una especialidad",
-          }}
-        />
-
-        {errors.specialties && (
-          <p className="text-red-600 text-sm mt-1">
-            {errors.specialties.message as string}
-          </p>
-        )}
-
-        <Alert
-          icon={FileCheck}
-          variant="warning"
-          title="Revisión de especialidades"
-        >
-          Para obtener el estado de Instructor Verificado en Vitalica, primero
-          tenés que completar tu perfil con tu título profesional y las
-          especialidades que querés enseñar. Un administrador revisará esos
-          datos para confirmar que coincidan con la documentación que ya
-          enviaste (certificados, matrículas y credenciales profesionales). La
-          revisión suele demorar solo unas horas. Si todo está correcto, tu
-          cuenta será marcada como instructor verificado, lo que le asegura a
-          los usuarios que están aprendiendo con alguien cuya formación y
-          especialidades fueron validadas. En caso de encontrar datos
-          incorrectos o inconsistencias en la información cargada, se te
-          notificará directamente desde la plataforma para que puedas
-          corregirlos. Si los datos no coinciden con la documentación enviada,
-          el perfil no será verificado.
-        </Alert>
+        <h3 className="text-2xl mb-6">Especialidades aprobadas</h3>
+        <div className="flex flex-wrap gap-2">
+          {approvedSpecialties.length > 0 ? (
+            approvedSpecialties.map((specialty) => (
+              <span
+                key={specialty}
+                className="px-3 py-1 rounded-full text-sm bg-secondary/40 text-secondary-foreground"
+              >
+                {t("courseSpecialty", specialty)}
+              </span>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Aun no tenes especialidades aprobadas.
+            </p>
+          )}
+        </div>
 
         <Separator className="my-6" />
 

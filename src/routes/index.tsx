@@ -64,6 +64,12 @@ const InstructorProfile = lazy(
   () =>
     import("@/pages/protected/ChildrensDashboardInstructor/InstructorProfile"),
 );
+const InstructorSpecialties = lazy(
+  () =>
+    import(
+      "@/pages/protected/ChildrensDashboardInstructor/InstructorSpecialties"
+    ),
+);
 const Courses = lazy(
   () => import("@/pages/protected/ChildrensDashboardInstructor/Courses"),
 );
@@ -84,6 +90,12 @@ const CardsDashboardAdmin = lazy(
 );
 const InstructorsApplications = lazy(
   () => import("@/pages/admin/ChildrensDashboardAdmin/InstructorsApplications"),
+);
+const AdminInstructorsSpecialties = lazy(
+  () =>
+    import(
+      "@/pages/admin/ChildrensDashboardAdmin/AdminInstructorsSpecialties"
+    ),
 );
 const InstructorApplication = lazy(
   () => import("@/pages/admin/ChildrensDashboardAdmin/InstructorApplication"),
@@ -193,6 +205,10 @@ export const router = createBrowserRouter([
             path: "perfil-de-instructor",
             element: <InstructorProfile />,
           },
+          {
+            path: "especialidades",
+            element: <InstructorSpecialties />,
+          },
           { path: "analiticas", element: <Analytics /> },
           { path: "cursos", element: <Courses /> },
           { path: "editar-curso/:courseId", element: <EditCourse /> },
@@ -239,6 +255,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "panel-administrativo", element: <CardsDashboardAdmin /> },
           { path: "usuarios", element: <AdminUsers /> },
+          { path: "instructores", element: <AdminInstructorsSpecialties /> },
           { path: "cursos", element: <AdminCourses /> },
           { path: "aplicaciones", element: <InstructorsApplications /> },
           { path: "aplicacion/:id", element: <InstructorApplication /> },

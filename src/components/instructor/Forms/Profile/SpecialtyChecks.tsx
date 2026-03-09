@@ -7,9 +7,17 @@ interface Props {
   control: Control<any>;
   name: string;
   rules?: any;
+  options?: typeof specialties;
 }
 
-export default function SpecialtyChecks({ control, name, rules }: Props) {
+export default function SpecialtyChecks({
+  control,
+  name,
+  rules,
+  options,
+}: Props) {
+  const specialtyOptions = options ?? specialties;
+
   return (
     <Controller
       control={control}
@@ -39,7 +47,7 @@ export default function SpecialtyChecks({ control, name, rules }: Props) {
               mass: 0.5,
             }}
           >
-            {specialties.map((sp) => {
+            {specialtyOptions.map((sp) => {
               const active = selected.includes(sp.value);
 
               return (
