@@ -32,6 +32,8 @@ import { UbicationSelect } from "@/components/Instructor/Forms/Profile/Ubication
 import SpecialtyChecks from "@/components/Instructor/Forms/Profile/SpecialtyChecks";
 import { MercadoPagoConnect } from "@/components/Buttons/MercadoPagoConnect";
 import { useSearchParams } from "react-router-dom";
+import { Switch } from "@/components/ui/switch";
+import { Controller } from "react-hook-form";
 
 export default function InstructorProfile() {
   const [searchParams] = useSearchParams();
@@ -57,6 +59,13 @@ export default function InstructorProfile() {
       state: "",
       city: "",
       zipCode: "",
+      isPublicForPractice: true,
+      practiceWhatsapp: "",
+      practiceEmail: "",
+      instagramUrl: "",
+      linkedinUrl: "",
+      websiteUrl: "",
+      practiceNotes: "",
     },
   });
 
@@ -151,7 +160,7 @@ export default function InstructorProfile() {
           Instructor
         </h3>
         <div className="flex gap-8 flex-col lg:flex-row">
-          <div>
+          <div className="xl:w-[450px]">
             {/* Headline */}
             <div className="mb-4">
               <Label htmlFor={`headline`}>Título profesional</Label>
@@ -192,46 +201,6 @@ export default function InstructorProfile() {
                 {2000 - (watch("bio")?.length || 0)} caracteres restantes
               </p>
             </div>
-
-            {/* Ubicación */}
-            <div className="mb-4 xl:w-[500px]">
-              {!editingLocation && stateValue && cityValue ? (
-                <div
-                  onClick={() => setEditingLocation(true)}
-                  className="relative grid grid-cols-1 md:grid-cols-2 gap-3 cursor-pointer group"
-                >
-                  {/* Inputs visibles */}
-                  <Input
-                    type="text"
-                    value={stateValue}
-                    disabled
-                    className="input pointer-events-none"
-                  />
-                  <Input
-                    type="text"
-                    value={cityValue}
-                    disabled
-                    className="input pointer-events-none"
-                  />
-
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center text-sm font-medium text-white/70 pointer-events-none">
-                    Modificar ubicación
-                  </div>
-                </div>
-              ) : (
-                // Si está editando → mostrar el selector completo
-                <UbicationSelect onSelectCiudad={setCityAndState} />
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor={`zip`}>Código Postal</Label>
-              <Input
-                {...register("zipCode")}
-                id={`zip`}
-                placeholder="Ej: 1900"
-              />
-            </div>
           </div>
 
           {/* Progress */}
@@ -253,6 +222,161 @@ export default function InstructorProfile() {
                 </>
               }
             />
+          </div>
+        </div>
+
+        <Separator className="my-6" />
+
+        <div className="space-y-4">
+          <h3 className="text-2xl">Prácticas presenciales</h3>
+
+          <div className="flex items-center gap-3">
+            <Controller
+              name="isPublicForPractice"
+              control={control}
+              render={({ field }) => (
+                <Switch
+                  id="isPublicForPractice"
+                  checked={field.value ?? true}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+            <Label htmlFor="isPublicForPractice">
+              Disponible para prácticas presenciales
+            </Label>
+          </div>
+
+          <p className="text-sm text-muted-foreground">
+            Desactivalo si no querés aparecer para solicitudes de clases
+            presenciales.
+          </p>
+
+          {/* Ubicación */}
+          <div>
+            {!editingLocation && stateValue && cityValue ? (
+              <div
+                onClick={() => setEditingLocation(true)}
+                className="relative grid grid-cols-1 md:grid-cols-2 gap-3 cursor-pointer group"
+              >
+                {/* Inputs visibles */}
+                <Input
+                  type="text"
+                  value={stateValue}
+                  disabled
+                  className="input pointer-events-none"
+                />
+                <Input
+                  type="text"
+                  value={cityValue}
+                  disabled
+                  className="input pointer-events-none"
+                />
+
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center text-sm font-medium text-white/70 pointer-events-none">
+                  Modificar ubicación
+                </div>
+              </div>
+            ) : (
+              <UbicationSelect onSelectCiudad={setCityAndState} />
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`zip`}>Código Postal</Label>
+            <Input {...register("zipCode")} id={`zip`} placeholder="Ej: 1900" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="practiceWhatsapp">WhatsApp</Label>
+              <Input
+                id="practiceWhatsapp"
+                placeholder="+54 9 11 1234-5678"
+                {...register("practiceWhatsapp")}
+              />
+              {errors.practiceWhatsapp && (
+                <p className="text-red-600 text-sm">
+                  {errors.practiceWhatsapp.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="practiceEmail">Email para prácticas</Label>
+              <Input
+                id="practiceEmail"
+                type="email"
+                placeholder="practicas@correo.com"
+                {...register("practiceEmail")}
+              />
+              {errors.practiceEmail && (
+                <p className="text-red-600 text-sm">
+                  {errors.practiceEmail.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="instagramUrl">Instagram</Label>
+              <Input
+                id="instagramUrl"
+                placeholder="https://instagram.com/tu-perfil"
+                {...register("instagramUrl")}
+              />
+              {errors.instagramUrl && (
+                <p className="text-red-600 text-sm">
+                  {errors.instagramUrl.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="linkedinUrl">LinkedIn</Label>
+              <Input
+                id="linkedinUrl"
+                placeholder="https://linkedin.com/in/tu-perfil"
+                {...register("linkedinUrl")}
+              />
+              {errors.linkedinUrl && (
+                <p className="text-red-600 text-sm">
+                  {errors.linkedinUrl.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="websiteUrl">Sitio web</Label>
+              <Input
+                id="websiteUrl"
+                placeholder="https://tusitio.com"
+                {...register("websiteUrl")}
+              />
+              {errors.websiteUrl && (
+                <p className="text-red-600 text-sm">
+                  {errors.websiteUrl.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="practiceNotes">Notas para prácticas</Label>
+            <Textarea
+              id="practiceNotes"
+              placeholder="Horarios, zonas de cobertura, modalidad, requisitos, etc."
+              maxLength={1000}
+              {...register("practiceNotes")}
+            />
+            {errors.practiceNotes && (
+              <p className="text-red-600 text-sm">
+                {errors.practiceNotes.message}
+              </p>
+            )}
+            <p className="text-xs text-primary">
+              {1000 - (watch("practiceNotes")?.length || 0)} caracteres
+              restantes
+            </p>
           </div>
         </div>
 

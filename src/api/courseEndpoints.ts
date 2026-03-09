@@ -209,6 +209,17 @@ export const deleteModuleQuiz = async (
   });
 };
 
+export const reorderModuleQuizzes = async (
+  moduleId: string,
+  quizIds: string[],
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/module/${moduleId}/quizzes/reorder`,
+    method: "PATCH",
+    data: { quizIds },
+  });
+};
+
 export interface CreateFinalQuizPayload {
   courseId: string;
   question: string;
@@ -242,6 +253,17 @@ export const deleteFinalQuiz = async (quizId: string): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/quiz/final/${quizId}`,
     method: "DELETE",
+  });
+};
+
+export const reorderFinalQuizzes = async (
+  courseId: string,
+  quizIds: string[],
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/quiz/final/${courseId}/reorder`,
+    method: "PATCH",
+    data: { quizIds },
   });
 };
 

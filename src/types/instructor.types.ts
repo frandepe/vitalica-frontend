@@ -1,5 +1,5 @@
 import { InstructorStatus, User } from "./auth.types";
-import { ICourse, ISpecialty } from "./course.types";
+import { ISpecialty } from "./course.types";
 
 export interface IApplyInstructor {
   dniNumber: string;
@@ -85,6 +85,13 @@ export interface InstructorProfile {
   city?: string;
   state?: string;
   zipCode?: string;
+  isPublicForPractice?: boolean;
+  practiceWhatsapp?: string;
+  practiceEmail?: string;
+  instagramUrl?: string;
+  linkedinUrl?: string;
+  websiteUrl?: string;
+  practiceNotes?: string;
 
   reviewerNotes?: string;
 

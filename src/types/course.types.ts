@@ -133,6 +133,7 @@ export interface CourseQuiz {
   question: string;
   options: string[];
   correctAnswer: number;
+  order: number;
 
   status: QuizStatus;
   reviewerNotes?: string;

@@ -4,34 +4,67 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 
-import { Trash2, Plus, Loader2, ClipboardPenLine } from "lucide-react";
-import { createModuleQuiz, deleteModuleQuiz, getModuleQuizzes } from "@/api";
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { ClipboardPenLine, GripVertical, Loader2, Plus, Trash2 } from "lucide-react";
+import {
+  createModuleQuiz,
+  deleteModuleQuiz,
+  getModuleQuizzes,
+  reorderModuleQuizzes,
+} from "@/api";
 
 import { UniversalModal } from "../UniversalModal";
 import {
   OptionCardQuestion,
   RadioGroupQuestion,
 } from "@/components/RadioGroups/RadioGroupQuestion";
+import { SortableItem } from "@/hooks/useStep4Dnd";
+
+interface ModuleQuizItem {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  order: number;
+}
 
 interface Props {
   moduleId: string;
 }
 
 export const ModuleQuizzes = ({ moduleId }: Props) => {
-  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [quizzes, setQuizzes] = useState<ModuleQuizItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", "", "", ""]);
   const [correctAnswer, setCorrectAnswer] = useState<number | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+  );
 
   const maxReached = quizzes.length >= 5;
 
   const fetchQuizzes = async () => {
     setLoading(true);
     const res = await getModuleQuizzes(moduleId);
-    if (res.success) setQuizzes(res.data!);
+    if (res.success) {
+      const sorted = [...(res.data || [])].sort((a, b) => a.order - b.order);
+      setQuizzes(sorted);
+    }
     setLoading(false);
   };
 
@@ -71,6 +104,34 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
     fetchQuizzes();
   };
 
+  const handleDragEnd = async ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id || reordering) return;
+
+    const oldIndex = quizzes.findIndex((quiz) => quiz.id === active.id);
+    const newIndex = quizzes.findIndex((quiz) => quiz.id === over.id);
+
+    if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return;
+
+    const reordered = arrayMove(quizzes, oldIndex, newIndex).map((quiz, index) => ({
+      ...quiz,
+      order: index + 1,
+    }));
+
+    setQuizzes(reordered);
+    setReordering(true);
+
+    const response = await reorderModuleQuizzes(
+      moduleId,
+      reordered.map((quiz) => quiz.id),
+    );
+
+    if (!response.success) {
+      await fetchQuizzes();
+    }
+
+    setReordering(false);
+  };
+
   return (
     <div className="space-y-4">
       <Button
@@ -93,37 +154,65 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
 
           {loading && <Loader2 className="animate-spin" />}
 
-          {quizzes.map((quiz, i) => (
-            <Card key={quiz.id} className="p-4 space-y-2">
-              <div className="flex justify-between items-start">
-                <p className="font-medium">
-                  {i + 1}. {quiz.question}
-                </p>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleDeleteQuiz(quiz.id)}
-                >
-                  <Trash2 className="w-4 h-4 text-red-500" />
-                </Button>
-              </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={quizzes.map((quiz) => quiz.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {quizzes.map((quiz, i) => (
+                <SortableItem key={quiz.id} id={quiz.id} className="mb-3">
+                  {({ attributes, listeners, setActivatorNodeRef, isDragging }) => (
+                    <Card className={`p-4 space-y-2 ${isDragging ? "ring-1 ring-primary" : ""}`}>
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex items-start gap-2">
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-7 w-7 text-muted-foreground"
+                            ref={setActivatorNodeRef}
+                            {...attributes}
+                            {...listeners}
+                          >
+                            <GripVertical className="w-4 h-4" />
+                          </Button>
+                          <p className="font-medium">
+                            {i + 1}. {quiz.question}
+                          </p>
+                        </div>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDeleteQuiz(quiz.id)}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
 
-              <ul className="list-disc ml-5 text-sm">
-                {quiz.options.map((o: string, idx: number) => (
-                  <li
-                    key={idx}
-                    className={
-                      idx === quiz.correctAnswer
-                        ? "font-semibold text-primary"
-                        : ""
-                    }
-                  >
-                    {o}
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          ))}
+                      <ul className="list-disc ml-5 text-sm">
+                        {quiz.options.map((o, idx) => (
+                          <li
+                            key={idx}
+                            className={
+                              idx === quiz.correctAnswer
+                                ? "font-semibold text-primary"
+                                : ""
+                            }
+                          >
+                            {o}
+                          </li>
+                        ))}
+                      </ul>
+                    </Card>
+                  )}
+                </SortableItem>
+              ))}
+            </SortableContext>
+          </DndContext>
 
           {!maxReached && (
             <Card className="p-4 space-y-4 border-dashed">

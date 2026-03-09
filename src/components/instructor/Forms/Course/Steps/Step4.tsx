@@ -23,21 +23,8 @@ import {
   NewCourseFormValues,
 } from "@/types/course.types";
 import MuxPlayer from "@mux/mux-player-react";
-import {
-  closestCenter,
-  DndContext,
-  DragEndEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { closestCenter, DndContext } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import {
   CheckCircle,
   FileText,
@@ -48,7 +35,7 @@ import {
   Upload,
   Video,
 } from "lucide-react";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Control,
   Controller,
@@ -87,49 +74,10 @@ import {
   uploadFileToMux,
   waitForMuxAssetReady,
 } from "@/utils/mux-upload";
-
-interface SortableItemProps {
-  id: string;
-  className?: string;
-  children: (props: {
-    attributes: Record<string, any>;
-    listeners: Record<string, any> | undefined;
-    setActivatorNodeRef: (element: HTMLElement | null) => void;
-    isDragging: boolean;
-  }) => ReactNode;
-}
-
-const SortableItem = ({ id, className, children }: SortableItemProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={cn(className, isDragging && "z-10 opacity-80")}
-    >
-      {children({
-        attributes: attributes as Record<string, any>,
-        listeners: listeners as Record<string, any> | undefined,
-        setActivatorNodeRef,
-        isDragging,
-      })}
-    </div>
-  );
-};
+import {
+  SortableItem,
+  useStep4Dnd,
+} from "@/hooks/useStep4Dnd";
 
 interface Props {
   courseId: string;
@@ -183,107 +131,19 @@ export const Step4 = ({
     control,
     register,
   } = useFormContext<NewCourseFormValues>();
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-  );
-  const MODULES_SORTABLE_ID = "modules-sortable";
-  const LESSONS_SORTABLE_PREFIX = "lessons-";
-
-  const getModuleDragId = (module: CourseModuleFormValues, moduleIndex: number) =>
-    module.id || `module-${moduleIndex}`;
-  const getLessonDragId = (
-    lesson: LessonFormValues,
-    moduleIndex: number,
-    lessonIndex: number,
-  ) => lesson.id || `lesson-${moduleIndex}-${lessonIndex}`;
-
-  const getModuleIndexFromDragId = (
-    modulesList: CourseModuleFormValues[],
-    dragId: string | number,
-  ) =>
-    modulesList.findIndex(
-      (module, index) => getModuleDragId(module, index) === dragId,
-    );
-
-  const onModuleDragEnd = ({ active, over }: DragEndEvent) => {
-    if (!over || active.id === over.id) return;
-    const activeContainerId = active.data.current?.sortable?.containerId;
-    if (activeContainerId !== MODULES_SORTABLE_ID) return;
-
-    const currentModules = (watch("modules") || []) as CourseModuleFormValues[];
-    const oldIndex = getModuleIndexFromDragId(currentModules, active.id);
-
-    let newIndex = getModuleIndexFromDragId(currentModules, over.id);
-    if (newIndex < 0) {
-      const overContainerId = over.data.current?.sortable?.containerId;
-      if (
-        typeof overContainerId === "string" &&
-        overContainerId.startsWith(LESSONS_SORTABLE_PREFIX)
-      ) {
-        const overModuleDragId = overContainerId.replace(
-          LESSONS_SORTABLE_PREFIX,
-          "",
-        );
-        newIndex = getModuleIndexFromDragId(currentModules, overModuleDragId);
-      }
-    }
-
-    if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return;
-
-    moveModule(oldIndex, newIndex);
-
-    const reordered = arrayMove(currentModules, oldIndex, newIndex).map(
-      (module, index) => ({
-        ...module,
-        order: index + 1,
-        lessons: (module.lessons || []).map((lesson, lessonIndex) => ({
-          ...lesson,
-          order: lessonIndex + 1,
-        })),
-      }),
-    );
-
-    setValue("modules", reordered, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
-  };
-
-  const onLessonDragEnd =
-    (moduleIndex: number) =>
-    ({ active, over }: DragEndEvent) => {
-      if (!over || active.id === over.id) return;
-
-      const currentLessons =
-        (watch(`modules.${moduleIndex}.lessons`) as LessonFormValues[]) || [];
-
-      const oldIndex = currentLessons.findIndex(
-        (lesson, lessonIndex) =>
-          getLessonDragId(lesson, moduleIndex, lessonIndex) === active.id,
-      );
-      const newIndex = currentLessons.findIndex(
-        (lesson, lessonIndex) =>
-          getLessonDragId(lesson, moduleIndex, lessonIndex) === over.id,
-      );
-
-      if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return;
-
-      const reordered = arrayMove(currentLessons, oldIndex, newIndex).map(
-        (lesson, index) => ({
-          ...lesson,
-          order: index + 1,
-        }),
-      );
-
-      setValue(`modules.${moduleIndex}.lessons`, reordered, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: true,
-      });
-    };
+  const {
+    sensors,
+    onModuleDragEnd,
+    onLessonDragEnd,
+    MODULES_SORTABLE_ID,
+    LESSONS_SORTABLE_PREFIX,
+    getModuleDragId,
+    getLessonDragId,
+  } = useStep4Dnd({
+    watch,
+    setValue,
+    moveModule,
+  });
 
   useEffect(() => {
     return () => {
