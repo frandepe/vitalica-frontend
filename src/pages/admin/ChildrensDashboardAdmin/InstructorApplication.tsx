@@ -19,7 +19,7 @@ const InstructorApplicationPage = () => {
       const resp = await getInstructorApplicationById(id);
       setDataApp(resp.data);
     } catch (error) {
-      console.error("Error al obtener la aplicación:", error);
+      console.error("Error al obtener la aplicacion:", error);
     } finally {
       setLoading(false);
     }
@@ -29,11 +29,11 @@ const InstructorApplicationPage = () => {
     if (id) getAppById();
   }, [id]);
 
-  if (!id) return <div>No se encontró el ID de la aplicación</div>;
+  if (!id) return <div>No se encontro el ID de la aplicacion</div>;
 
   if (loading) return <div>Cargando datos...</div>;
 
-  if (!dataApp) return <div>No se encontró la aplicación</div>;
+  if (!dataApp) return <div>No se encontro la aplicacion</div>;
 
   const {
     status,
@@ -42,6 +42,7 @@ const InstructorApplicationPage = () => {
     certificateType,
     enrollmentNumber,
     issuedBy,
+    requestedSpecialties,
     issueDate,
     expiryDate,
     reviewedAt,
@@ -54,7 +55,7 @@ const InstructorApplicationPage = () => {
   return (
     <div className="min-h-screen pt-6">
       <h1 className="text-2xl font-semibold mb-4">
-        Detalles de la aplicación del instructor
+        Detalles de la aplicacion del instructor
       </h1>
 
       <div className="space-y-2 text-sm text-gray-700">
@@ -66,34 +67,55 @@ const InstructorApplicationPage = () => {
           <span
             className={cn(
               "px-2 py-1 rounded text-white",
-              statusColorsInstructorApplication[status] ?? "bg-gray-400"
+              statusColorsInstructorApplication[status] ?? "bg-gray-400",
             )}
           >
             {t("application", status)}
           </span>
         </p>
         <p>
-          <span className="font-medium">País del DNI:</span> {dniCountry}
+          <span className="font-medium">Pais del DNI:</span> {dniCountry}
         </p>
         <p>
-          <span className="font-medium">Número de DNI:</span> {dniNumber}
+          <span className="font-medium">Numero de DNI:</span> {dniNumber}
         </p>
         <p>
           <span className="font-medium">Tipo de certificado:</span>{" "}
           {certificateType}
         </p>
         <p>
-          <span className="font-medium">Matrícula:</span> {enrollmentNumber}
+          <span className="font-medium">Matricula:</span> {enrollmentNumber}
         </p>
         <p>
           <span className="font-medium">Emitido por:</span> {issuedBy}
         </p>
+
+        <div>
+          <span className="font-medium">Especialidades solicitadas:</span>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {requestedSpecialties?.length ? (
+              requestedSpecialties.map((specialty) => (
+                <span
+                  key={specialty}
+                  className="px-2 py-1 text-xs rounded-full bg-slate-200 text-slate-700"
+                >
+                  {t("courseSpecialty", specialty)}
+                </span>
+              ))
+            ) : (
+              <span className="text-sm text-gray-500">
+                No especificadas por el solicitante
+              </span>
+            )}
+          </div>
+        </div>
+
         <p>
-          <span className="font-medium">Fecha de emisión:</span>{" "}
+          <span className="font-medium">Fecha de emision:</span>{" "}
           {new Date(issueDate).toLocaleDateString()}
         </p>
         <p>
-          <span className="font-medium">Fecha de expiración:</span>{" "}
+          <span className="font-medium">Fecha de expiracion:</span>{" "}
           {new Date(expiryDate).toLocaleDateString()}
         </p>
         {reviewedAt && (
@@ -124,7 +146,6 @@ const InstructorApplicationPage = () => {
         )}
       </div>
 
-      {/* Usuario */}
       <div className="mt-6 border-t pt-4">
         <h2 className="text-lg font-semibold mb-2">Datos del usuario</h2>
         <p>
@@ -136,7 +157,6 @@ const InstructorApplicationPage = () => {
         </p>
       </div>
 
-      {/* Documentos */}
       <div className="mt-6 border-t pt-4">
         <h2 className="text-lg font-semibold mb-2">Documentos</h2>
         {documents.length === 0 && <p>No hay documentos cargados.</p>}
@@ -174,7 +194,11 @@ const InstructorApplicationPage = () => {
           </div>
         ))}
       </div>
-      <FeedbackApplicationForm applicationId={id} />
+
+      <FeedbackApplicationForm
+        applicationId={id}
+        requestedSpecialties={requestedSpecialties || []}
+      />
     </div>
   );
 };

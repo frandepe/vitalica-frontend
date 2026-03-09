@@ -7,6 +7,7 @@ export interface IApplyInstructor {
   certificateType: string;
   issuedBy: string;
   enrollmentNumber: string;
+  requestedSpecialties?: ISpecialty[];
   urlDni: string | null;
   urlCertificate: string[];
   issueDate?: string;
@@ -29,6 +30,7 @@ export interface InstructorApplication {
   certificateType: string;
   enrollmentNumber: string;
   issuedBy: string;
+  requestedSpecialties: ISpecialty[];
   issueDate: string; // ISO date string (ej: "2025-10-29T03:00:00.000Z")
   expiryDate: string; // ISO date string
   submittedAt: string | null;

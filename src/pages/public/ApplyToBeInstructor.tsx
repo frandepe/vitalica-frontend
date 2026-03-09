@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
 import ImagesUpload from "@/components/Uploads/ImagesUpload";
+import SpecialtyChecks from "@/components/Instructor/Forms/Profile/SpecialtyChecks";
 
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import type {
@@ -63,6 +64,7 @@ const ApplyToBeInstructor = () => {
     dniCountry: "",
     certificateType: "",
     enrollmentNumber: "",
+    requestedSpecialties: [],
     issuedBy: "",
     issueDate: "",
     expiryDate: "",
@@ -82,6 +84,7 @@ const ApplyToBeInstructor = () => {
         dniCountry: applicationData.dniCountry || "",
         certificateType: applicationData.certificateType || "",
         enrollmentNumber: applicationData.enrollmentNumber || "",
+        requestedSpecialties: applicationData.requestedSpecialties || [],
         issuedBy: applicationData.issuedBy || "",
         issueDate: applicationData.issueDate
           ? new Date(applicationData.issueDate).toISOString()
@@ -135,6 +138,7 @@ const ApplyToBeInstructor = () => {
         dniCountry: "AR",
         certificateType: data.certificateType,
         enrollmentNumber: data.enrollmentNumber,
+        requestedSpecialties: data.requestedSpecialties || [],
         issuedBy: data.issuedBy,
         issueDate: data.issueDate,
         expiryDate: data.expiryDate,
@@ -366,6 +370,7 @@ const ApplyToBeInstructor = () => {
                     issueDate: "",
                     expiryDate: "",
                     dniNumber: "",
+                    requestedSpecialties: watch("requestedSpecialties") || [],
                   })
                 }
                 icon={<Star className="h-6 w-6" fill="currentColor" />}
@@ -382,6 +387,36 @@ const ApplyToBeInstructor = () => {
               />
             </div>
           </div>
+          {/* ======= ESPECIALIDADES SOLICITADAS ======= */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">
+              Especialidades solicitadas{" "}
+              <span className="text-info-foreground text-sm">
+                Importante: seleccioná solo las especialidades que coincidan con
+                tus certificaciones. Estas determinarán sobre qué temas podrás
+                crear cursos y para qué prácticas presenciales podrán
+                contactarte.
+              </span>
+            </h2>
+
+            <SpecialtyChecks
+              control={control}
+              name="requestedSpecialties"
+              rules={{
+                validate: (value: string[]) =>
+                  value && value.length > 0
+                    ? true
+                    : "Debes elegir al menos una especialidad",
+              }}
+            />
+
+            {errors.requestedSpecialties && (
+              <p className="text-destructive text-sm">
+                {errors.requestedSpecialties.message as string}
+              </p>
+            )}
+          </div>
+
           {getGeneralErrors().map((msg, i) => (
             <p key={i} className="text-red-600 text-sm mb-2">
               {msg}

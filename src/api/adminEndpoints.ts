@@ -2,6 +2,7 @@ import { StatusInstructorApplication } from "@/types/instructor.types";
 import { apiRequest } from "./configEndpoint";
 import { API_ROUTES } from "@/constants";
 import { ApiResponse } from "@/types/endpoints.types";
+import { ISpecialty } from "@/types/course.types";
 import {
   GetAllCoursesAdminParams,
   GetAllCoursesAdminResponse,
@@ -12,6 +13,7 @@ interface PropsGiveInstructorApplicationFeedback {
   status: StatusInstructorApplication;
   reviewedBy: string;
   reviewerNotes: string;
+  approvedSpecialties?: ISpecialty[];
 }
 
 export const getInstructorApplications = async () => {

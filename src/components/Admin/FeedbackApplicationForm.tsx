@@ -21,21 +21,26 @@ import { giveInstructorApplicationFeedback } from "@/api/adminEndpoints";
 import { StatusInstructorApplication } from "@/types/instructor.types";
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import { useToast } from "../ui/toast";
+import SpecialtyChecks from "@/components/Instructor/Forms/Profile/SpecialtyChecks";
+import { ISpecialty } from "@/types/course.types";
 
 interface FeedbackApplicationFormProps {
   applicationId: string;
+  requestedSpecialties: ISpecialty[];
 }
 
 interface FeedbackFormData {
   status: StatusInstructorApplication;
   reviewerNotes: string;
   reviewedBy: string;
+  approvedSpecialties: ISpecialty[];
 }
 
 export const FeedbackApplicationForm = ({
   applicationId,
+  requestedSpecialties,
 }: FeedbackApplicationFormProps) => {
-  const { setBackendErrors, getGeneralErrors, clearErrors } =
+  const { setBackendErrors, getGeneralErrors, clearErrors: clearBackendErrors } =
     useBackendErrors();
   const { showToast } = useToast();
 
@@ -44,21 +49,37 @@ export const FeedbackApplicationForm = ({
       status: "UNDER_REVIEW",
       reviewerNotes: "",
       reviewedBy: "",
+      approvedSpecialties: requestedSpecialties || [],
     },
   });
 
   const {
     control,
     handleSubmit,
+    watch,
+    setError,
+    clearErrors,
     formState: { isSubmitting },
     reset,
   } = form;
 
+  const currentStatus = watch("status");
+
   const onSubmit = async (data: FeedbackFormData) => {
+    if (data.status === "APPROVED" && data.approvedSpecialties.length === 0) {
+      setError("approvedSpecialties", {
+        type: "manual",
+        message: "Para aprobar, debés seleccionar al menos una especialidad",
+      });
+      return;
+    }
+
+    clearErrors("approvedSpecialties");
+
     try {
       const result = await giveInstructorApplicationFeedback(
         applicationId,
-        data
+        data,
       );
 
       if (!result.success && result.message) {
@@ -66,7 +87,7 @@ export const FeedbackApplicationForm = ({
         return;
       }
 
-      clearErrors();
+      clearBackendErrors();
       showToast("Feedback enviado", "success", "top-right");
       reset();
     } catch (error) {
@@ -130,6 +151,32 @@ export const FeedbackApplicationForm = ({
                   placeholder="Escribe tus observaciones o comentarios..."
                   className="resize-none h-24"
                   {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="approvedSpecialties"
+          rules={{
+            validate: (value) =>
+              currentStatus !== "APPROVED" || value.length > 0
+                ? true
+                : "Para aprobar, debés seleccionar al menos una especialidad",
+          }}
+          render={() => (
+            <FormItem>
+              <FormLabel>
+                Especialidades finales aprobadas
+                {currentStatus === "APPROVED" ? " *" : ""}
+              </FormLabel>
+              <FormControl>
+                <SpecialtyChecks
+                  control={control}
+                  name="approvedSpecialties"
                 />
               </FormControl>
               <FormMessage />
