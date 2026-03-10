@@ -1,9 +1,31 @@
 // src/components/common/ErrorFallback.tsx
+import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 
-import { useRouteError } from "react-router-dom";
+const getErrorDetails = (error: unknown) => {
+  if (isRouteErrorResponse(error)) {
+    return {
+      message:
+        typeof error.data === "string" ? error.data : error.statusText,
+      stack: undefined,
+    };
+  }
+
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      stack: error.stack,
+    };
+  }
+
+  return {
+    message: "Error desconocido",
+    stack: undefined,
+  };
+};
 
 export default function ErrorFallback() {
-  const error = useRouteError() as any;
+  const error = useRouteError();
+  const errorDetails = getErrorDetails(error);
 
   const isDev = import.meta.env.DEV;
 
@@ -14,8 +36,8 @@ export default function ErrorFallback() {
       {isDev ? (
         // Mostrar error completo en dev
         <div className="w-full max-w-4xl bg-gray-100 dark:bg-gray-900 p-4 rounded-md overflow-auto text-xs text-red-600 dark:text-red-400">
-          <pre>{error?.message}</pre>
-          {error?.stack && <pre className="mt-2">{error.stack}</pre>}
+          <pre>{errorDetails.message}</pre>
+          {errorDetails.stack && <pre className="mt-2">{errorDetails.stack}</pre>}
         </div>
       ) : (
         // Mensaje amigable en prod

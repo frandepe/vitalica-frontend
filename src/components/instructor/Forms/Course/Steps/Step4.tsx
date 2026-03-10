@@ -39,6 +39,8 @@ import { useEffect, useRef, useState } from "react";
 import {
   Control,
   Controller,
+  UseFieldArrayMove,
+  UseFieldArrayRemove,
   useFormContext,
   UseFormRegister,
   UseFormSetValue,
@@ -84,12 +86,16 @@ interface Props {
   modules: CourseModuleFormValues[];
   register: UseFormRegister<NewCourseFormValues>;
   watch: UseFormWatch<NewCourseFormValues>;
-  removeModule: any;
-  moveModule: any;
-  handleRemoveLesson: any;
+  removeModule: UseFieldArrayRemove;
+  moveModule: UseFieldArrayMove;
+  handleRemoveLesson: (moduleIndex: number, lessonIndex: number) => void;
   setValue: UseFormSetValue<NewCourseFormValues>;
-  handleLessonTypeChange: any;
-  lessonTypes: any;
+  handleLessonTypeChange: (
+    sectionIndex: number,
+    lessonIndex: number,
+    type: LessonFormValues["type"],
+  ) => void;
+  lessonTypes: Record<number, Record<number, LessonFormValues["type"]>>;
   control: Control<NewCourseFormValues>;
   priceDB: string | undefined;
 }
@@ -244,12 +250,12 @@ export const Step4 = ({
       const currentLessons = watch(`modules.${moduleIndex}.lessons`) || [];
 
       const updatedLessons = currentLessons.filter(
-        (_: any, index: number) => index !== lessonIndex,
+        (_lesson: LessonFormValues, index: number) => index !== lessonIndex,
       );
 
       // Reordenar en frontend
-      const reordered = updatedLessons.map((l: any, i: number) => ({
-        ...l,
+      const reordered = updatedLessons.map((lesson: LessonFormValues, i) => ({
+        ...lesson,
         order: i + 1,
       }));
 

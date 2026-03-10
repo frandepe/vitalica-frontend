@@ -27,21 +27,14 @@ import {
   RadioGroupQuestion,
 } from "@/components/RadioGroups/RadioGroupQuestion";
 import { SortableItem } from "@/hooks/useStep4Dnd";
-
-interface ModuleQuizItem {
-  id: string;
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  order: number;
-}
+import type { ModuleQuiz } from "@/types/quiz.types";
 
 interface Props {
   moduleId: string;
 }
 
 export const ModuleQuizzes = ({ moduleId }: Props) => {
-  const [quizzes, setQuizzes] = useState<ModuleQuizItem[]>([]);
+  const [quizzes, setQuizzes] = useState<ModuleQuiz[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [reordering, setReordering] = useState(false);

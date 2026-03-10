@@ -62,8 +62,8 @@ export default function UploadMaterial({
       setSuccess(true);
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (err: any) {
-      setError(err.message || "Error inesperado");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error inesperado");
     } finally {
       setLoading(false);
     }

@@ -24,9 +24,9 @@ export const DownloadMaterial = ({ materials }: { materials: Material[] }) => {
 
       // Descarga directa
       window.location.href = response.data.url;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || "Error descargando archivo");
+      setError(err instanceof Error ? err.message : "Error descargando archivo");
     } finally {
       setLoadingKey(null);
     }

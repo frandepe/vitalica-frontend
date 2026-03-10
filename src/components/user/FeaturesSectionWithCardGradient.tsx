@@ -1,6 +1,6 @@
 import { cn } from "@/utils/cn";
 import { Maximize } from "lucide-react";
-import { useId, useMemo, useState } from "react";
+import { type ReactNode, type SVGProps, useId, useMemo, useState } from "react";
 import { UniversalModal } from "../UniversalModal";
 
 // -----------------------------------------------------------------------
@@ -13,7 +13,7 @@ export function FeaturesSectionWithCardGradient({
   grid: {
     title: string;
     description: string;
-    modalContent: React.ReactNode;
+    modalContent: ReactNode;
   }[];
 }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -97,7 +97,22 @@ export const Grid = ({
 // GridPattern
 // -----------------------------------------------------------------------
 
-export function GridPattern({ width, height, x, y, squares, ...props }: any) {
+interface GridPatternProps extends SVGProps<SVGSVGElement> {
+  width: number;
+  height: number;
+  x: number | string;
+  y: number | string;
+  squares?: number[][];
+}
+
+export function GridPattern({
+  width,
+  height,
+  x,
+  y,
+  squares,
+  ...props
+}: GridPatternProps) {
   const patternId = useId();
 
   return (

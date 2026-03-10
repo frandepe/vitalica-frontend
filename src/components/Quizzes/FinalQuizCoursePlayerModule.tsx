@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { QuizCoursePlayer } from "./QuizCoursePlayer";
 import { submitFinalExam } from "@/api/courseProgressEndpoints";
 import { IFinalQuizResult } from "@/types/courseProgress.types";
+import type { FinalQuizQuestion, QuizAnswerMap } from "@/types/quiz.types";
 
 interface Props {
   courseId: string;
@@ -22,7 +23,7 @@ export const FinalQuizCoursePlayerModule = ({
 }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [quizzes, setQuizzes] = useState<FinalQuizQuestion[]>([]);
   const [finalQuizResponse, setFinalQuizResponse] =
     useState<IFinalQuizResult>();
 
@@ -43,7 +44,10 @@ export const FinalQuizCoursePlayerModule = ({
       // Guardamos los quizzes del módulo en el estado
       if (res.success && res.data) {
         setQuizzes(res.data);
+        return;
       }
+
+      console.error("Error fetching final course quizzes:", res.message);
     } catch (error) {
       console.error("Error fetching final course quizzes:", error);
     } finally {
@@ -54,10 +58,9 @@ export const FinalQuizCoursePlayerModule = ({
     setOpen(false);
   };
 
-  const submitQuizzes = async (answers: Record<string, number>) => {
+  const submitQuizzes = async (answers: QuizAnswerMap) => {
     const res = await submitFinalExam(courseId, answers);
     setFinalQuizResponse(res);
-    console.log("resSubmit", res);
   };
 
   return (
@@ -105,7 +108,7 @@ export const FinalQuizCoursePlayerModule = ({
           <QuizCoursePlayer
             quizzes={quizzes}
             moduleTitle={`Examen final del curso`}
-            onComplete={(answers: Record<string, number>) =>
+            onComplete={(answers: QuizAnswerMap) =>
               // console.log("Respuestas enviadas", answers)
               submitQuizzes(answers)
             }

@@ -9,6 +9,14 @@ import MuxPlayer from "@mux/mux-player-react";
 import { Button } from "../ui/button";
 import { formatPrice } from "@/utils/format-price";
 import { useNavigate, useParams } from "react-router-dom";
+import type { ApiResponse } from "@/types/endpoints.types";
+
+type FreeLessonsResponse = ApiResponse<{
+  modules: Array<{
+    id: string;
+    lessons: Lesson[];
+  }>;
+}>;
 
 export function ModulesAccordion({
   modules,
@@ -34,12 +42,12 @@ export function ModulesAccordion({
   };
 
   const handleOpenFreeLesson = async (lessonClicked: Lesson) => {
-    setOpen(true);
+      setOpen(true);
 
     try {
       setLoading(true);
-      const res = await getFreeLessons(courseId);
-      const lessons = res.data.modules.flatMap((m: any) => m.lessons);
+      const res = (await getFreeLessons(courseId)) as FreeLessonsResponse;
+      const lessons = res.data?.modules.flatMap((module) => module.lessons) ?? [];
 
       setFreeLessons(lessons);
 

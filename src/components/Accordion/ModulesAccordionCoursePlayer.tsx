@@ -12,6 +12,7 @@ import { Button } from "../ui/button";
 import { UniversalModal } from "../UniversalModal";
 import { ICourseModuleWithProgress } from "@/types/courseProgress.types";
 import { QuizCoursePlayer } from "../Quizzes/QuizCoursePlayer";
+import type { ModuleQuiz, QuizAnswerMap } from "@/types/quiz.types";
 
 export function ModulesAccordionCoursePlayer({
   modules,
@@ -22,9 +23,9 @@ export function ModulesAccordionCoursePlayer({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const [openModuleId, setOpenModuleId] = useState<string | null>(null);
-  const [quizzesByModule, setQuizzesByModule] = useState<Record<string, any>>(
-    {},
-  );
+  const [quizzesByModule, setQuizzesByModule] = useState<
+    Record<string, ModuleQuiz[]>
+  >({});
   const [loadingModule, setLoadingModule] = useState<string | null>(null);
 
   const handleOpenExam = async (moduleId: string) => {
@@ -36,7 +37,6 @@ export function ModulesAccordionCoursePlayer({
     try {
       setLoadingModule(moduleId);
       const res = await getModuleQuizzes(moduleId);
-      console.log("res", res);
 
       // Guardamos los quizzes del módulo en el estado
       if (res.success && res.data) {
@@ -44,7 +44,10 @@ export function ModulesAccordionCoursePlayer({
           ...prev,
           [moduleId]: res.data!,
         }));
+        return;
       }
+
+      console.error("Error fetching module quizzes:", res.message);
     } catch (error) {
       console.error("Error fetching module quizzes:", error);
     } finally {
@@ -218,7 +221,7 @@ export function ModulesAccordionCoursePlayer({
                           <QuizCoursePlayer
                             quizzes={quizzes}
                             moduleTitle={`Módulo ${item.order}: ${item.title}`}
-                            onComplete={(answers: any) =>
+                            onComplete={(answers: QuizAnswerMap) =>
                               console.log("Respuestas enviadas", answers)
                             }
                             isPractice={true}

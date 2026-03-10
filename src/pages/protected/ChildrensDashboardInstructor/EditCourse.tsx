@@ -49,6 +49,7 @@ import {
 } from "@/utils/mux-upload";
 import { useAuth } from "@/hooks/useAuth";
 import { SpecialtyLabels } from "@/constants";
+import axios from "axios";
 
 // TODO: (Posible TODO)
 // click siguiente →
@@ -57,7 +58,7 @@ import { SpecialtyLabels } from "@/constants";
 
 interface LessonTypes {
   [sectionIndex: number]: {
-    [lessonIndex: number]: string;
+    [lessonIndex: number]: LessonFormValues["type"];
   };
 }
 
@@ -227,7 +228,7 @@ export default function EditCourse() {
   const handleLessonTypeChange = (
     sectionIndex: number,
     lessonIndex: number,
-    type: string,
+    type: LessonFormValues["type"],
   ) => {
     setLessonTypes((prev: LessonTypes) => ({
       ...prev,
@@ -315,9 +316,14 @@ export default function EditCourse() {
         navigate(`/estado-curso/${courseId}`);
       }
       clearErrors();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert(err.message || "Error al guardar el curso");
+      const errorMessage = axios.isAxiosError(err)
+        ? err.response?.data?.message
+        : err instanceof Error
+          ? err.message
+          : "Error al guardar el curso";
+      alert(errorMessage || "Error al guardar el curso");
     } finally {
       setIsLoading(false);
     }

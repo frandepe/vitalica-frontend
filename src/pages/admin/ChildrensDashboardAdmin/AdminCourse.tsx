@@ -3,7 +3,7 @@ import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
 import { ICourse } from "@/types/course.types";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useFormattedDate } from "@/hooks/useFormattedDate";
+import { formatDate } from "@/utils/formatDate";
 import { Badge } from "@/components/ui/badge";
 import { QuizList } from "@/components/Quizzes/QuizList";
 import { Info } from "@/components/CardsAnimated/Info";
@@ -119,8 +119,8 @@ const AdminCourse = () => {
           </div>
 
           <div className="text-xs text-gray-500">
-            Creado: {useFormattedDate(course.createdAt)} · Actualizado:{" "}
-            {useFormattedDate(course.updatedAt)}
+            Creado: {formatDate(course.createdAt)} · Actualizado:{" "}
+            {formatDate(course.updatedAt)}
           </div>
         </div>
       </div>

@@ -1,8 +1,14 @@
 import {
   CoursePublishValidation,
+  Lesson,
   LessonType,
   SaveCourseDraftPayload,
 } from "@/types/course.types";
+import type {
+  FinalQuizQuestion,
+  InstructorFinalQuiz,
+  ModuleQuiz,
+} from "@/types/quiz.types";
 import { apiRequest } from "./configEndpoint";
 import { ApiResponse } from "@/types/endpoints.types";
 
@@ -184,7 +190,7 @@ export const createModuleQuiz = async (
 
 export const getModuleQuizzes = async (
   moduleId: string,
-): Promise<ApiResponse<any[]>> => {
+): Promise<ApiResponse<ModuleQuiz[]>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/module/${moduleId}/quizzes`,
     method: "GET",
@@ -193,7 +199,7 @@ export const getModuleQuizzes = async (
 
 export const getFinalCourseQuizzes = async (
   courseId: string,
-): Promise<ApiResponse<any[]>> => {
+): Promise<ApiResponse<FinalQuizQuestion[]>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/quiz/final/${courseId}`,
     method: "GET",
@@ -241,7 +247,7 @@ export const createFinalQuiz = async (
 // Obtener quizzes finales del curso
 export const getFinalQuizzes = async (
   courseId: string,
-): Promise<ApiResponse<any[]>> => {
+): Promise<ApiResponse<InstructorFinalQuiz[]>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/quiz/final/${courseId}`,
     method: "GET",
@@ -307,7 +313,7 @@ export const validateCourseForPublication = async (
 
 export const getFreeLessons = async (
   courseId: string,
-): Promise<ApiResponse> => {
+): Promise<ApiResponse<{ modules: Array<{ id: string; lessons: Lesson[] }> }>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/free-lessons/${courseId}`,
     method: "GET",

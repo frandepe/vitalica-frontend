@@ -18,6 +18,7 @@ import { ISpecialty } from "@/types/course.types";
 import { t } from "@/utils/translations";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 type InstructorSpecialtiesFormValues = {
   specialties: ISpecialty[];
@@ -128,9 +129,9 @@ export default function AdminInstructorsSpecialties() {
 
       showToast("Especialidades del instructor actualizadas", "success");
       await loadInstructors();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast(
-        error?.response?.data?.message ||
+        (axios.isAxiosError(error) ? error.response?.data?.message : undefined) ||
           "Error al guardar especialidades del instructor",
         "error",
       );
@@ -185,9 +186,10 @@ export default function AdminInstructorsSpecialties() {
 
       showToast("Solicitud resuelta correctamente", "success");
       await loadInstructors();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast(
-        error?.response?.data?.message || "Error al resolver la solicitud",
+        (axios.isAxiosError(error) ? error.response?.data?.message : undefined) ||
+          "Error al resolver la solicitud",
         "error",
       );
     } finally {

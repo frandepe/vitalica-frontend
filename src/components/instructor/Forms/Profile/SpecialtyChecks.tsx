@@ -1,21 +1,28 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 import { specialties } from "@/constants";
-import { Controller, Control } from "react-hook-form";
+import {
+  Controller,
+  Control,
+  FieldPath,
+  FieldValues,
+  PathValue,
+  RegisterOptions,
+} from "react-hook-form";
 
-interface Props {
-  control: Control<any>;
-  name: string;
-  rules?: any;
+interface Props<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
+  name: FieldPath<TFieldValues>;
+  rules?: RegisterOptions<TFieldValues, FieldPath<TFieldValues>>;
   options?: typeof specialties;
 }
 
-export default function SpecialtyChecks({
+export default function SpecialtyChecks<TFieldValues extends FieldValues>({
   control,
   name,
   rules,
   options,
-}: Props) {
+}: Props<TFieldValues>) {
   const specialtyOptions = options ?? specialties;
 
   return (
@@ -23,7 +30,7 @@ export default function SpecialtyChecks({
       control={control}
       name={name}
       rules={rules}
-      defaultValue={[]}
+      defaultValue={[] as PathValue<TFieldValues, FieldPath<TFieldValues>>}
       render={({ field }) => {
         const selected: string[] = field.value || [];
 

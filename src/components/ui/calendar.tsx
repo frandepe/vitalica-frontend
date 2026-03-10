@@ -5,6 +5,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+type ChevronComponentProps = Parameters<
+  NonNullable<NonNullable<CalendarProps["components"]>["Chevron"]>
+>[0];
 
 export function Calendar({
   className,
@@ -58,7 +61,7 @@ export function Calendar({
   const mergedClassNames = { ...defaultClassNames, ...classNames };
 
   const defaultComponents = {
-    Chevron: (props: any) => {
+    Chevron: (props: ChevronComponentProps) => {
       if (props.orientation === "left")
         return <ChevronLeft size={16} strokeWidth={2} aria-hidden="true" />;
       return <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />;

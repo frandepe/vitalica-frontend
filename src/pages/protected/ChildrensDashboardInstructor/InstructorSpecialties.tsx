@@ -17,6 +17,7 @@ import { t } from "@/utils/translations";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 type SpecialtyRequestFormValues = {
   requestedSpecialties: ISpecialty[];
@@ -152,9 +153,9 @@ export default function InstructorSpecialties() {
       reset({ requestedSpecialties: [] });
       setCertificateImages({ existing: [], new: [] });
       loadRequests();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast(
-        error?.response?.data?.message ||
+        (axios.isAxiosError(error) ? error.response?.data?.message : undefined) ||
           "No se pudo enviar la solicitud de especialidades",
         "error",
         "bottom-right",

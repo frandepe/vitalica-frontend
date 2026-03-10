@@ -403,8 +403,8 @@ const ApplyToBeInstructor = () => {
               control={control}
               name="requestedSpecialties"
               rules={{
-                validate: (value: string[]) =>
-                  value && value.length > 0
+                validate: (value) =>
+                  Array.isArray(value) && value.length > 0
                     ? true
                     : "Debes elegir al menos una especialidad",
               }}

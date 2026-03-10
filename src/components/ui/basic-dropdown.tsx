@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import React, { useRef, useState } from "react";
 
 import { useEffect, type RefObject } from "react";
@@ -228,7 +228,7 @@ export function DropdownContent({
   };
 
   // Create animation variants based on placement, side, and align
-  const dropdownVariants = React.useMemo(() => {
+  const dropdownVariants = React.useMemo<Variants>(() => {
     // Determine the y direction based on placement
     const yOffset = actualPlacement === "top" ? 5 : -5;
 
@@ -288,7 +288,7 @@ export function DropdownContent({
       {open && (
         <motion.div
           ref={contentRef}
-          variants={dropdownVariants as any}
+          variants={dropdownVariants}
           initial="hidden"
           animate="visible"
           exit="exit"

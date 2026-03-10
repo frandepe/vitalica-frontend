@@ -11,26 +11,13 @@ import {
 } from "lucide-react";
 import { IFinalQuizResult } from "@/types/courseProgress.types";
 import { cn } from "@/utils/cn";
-import { useFormattedDate } from "@/hooks/useFormattedDate";
-
-export interface QuizQuestion {
-  id: string;
-  courseId: string;
-  moduleId: string;
-  question: string;
-  options: string[];
-  correctAnswer?: number; // opcional si es examen final
-  status: string;
-  reviewerNotes: string | null;
-  reviewedBy: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import { formatDate } from "@/utils/formatDate";
+import type { QuizAnswerMap, QuizQuestion } from "@/types/quiz.types";
 
 interface QuizCoursePlayerModuleProps {
   quizzes: QuizQuestion[];
   moduleTitle?: string;
-  onComplete?: (answers: Record<string, number>) => void; // devuelve respuestas al finalizar
+  onComplete?: (answers: QuizAnswerMap) => void; // devuelve respuestas al finalizar
   isPractice?: boolean; // si true, muestra feedback inmediato
   finalResult?: IFinalQuizResult;
 }
@@ -67,7 +54,7 @@ export function QuizCoursePlayer({
       setQuizCompleted(true);
 
       // Convertir array de respuestas a Record<string, number>
-      const answersRecord: Record<string, number> = {};
+      const answersRecord: QuizAnswerMap = {};
       quizzes.forEach((quiz, index) => {
         if (answers[index] !== null) {
           answersRecord[quiz.id] = answers[index]!;
@@ -198,7 +185,7 @@ export function QuizCoursePlayer({
             {!finalResult.data.passed && finalResult.data.canRetryAt && (
               <p>
                 Podés volver a intentar el:{" "}
-                {useFormattedDate(finalResult.data.canRetryAt)}
+                {formatDate(finalResult.data.canRetryAt)}
               </p>
             )}
           </div>

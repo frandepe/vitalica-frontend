@@ -2,7 +2,7 @@ import { motion, AnimatePresence, Variants, Transition } from "framer-motion";
 import { ChevronDown, BookOpen, User } from "lucide-react";
 import { useState, FC, MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFormattedDate } from "@/hooks/useFormattedDate";
+import { formatDate } from "@/utils/formatDate";
 import { t } from "@/utils/translations";
 import { AdminCourse } from "@/types/admin.types";
 import { Badge } from "../ui/badge";
@@ -126,7 +126,7 @@ const CourseCard: FC<{ project: AdminCourse }> = ({ project }) => {
                     )}
                     <span>Precio: ${project.price}</span>
                     <span>Alumnos: {project.totalStudents}</span>
-                    <span>Creado: {useFormattedDate(project.createdAt)}</span>
+                    <span>Creado: {formatDate(project.createdAt)}</span>
                   </motion.div>
 
                   <motion.div

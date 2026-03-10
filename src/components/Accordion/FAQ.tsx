@@ -27,7 +27,7 @@ export const FAQ = ({ faqs }: Props) => {
   };
   return (
     <ul className="space-y-4">
-      {faqs.map((item: any, index: any) => {
+      {faqs.map((item, index) => {
         const open = activeIndex === index;
         const panelId = `faq-panel-${index}`;
         const buttonId = `faq-trigger-${index}`;
@@ -53,8 +53,8 @@ export const FAQ = ({ faqs }: Props) => {
               onClick={() => toggleQuestion(index)}
               style={
                 {
-                  ["--faq-outline" as any]: "rgba(17,17,17,0.25)",
-                } as React.CSSProperties
+                  "--faq-outline": "rgba(17,17,17,0.25)",
+                } as React.CSSProperties & { "--faq-outline": string }
               }
               className="relative flex w-full items-start gap-6 px-8 py-7 text-left transition-colors duration-300 focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-[var(--faq-outline)]"
             >

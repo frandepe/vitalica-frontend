@@ -9,7 +9,7 @@ export interface PromoUploadStatus {
 export interface BackendError {
   field: string; // nombre del campo afectado
   message: string; // mensaje de error para mostrar
-  value?: any; // valor enviado que causó el error (opcional)
+  value?: unknown; // valor enviado que causó el error (opcional)
 }
 
 export interface ApiResponse<T = any> {

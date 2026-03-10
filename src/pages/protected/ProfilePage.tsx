@@ -10,7 +10,7 @@ import { BasicInformationForm } from "@/components/user/Forms/BasicInformationFo
 import { Activity, CalendarHeart, RefreshCw, UserCheck } from "lucide-react";
 import { AnimatedGradientDemo } from "@/components/CardsAnimated/DemoCardsAnimatedGradient";
 import { useAuth } from "@/hooks/useAuth";
-import { useFormattedDate } from "@/hooks/useFormattedDate";
+import { formatDate } from "@/utils/formatDate";
 import { FeaturesSectionWithCardGradient } from "@/components/user/FeaturesSectionWithCardGradient";
 
 const ProfilePage = () => {
@@ -41,14 +41,14 @@ const ProfilePage = () => {
       icon: UserCheck,
       title: "Cuenta creada",
       description: "Fecha en la que se creó tu cuenta de usuario.",
-      date: useFormattedDate(user.createdAt, { showTime: false }),
+      date: formatDate(user.createdAt, { showTime: false }),
     },
     {
       icon: RefreshCw,
       title: "Última actualización",
       description:
         "Última vez que se modificó tu información de perfil o datos importantes.",
-      date: useFormattedDate(user.updatedAt),
+      date: formatDate(user.updatedAt),
     },
     {
       icon: Activity,

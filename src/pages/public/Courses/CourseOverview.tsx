@@ -45,7 +45,7 @@ export default function CourseOverview() {
   if (loading || !course) return <GlobalLoading text="Obteniendo curso..." />;
 
   const totalLessons = course.modules!.reduce(
-    (acc: number, m: any) => acc + m.lessons.length,
+    (acc: number, module) => acc + (module.lessons?.length ?? 0),
     0,
   );
 

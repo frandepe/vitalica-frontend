@@ -21,8 +21,9 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { Input } from "../ui/input";
+import type { Editor } from "@tiptap/react";
 
-export function Toolbar({ editor }: { editor: any }) {
+export function Toolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;
 
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);

@@ -56,8 +56,8 @@ API.interceptors.response.use(
 // Interfaz del request genérico
 interface PropsApiRequest {
   url: string;
-  data?: any; // body para POST/PUT
-  params?: any; // query params para GET
+  data?: unknown; // body para POST/PUT
+  params?: object; // query params para GET
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 }
 
@@ -77,10 +77,14 @@ export const apiRequest = async ({
     });
 
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Extraer datos del backend si existen
-    const status = error?.response?.status;
-    const backendData = error?.response?.data;
+    const status = axios.isAxiosError(error)
+      ? error.response?.status
+      : undefined;
+    const backendData = axios.isAxiosError(error)
+      ? error.response?.data
+      : undefined;
     console.log("error", error);
 
     if (status === 401) {
@@ -92,8 +96,12 @@ export const apiRequest = async ({
       }
       return {
         success: false,
-        message: backendData?.error || "Usuario no autorizado o token expirado",
+        message:
+          backendData?.message ??
+          backendData?.error ??
+          "Usuario no autorizado o token expirado",
         errors: backendData?.errors ?? [],
+        data: backendData?.data,
       };
     }
 
@@ -101,24 +109,33 @@ export const apiRequest = async ({
       return {
         success: false,
         message:
-          backendData?.error ||
+          backendData?.message ??
+          backendData?.error ??
           "Demasiadas solicitudes. Intenta nuevamente más tarde.",
         errors: [],
+        data: backendData?.data,
       };
     }
 
     if (backendData) {
       return {
         success: backendData.success ?? false,
-        message: backendData.message ?? "Error desconocido del servidor",
+        message:
+          backendData.message ??
+          backendData.error ??
+          "Error desconocido del servidor",
         errors: backendData.errors ?? [],
+        data: backendData.data,
       };
     }
 
     // 🔸 Si no hay response, es un error de red o CORS
     return {
       success: false,
-      message: error.message || "Error de conexión con el servidor",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Error de conexión con el servidor",
       errors: [],
     };
   }

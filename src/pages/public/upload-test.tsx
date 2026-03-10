@@ -53,9 +53,9 @@ export default function SubirPageTest() {
 
       setSuccess(true);
       console.log("Archivo subido correctamente:", key);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || "Error inesperado");
+      setError(err instanceof Error ? err.message : "Error inesperado");
     } finally {
       setLoading(false);
     }

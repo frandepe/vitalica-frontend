@@ -40,8 +40,8 @@ const Search = () => {
         const res = await getCourses(page, limit, search);
 
         setCourses(res.data);
-      } catch (err: any) {
-        if (err.name === "AbortError") return;
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "AbortError") return;
         setError("Error cargando cursos");
       } finally {
         setLoading(false);

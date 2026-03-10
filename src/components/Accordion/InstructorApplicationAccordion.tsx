@@ -3,7 +3,7 @@ import { motion, AnimatePresence, Variants, Transition } from "framer-motion";
 import { ChevronDown, User } from "lucide-react";
 import { useState, FC, MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFormattedDate } from "@/hooks/useFormattedDate";
+import { formatDate } from "@/utils/formatDate";
 import { t } from "@/utils/translations";
 
 interface ProjectCardsProps {
@@ -146,7 +146,7 @@ const ProjectCard: FC<{ project: InstructorApplication }> = ({ project }) => {
                     variants={childVariants}
                   >
                     Última fecha de actualización:{" "}
-                    {useFormattedDate(project.updatedAt)}
+                    {formatDate(project.updatedAt)}
                   </motion.p>
 
                   {/* Instructor */}
@@ -165,7 +165,7 @@ const ProjectCard: FC<{ project: InstructorApplication }> = ({ project }) => {
                     </span>
                     <div className="w-px h-3 bg-gray-300 mx-1" />
                     <span className="text-xs">
-                      {useFormattedDate(project.createdAt)}
+                      {formatDate(project.createdAt)}
                     </span>
                   </motion.div>
                 </motion.div>

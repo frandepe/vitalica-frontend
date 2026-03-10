@@ -18,7 +18,7 @@
 //       /* @ts-ignore */
 //       google.accounts.id.initialize({
 //         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-//         callback: async (response: any) => {
+//         callback: async (response: GoogleCredentialResponse) => {
 //           try {
 //             // 👇 Usamos la función centralizada
 //             const data = await googleLogin(response.credential);
@@ -57,6 +57,10 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+interface GoogleCredentialResponse {
+  credential: string;
+}
+
 export default function GoogleLoginButton() {
   const navigate = useNavigate();
   const hydrateAuth = useAuthStore((s) => s.hydrateAuth);
@@ -72,7 +76,7 @@ export default function GoogleLoginButton() {
       /* @ts-ignore */
       google.accounts.id.initialize({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        callback: async (response: any) => {
+        callback: async (response: GoogleCredentialResponse) => {
           try {
             const data = await googleLogin(response.credential);
 

@@ -1,5 +1,12 @@
 import { Input } from "@/components/ui/input";
-import { Controller, Control } from "react-hook-form";
+import {
+  Controller,
+  Control,
+  FieldPath,
+  FieldValues,
+  PathValue,
+  RegisterOptions,
+} from "react-hook-form";
 
 interface PaymentOption {
   id: string;
@@ -9,12 +16,12 @@ interface PaymentOption {
   fields?: { label: string; placeholder: string; name: string }[];
 }
 
-interface PaymentRadioProps {
-  control: Control<any>;
-  name: string;
+interface PaymentRadioProps<TFieldValues extends FieldValues> {
+  control: Control<TFieldValues>;
+  name: FieldPath<TFieldValues>;
   options?: PaymentOption[];
   className?: string;
-  rules?: any;
+  rules?: RegisterOptions<TFieldValues, FieldPath<TFieldValues>>;
 }
 
 const defaultPaymentOptions: PaymentOption[] = [
@@ -96,19 +103,19 @@ const RadioOption = ({ option, name, checked, onChange }: RadioOptionProps) => (
   </label>
 );
 
-const PaymentRadio = ({
+const PaymentRadio = <TFieldValues extends FieldValues>({
   control,
   name,
   options = defaultPaymentOptions,
   className,
   rules,
-}: PaymentRadioProps) => {
+}: PaymentRadioProps<TFieldValues>) => {
   return (
     <Controller
       control={control}
       name={name}
       rules={rules}
-      defaultValue=""
+      defaultValue={"" as PathValue<TFieldValues, FieldPath<TFieldValues>>}
       render={({ field }) => {
         const selectedValue = field.value;
         const selectedOption = options.find((o) => o.value === selectedValue);
@@ -142,8 +149,10 @@ const PaymentRadio = ({
                   <Controller
                     key={f.name}
                     control={control}
-                    name={f.name}
-                    defaultValue=""
+                    name={f.name as FieldPath<TFieldValues>}
+                    defaultValue={
+                      "" as PathValue<TFieldValues, FieldPath<TFieldValues>>
+                    }
                     render={({ field: fieldInput }) => (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

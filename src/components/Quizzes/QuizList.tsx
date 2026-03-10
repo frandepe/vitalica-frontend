@@ -1,9 +1,11 @@
+import type { QuizQuestion } from "@/types/quiz.types";
+
 export const QuizList = ({
   title,
   quizzes,
 }: {
   title: string;
-  quizzes: any[];
+  quizzes: QuizQuestion[];
 }) => (
   <section className="space-y-3">
     <h3 className="font-semibold">{title}</h3>
