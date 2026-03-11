@@ -29,9 +29,7 @@ export function CourseProgressTab({
             : "CompletÃ¡ el examen final para obtener tu certificado"
         }
         value={course.progress.percentage}
-        status={
-          course.progress.percentage === 100 ? "Completado" : "Progreso"
-        }
+        status={course.progress.percentage === 100 ? "Completado" : "Progreso"}
         progress={course.progress.percentage}
         icon={<ChartPie size={20} />}
         description={
@@ -52,7 +50,7 @@ export function CourseProgressTab({
                   setActiveLessonId(course.progress.lastSeenLessonId!)
                 }
               >
-                Regresar a la Ãºltima lecciÃ³n vista
+                Regresar a la última lección vista
               </Button>
             )}
             {course.finalQuiz.lastExamAttemptAt && (
@@ -70,14 +68,15 @@ export function CourseProgressTab({
                   {course.finalQuiz.finalExamAttempts != null && (
                     <TooltipIconButton
                       tooltip={(() => {
-                        const remaining = 3 - course.finalQuiz.finalExamAttempts;
+                        const remaining =
+                          3 - course.finalQuiz.finalExamAttempts;
 
                         if (remaining > 1) {
                           return `Te quedan ${remaining} intentos. Si los agotÃ¡s, se bloquearÃ¡ el examen por 7 dÃ­as.`;
                         }
 
                         if (remaining === 1) {
-                          return "Es tu Ãºltimo intento. Si no aprobÃ¡s, el examen se bloquearÃ¡ por 7 dÃ­as.";
+                          return "Es tu último intento. Si no aprobÃ¡s, el examen se bloquearÃ¡ por 7 dÃ­as.";
                         }
 
                         const unblocksAt = course.finalQuiz.unblocksAt
@@ -86,7 +85,7 @@ export function CourseProgressTab({
 
                         return unblocksAt
                           ? `Agotaste los intentos. El examen se desbloquearÃ¡ el ${unblocksAt}.`
-                          : "Agotaste los intentos. ContactÃ¡ a soporte para mÃ¡s informaciÃ³n.";
+                          : "Agotaste los intentos. ContactÃ¡ a soporte para mÃ¡s información.";
                       })()}
                       side="top"
                     >
@@ -97,7 +96,7 @@ export function CourseProgressTab({
 
                 {course.finalQuiz.unblocksAt && (
                   <div>
-                    PrÃ³ximo intento disponible:{" "}
+                    Próximo intento disponible:{" "}
                     {formatDate(course.finalQuiz.unblocksAt)}
                   </div>
                 )}
@@ -110,7 +109,9 @@ export function CourseProgressTab({
                       variant="outline"
                       className="mt-2"
                       onClick={() =>
-                        navigate(`/certificado/${course.finalQuiz.enrollmentId}`)
+                        navigate(
+                          `/certificado/${course.finalQuiz.enrollmentId}`,
+                        )
                       }
                     >
                       Ver certificado

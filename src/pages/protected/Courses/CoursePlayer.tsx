@@ -109,7 +109,7 @@ export default function CoursePlayer() {
                     <CardContent className="p-4 space-y-3">
                       <div className="space-y-1">
                         <p className="text-sm font-medium text-foreground">
-                          La prÃ³xima lecciÃ³n comienza en{" "}
+                          La próxima lección comienza en{" "}
                           {autoAdvanceRemainingSeconds} segundos
                         </p>
                         <p className="text-sm text-muted-foreground line-clamp-1">
@@ -177,7 +177,7 @@ export default function CoursePlayer() {
                   value="tab-1"
                   className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
-                  MÃ³dulos
+                  Módulos
                 </TabsTrigger>
                 {activeLesson?.lessonMaterial && (
                   <TabsTrigger
@@ -204,7 +204,7 @@ export default function CoursePlayer() {
                   value="tab-5"
                   className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
-                  ReseÃ±as
+                  Reseñas
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="tab-1" className="pt-6 space-y-10">
