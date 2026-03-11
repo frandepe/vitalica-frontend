@@ -25,7 +25,7 @@ export interface ICourse {
   muxPromoAssetId?: string;
 
   // Stats
-  avgRating: number;
+  avgTheoreticalRating: number;
   ratingCount: number;
   totalStudents: number;
   versions?: IStatusVersion[];

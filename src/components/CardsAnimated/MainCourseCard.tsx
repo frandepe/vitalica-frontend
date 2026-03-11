@@ -16,7 +16,7 @@ const MainCourseCard = ({ course, className }: MainCourseCardProps) => {
   const {
     title,
     thumbnailUrl,
-    avgRating,
+    avgTheoreticalRating,
     totalStudents,
     specialty,
     price,
@@ -84,7 +84,7 @@ const MainCourseCard = ({ course, className }: MainCourseCardProps) => {
       <div className="mt-auto space-y-2">
         <div className="flex items-center gap-1.5">
           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-          <span>{avgRating.toFixed(1)}</span>
+          <span>{avgTheoreticalRating.toFixed(1)}</span>
           <span className="text-gray-400 text-sm">
             ({totalStudents} estudiantes)
           </span>

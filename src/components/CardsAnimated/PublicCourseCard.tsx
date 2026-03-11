@@ -11,7 +11,7 @@ interface PublicCourseCardProps {
     title: string;
     slug: string;
     thumbnailUrl: string | null;
-    avgRating: number;
+    avgTheoreticalRating: number;
     specialty: ISpecialty;
     muxPlaybackId: string | null;
   };
@@ -24,7 +24,13 @@ const PublicCourseCard = ({
   className,
   href,
 }: PublicCourseCardProps) => {
-  const { title, thumbnailUrl, avgRating, specialty, muxPlaybackId } = course;
+  const {
+    title,
+    thumbnailUrl,
+    avgTheoreticalRating,
+    specialty,
+    muxPlaybackId,
+  } = course;
 
   const navigate = useNavigate();
 
@@ -83,7 +89,7 @@ const PublicCourseCard = ({
       {/* Rating */}
       <div className="flex items-center gap-1.5 mt-auto">
         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-        <span className="text-sm font-medium">{avgRating}</span>
+        <span className="text-sm font-medium">{avgTheoreticalRating}</span>
       </div>
     </motion.div>
   );

@@ -91,7 +91,7 @@ export default function CourseOverview() {
                     <Star
                       key={i}
                       className={`h-4 w-4 ${
-                        i <= Math.round(course.avgRating)
+                        i <= Math.round(course.avgTheoreticalRating)
                           ? "fill-amber-400 text-amber-400"
                           : "text-white/30"
                       }`}
@@ -99,7 +99,8 @@ export default function CourseOverview() {
                   ))}
                 </div>
                 <span className="opacity-80">
-                  {course.avgRating} · {course.totalStudents} estudiantes
+                  {course.avgTheoreticalRating} · {course.totalStudents}{" "}
+                  estudiantes
                 </span>
               </div>
 

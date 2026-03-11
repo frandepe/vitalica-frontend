@@ -88,7 +88,7 @@ export interface InstructorProfile {
 
   specialties: ISpecialty[];
 
-  avgRating: number;
+  avgTheoreticalRating: number;
   ratingCount: number;
   totalStudents: number;
   totalCourses: number;

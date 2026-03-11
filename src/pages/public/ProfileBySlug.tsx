@@ -16,7 +16,7 @@ interface InstructorProfile {
   bio: string;
   headline: string;
   specialties: ISpecialty[];
-  avgRating: number;
+  avgTheoreticalRating: number;
   ratingCount: number;
   totalStudents: number;
   totalCourses: number;
@@ -30,7 +30,7 @@ interface Course {
   title: string;
   slug: string;
   thumbnailUrl: string;
-  avgRating: number;
+  avgTheoreticalRating: number;
   totalStudents: number;
   specialty: ISpecialty;
   price: number;
@@ -201,7 +201,7 @@ const ProfileBySlug = () => {
               <StatCard title="Cursos" value={instructorProfile.totalCourses} />
               <StatCard
                 title="Rating"
-                value={`${instructorProfile.avgRating} ⭐`}
+                value={`${instructorProfile.avgTheoreticalRating} ⭐`}
               />
               <StatCard title="Reseñas" value={instructorProfile.ratingCount} />
             </motion.div>

@@ -62,7 +62,7 @@ export function CourseAboutTab({ course }: CourseAboutTabProps) {
             <Star
               key={i}
               className={`h-4 w-4 ${
-                i < Math.floor(course.avgRating)
+                i < Math.floor(course.avgTheoreticalRating)
                   ? "fill-yellow-400 text-yellow-400"
                   : "text-muted-foreground"
               }`}

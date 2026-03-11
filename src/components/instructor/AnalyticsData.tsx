@@ -7,7 +7,7 @@ export const AnalyticsData = () => {
 
   const circumference = 2 * Math.PI * 20;
   const strokeDashoffset = circumference - (circumference * progress) / 100;
-  //   avgRating
+  //   avgTheoreticalRating
   //   totalStudents
   //   totalCourses
   // approvedAt
@@ -93,8 +93,8 @@ export const AnalyticsData = () => {
                 activeTab === "overview"
                   ? "0px"
                   : activeTab === "analytics"
-                  ? "96px"
-                  : "192px",
+                    ? "96px"
+                    : "192px",
               width: "96px",
             }}
           />

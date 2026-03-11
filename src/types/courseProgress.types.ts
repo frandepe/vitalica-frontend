@@ -12,7 +12,7 @@ export interface ICourseProgressResponse {
   price: number;
   currency: string;
   requirementsAndMaterials?: string;
-  avgRating: number;
+  avgTheoreticalRating: number;
   totalStudents: number;
   publishedAt: Date;
   modules: ICourseModuleWithProgress[];

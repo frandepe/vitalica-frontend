@@ -27,7 +27,7 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
   duration,
   price,
   currency = "ARS",
-  avgRating,
+  avgTheoreticalRating,
   ratingCount,
   totalStudents,
   status,
@@ -190,7 +190,7 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
               <div className="flex items-center gap-6 text-sm text-slate-600">
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span>{avgRating}</span>
+                  <span>{avgTheoreticalRating}</span>
                   <span className="text-slate-400">({ratingCount})</span>
                 </div>
 

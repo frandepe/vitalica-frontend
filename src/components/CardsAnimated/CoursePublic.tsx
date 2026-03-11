@@ -12,7 +12,7 @@ export interface CourseCardProps {
   slug: string;
   price: number;
   thumbnailUrl: string | null;
-  avgRating: number;
+  avgTheoreticalRating: number;
   totalStudents: number;
   muxPlaybackId: string;
   specialty: ISpecialty;
@@ -27,7 +27,7 @@ export function CoursePublicCard({
   slug,
   price,
   thumbnailUrl,
-  avgRating,
+  avgTheoreticalRating,
   totalStudents,
   muxPlaybackId,
   specialty,
@@ -91,7 +91,7 @@ export function CoursePublicCard({
         <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5">
           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
           <span className="font-semibold text-white">
-            {avgRating.toFixed(1)}
+            {avgTheoreticalRating.toFixed(1)}
           </span>
           <span className="text-gray-400 text-sm">
             ({totalStudents} estudiantes)

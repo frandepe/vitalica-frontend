@@ -17,7 +17,7 @@ interface MyCoursesResponse {
     title: string;
     slug: string;
     thumbnailUrl: string | null;
-    avgRating: number;
+    avgTheoreticalRating: number;
     specialty: ISpecialty;
     muxPlaybackId: string | null;
   }[];

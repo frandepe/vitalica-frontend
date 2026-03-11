@@ -167,7 +167,7 @@ const AdminCourse = () => {
         <Info label="Alumnos" value={course.totalStudents} />
         <Info
           label="Rating"
-          value={`${course.avgRating} (${course.ratingCount})`}
+          value={`${course.avgTheoreticalRating} (${course.ratingCount})`}
         />
       </div>
 
