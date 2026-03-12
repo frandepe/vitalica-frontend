@@ -1,4 +1,5 @@
 import { CourseLevel, ISpecialty, LessonMaterial } from "./course.types";
+import { PracticeProgressInfo } from "./practice.types";
 
 export interface ICourseProgressResponse {
   id: string;
@@ -31,6 +32,7 @@ export interface ICourseProgressResponse {
     lastExamAttemptAt: Date | null;
     enrollmentId: string;
   };
+  practice?: PracticeProgressInfo;
   instructor: {
     id: string;
     bio?: string;

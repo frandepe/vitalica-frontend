@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ProgressCard } from "@/components/ui/progress";
 import { TooltipIconButton } from "@/components/TooltipIconButton";
 import { FinalQuizCoursePlayerModule } from "@/components/Quizzes/FinalQuizCoursePlayerModule";
+import { StudentPracticePanel } from "@/components/Practice/StudentPracticePanel";
 import { ICourseProgressResponse } from "@/types/courseProgress.types";
 import { formatDate } from "@/utils/formatDate";
 
@@ -11,12 +12,14 @@ interface CourseProgressTabProps {
   course: ICourseProgressResponse;
   navigate: NavigateFunction;
   setActiveLessonId: (lessonId: string) => void;
+  reloadCourse: () => Promise<void>;
 }
 
 export function CourseProgressTab({
   course,
   navigate,
   setActiveLessonId,
+  reloadCourse,
 }: CourseProgressTabProps) {
   return (
     <>
@@ -26,7 +29,7 @@ export function CourseProgressTab({
         title={
           course.progress.percentage < 100
             ? "Continua con el curso para desbloquear el examen final"
-            : "CompletÃ¡ el examen final para obtener tu certificado"
+            : "Completá el examen final para obtener tu certificado"
         }
         value={course.progress.percentage}
         status={course.progress.percentage === 100 ? "Completado" : "Progreso"}
@@ -72,11 +75,11 @@ export function CourseProgressTab({
                           3 - course.finalQuiz.finalExamAttempts;
 
                         if (remaining > 1) {
-                          return `Te quedan ${remaining} intentos. Si los agotÃ¡s, se bloquearÃ¡ el examen por 7 dÃ­as.`;
+                          return `Te quedan ${remaining} intentos. Si los agotás, se bloqueará el examen por 7 días.`;
                         }
 
                         if (remaining === 1) {
-                          return "Es tu último intento. Si no aprobÃ¡s, el examen se bloquearÃ¡ por 7 dÃ­as.";
+                          return "Es tu último intento. Si no aprobás, el examen se bloqueará por 7 días.";
                         }
 
                         const unblocksAt = course.finalQuiz.unblocksAt
@@ -84,8 +87,8 @@ export function CourseProgressTab({
                           : null;
 
                         return unblocksAt
-                          ? `Agotaste los intentos. El examen se desbloquearÃ¡ el ${unblocksAt}.`
-                          : "Agotaste los intentos. ContactÃ¡ a soporte para mÃ¡s información.";
+                          ? `Agotaste los intentos. El examen se desbloqueará el ${unblocksAt}.`
+                          : "Agotaste los intentos. Contactá a soporte para más información.";
                       })()}
                       side="top"
                     >
@@ -103,7 +106,7 @@ export function CourseProgressTab({
 
                 {course.finalQuiz.finalExamPassedAt ? (
                   <div>
-                    <p className="text-success">Â¡Examen aprobado!</p>
+                    <p className="text-success">¡Examen aprobado!</p>
                     <Button
                       size="sm"
                       variant="outline"
@@ -124,7 +127,7 @@ export function CourseProgressTab({
                       course.finalQuiz.finalExamAttempts < 3 &&
                       course.finalQuiz.lastExamAttemptAt && (
                         <p>
-                          PodÃ©s reintentar a partir de:{" "}
+                          Podés reintentar a partir de:{" "}
                           {formatDate(
                             new Date(
                               new Date(
@@ -148,6 +151,8 @@ export function CourseProgressTab({
         percentage={course.progress.percentage}
         lastExamAttemptAt={course.finalQuiz.lastExamAttemptAt}
       />
+
+      <StudentPracticePanel course={course} reloadCourse={reloadCourse} />
     </>
   );
 }

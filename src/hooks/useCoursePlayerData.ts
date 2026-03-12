@@ -10,6 +10,7 @@ interface UseCoursePlayerDataParams {
 interface UseCoursePlayerDataResult {
   loading: boolean;
   course: ReturnType<typeof useCoursePlayerStore.getState>["course"];
+  reloadCourse: () => Promise<void>;
 }
 
 export function useCoursePlayerData({
@@ -22,6 +23,14 @@ export function useCoursePlayerData({
     (state) => state.setActiveLessonId,
   );
   const course = useCoursePlayerStore((state) => state.course);
+  const reloadCourse = async () => {
+    if (!slug) return;
+
+    setLoading(true);
+    const res = await getCourseWithProgress(slug);
+    setCourse(res.data);
+    setLoading(false);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -59,5 +68,6 @@ export function useCoursePlayerData({
   return {
     loading,
     course,
+    reloadCourse,
   };
 }

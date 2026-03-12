@@ -25,7 +25,6 @@ const CertificatePage = () => {
       const res = await getCertificateByEnrollmentId(enrollmentId);
       setData(res.data);
       console.log("res", res);
-    } catch (error) {
     } finally {
       setLoading(false);
     }

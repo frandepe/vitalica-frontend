@@ -28,7 +28,10 @@ import { useCoursePlayerStore } from "@/store/coursePlayer.store";
 export default function CoursePlayer() {
   const { slug, lessonId } = useParams();
   const setActiveLessonId = useCoursePlayerStore((s) => s.setActiveLessonId);
-  const { loading, course } = useCoursePlayerData({ slug, lessonId });
+  const { loading, course, reloadCourse } = useCoursePlayerData({
+    slug,
+    lessonId,
+  });
   const activeLesson = useActiveLesson();
   const { user } = useAuth();
   const isMobile = useMedia();
@@ -222,6 +225,7 @@ export default function CoursePlayer() {
                   course={course}
                   navigate={navigate}
                   setActiveLessonId={setActiveLessonId}
+                  reloadCourse={reloadCourse}
                 />
               </TabsContent>
               <TabsContent value="tab-5" className="pt-6 space-y-10">

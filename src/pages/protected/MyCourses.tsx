@@ -7,6 +7,9 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { ISpecialty } from "@/types/course.types";
 import { DotsPagination } from "@/components/Pagination/DotsPagination";
 import { EmptyState } from "@/components/Pagination/helpers/empty";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const LIMIT = 8;
 
@@ -20,6 +23,15 @@ interface MyCoursesResponse {
     avgTheoreticalRating: number;
     specialty: ISpecialty;
     muxPlaybackId: string | null;
+    enrollmentId: string;
+    requiresPractice: boolean;
+    practiceUnlockedAt: string | null;
+    practiceCompleted: boolean;
+    practiceCompletedAt: string | null;
+    hasPendingPracticeRequest: boolean;
+    latestPracticeRequestId: string | null;
+    latestPracticeRequestStatus: "PENDING" | "COMPLETED" | "CANCELLED" | null;
+    practiceCertificateAvailable: boolean;
   }[];
   meta: {
     limit: number;
@@ -27,6 +39,30 @@ interface MyCoursesResponse {
     total: number;
     totalPages: number;
   };
+}
+
+function getPracticeBadge(course: MyCoursesResponse["data"][number]) {
+  if (!course.requiresPractice) {
+    return null;
+  }
+
+  if (course.practiceCompleted) {
+    return { label: "Practica completada", variant: "success" as const };
+  }
+
+  if (course.latestPracticeRequestStatus === "PENDING") {
+    return { label: "Solicitud pendiente", variant: "info" as const };
+  }
+
+  if (course.latestPracticeRequestStatus === "CANCELLED") {
+    return { label: "Solicitud cancelada", variant: "warning" as const };
+  }
+
+  if (course.practiceUnlockedAt) {
+    return { label: "Practica disponible", variant: "info" as const };
+  }
+
+  return { label: "Practica bloqueada", variant: "warning" as const };
 }
 
 const MyCourses = () => {
@@ -130,13 +166,49 @@ const MyCourses = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {courses?.data.map((course) => (
-                <PublicCourseCard
-                  key={course.slug}
-                  course={course}
-                  href={`/mis-cursos/${course.slug}`}
-                />
-              ))}
+              {courses?.data.map((course) => {
+                const practiceBadge = getPracticeBadge(course);
+
+                return (
+                  <div key={course.slug} className="space-y-3">
+                    <PublicCourseCard
+                      course={course}
+                      href={`/mis-cursos/${course.slug}`}
+                    />
+
+                    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {practiceBadge && (
+                          <Badge variant={practiceBadge.variant} size="sm">
+                            {practiceBadge.label}
+                          </Badge>
+                        )}
+                        {course.practiceCertificateAvailable && (
+                          <Badge variant="outline" size="sm">
+                            Certificado practico disponible
+                          </Badge>
+                        )}
+                      </div>
+
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        {course.requiresPractice
+                          ? course.practiceCompleted
+                            ? "Tu practica ya fue completada. Entra al curso para ver el certificado y la resena."
+                            : course.practiceUnlockedAt
+                              ? "La practica ya esta habilitada. Entra al curso para elegir instructor o seguir tu solicitud."
+                              : "Este curso requiere practica. Se habilita cuando completes la parte teorica."
+                          : "Curso teorico sin practica adicional."}
+                      </p>
+
+                      <Button asChild size="sm" className="mt-4 w-full">
+                        <Link to={`/mis-cursos/${course.slug}`}>
+                          Ir al panel del curso
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Pagination */}

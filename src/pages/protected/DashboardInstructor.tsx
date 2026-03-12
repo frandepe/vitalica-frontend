@@ -11,6 +11,7 @@ import {
   BadgeCheck,
   ArrowLeftFromLine,
   MessageCircle,
+  ClipboardCheck,
   Wallet,
   LifeBuoy,
 } from "lucide-react";
@@ -67,6 +68,12 @@ const navigationItems: NavigationItem[] = [
     badge: "0",
   },
   {
+    id: "practicas",
+    name: "Practicas",
+    icon: ClipboardCheck,
+    href: "/perfil/practicas",
+  },
+  {
     id: "mensajes",
     name: "Mensajes",
     icon: MessageCircle,
@@ -102,6 +109,7 @@ export default function DashboardInstructor() {
       "/perfil/analiticas": "analiticas",
       "/perfil/cursos": "cursos",
       "/perfil/resenas": "resenas",
+      "/perfil/practicas": "practicas",
       "/perfil/mensajes": "mensajes",
       "/perfil/ingresos": "ingresos",
       "/perfil/soporte": "soporte",

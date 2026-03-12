@@ -6,6 +6,9 @@ interface CertificateTemplateData {
   issuedAt: string;
   enrollmentId: string;
   qrUrl: string;
+  certificateLabel?: string;
+  completionText?: string;
+  dateLabel?: string;
 }
 
 export const generateCertificateHTML = ({
@@ -16,6 +19,9 @@ export const generateCertificateHTML = ({
   issuedAt,
   enrollmentId,
   qrUrl,
+  certificateLabel = "Certificado de aprobacion",
+  completionText = "ha completado y aprobado satisfactoriamente el curso online",
+  dateLabel = "Fecha de emision",
 }: CertificateTemplateData): string => `
 <!DOCTYPE html>
 <html lang="es">
@@ -76,6 +82,7 @@ export const generateCertificateHTML = ({
       border-style: solid;
       opacity: 0.2;
     }
+
     .corner-tl { top: 18px; left: 18px; border-width: 1.5px 0 0 1.5px; }
     .corner-tr { top: 18px; right: 18px; border-width: 1.5px 1.5px 0 0; }
     .corner-bl { bottom: 18px; left: 18px; border-width: 0 0 1.5px 1.5px; }
@@ -251,10 +258,10 @@ export const generateCertificateHTML = ({
     <div class="header">
       <div>
         <div class="logo-name">Vitalica</div>
-        <div class="logo-tagline">Formación en primeros auxilios</div>
+        <div class="logo-tagline">Formacion en primeros auxilios</div>
       </div>
       <div class="certificate-label">
-        <p>Certificado de aprobación</p>
+        <p>${certificateLabel}</p>
         <span>N° ${enrollmentId}</span>
       </div>
     </div>
@@ -264,7 +271,7 @@ export const generateCertificateHTML = ({
     <div class="body">
       <p class="certifies-text">Este certificado acredita que</p>
       <h1 class="student-name">${studentName}</h1>
-      <p class="completion-text">ha completado y aprobado satisfactoriamente el curso online</p>
+      <p class="completion-text">${completionText}</p>
       <h2 class="course-name">${courseName}</h2>
       <p class="meta-item">Dictado por <strong>${instructorName}</strong></p>
       ${issuedBy ? `<p class="meta-item">Instructor certificado por <strong>${issuedBy}</strong></p>` : ""}
@@ -277,7 +284,7 @@ export const generateCertificateHTML = ({
         <div class="signature-role">Instructor</div>
       </div>
       <div class="date-block">
-        <div class="date-label">Fecha de emisión</div>
+        <div class="date-label">${dateLabel}</div>
         <div class="date-value">${issuedAt}</div>
       </div>
       <div class="qr-block">

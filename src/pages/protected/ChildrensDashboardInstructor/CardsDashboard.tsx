@@ -5,6 +5,7 @@ import {
   BookOpen,
   BookPlus,
   ChartNoAxesCombined,
+  ClipboardCheck,
   ChevronRight,
   LifeBuoy,
   MessageCircle,
@@ -56,6 +57,13 @@ const features = [
     description:
       "Lee la opinion de tus estudiantes, revisa sus valoraciones y mejora tu propuesta educativa.",
     icon: <Star />,
+  },
+  {
+    title: "Practicas",
+    href: "/perfil/practicas",
+    description:
+      "Revisa solicitudes de practica, ve el detalle de cada alumno y marca las practicas como completadas o canceladas.",
+    icon: <ClipboardCheck />,
   },
   {
     title: "Mensajes",

@@ -35,6 +35,9 @@ const Checkout = lazy(() => import("@/pages/public/Courses/Checkout"));
 const CertificatePage = lazy(
   () => import("@/pages/public/Courses/CertificatePage"),
 );
+const PracticeCertificatePage = lazy(
+  () => import("@/pages/public/Courses/PracticeCertificatePage"),
+);
 
 // Páginas de autenticación
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
@@ -72,6 +75,10 @@ const InstructorSpecialties = lazy(
 );
 const Courses = lazy(
   () => import("@/pages/protected/ChildrensDashboardInstructor/Courses"),
+);
+const PracticeRequests = lazy(
+  () =>
+    import("@/pages/protected/ChildrensDashboardInstructor/PracticeRequests"),
 );
 const EditCourse = lazy(
   () => import("@/pages/protected/ChildrensDashboardInstructor/EditCourse"),
@@ -168,6 +175,10 @@ export const router = createBrowserRouter([
         element: <CertificatePage />,
       },
       {
+        path: "certificado-practico/:enrollmentId",
+        element: <PracticeCertificatePage />,
+      },
+      {
         path: "perfil",
         element: (
           <ProtectedRoute>
@@ -211,6 +222,7 @@ export const router = createBrowserRouter([
           },
           { path: "analiticas", element: <Analytics /> },
           { path: "cursos", element: <Courses /> },
+          { path: "practicas", element: <PracticeRequests /> },
           { path: "editar-curso/:courseId", element: <EditCourse /> },
           { path: "resenas", element: <div>Reviews</div> },
         ],
