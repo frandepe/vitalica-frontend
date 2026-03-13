@@ -15,7 +15,6 @@ import type { ICourseProgressResponse } from "@/types/courseProgress.types";
 import type {
   PracticeInstructor,
   PracticeRequestStudentView,
-  PracticeReview,
 } from "@/types/practice.types";
 import { useNavigate } from "react-router-dom";
 import { getStatusCopy } from "./student-practice-panel.helpers";
@@ -23,11 +22,13 @@ import { getStatusCopy } from "./student-practice-panel.helpers";
 interface StudentPracticePanelProps {
   course: ICourseProgressResponse;
   reloadCourse: (options?: { silent?: boolean }) => Promise<void>;
+  onGoToReviews?: () => void;
 }
 
 export function StudentPracticePanel({
   course,
   reloadCourse,
+  onGoToReviews,
 }: StudentPracticePanelProps) {
   const practice = course.practice;
   const { showToast } = useToast();
@@ -186,11 +187,6 @@ export function StudentPracticePanel({
     setCancelling(false);
   };
 
-  const onReviewCreated = (review: PracticeReview) => {
-    if (!request) return;
-    setRequest({ ...request, review });
-  };
-
   return (
     <div className="space-y-5">
       <StudentPracticeOverviewCard
@@ -207,7 +203,7 @@ export function StudentPracticePanel({
         cancelling={cancelling}
         onOpenRequestModal={handleOpenRequestModal}
         onCancel={onCancel}
-        onReviewCreated={onReviewCreated}
+        onGoToReviews={onGoToReviews}
       />
 
       <StudentPracticeRequestModal

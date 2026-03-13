@@ -193,7 +193,7 @@ const MyCourses = () => {
                       <p className="mt-3 text-sm text-muted-foreground">
                         {course.requiresPractice
                           ? course.practiceCompleted
-                            ? "Tu practica ya fue completada. Entra al curso para ver el certificado y la resena."
+                            ? "Tu practica ya fue completada. Entra al curso para ver el certificado y la reseña."
                             : course.practiceUnlockedAt
                               ? "La practica ya esta habilitada. Entra al curso para elegir instructor o seguir tu solicitud."
                               : "Este curso requiere practica. Se habilita cuando completes la parte teorica."

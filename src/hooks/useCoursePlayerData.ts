@@ -23,19 +23,22 @@ export function useCoursePlayerData({
     (state) => state.setActiveLessonId,
   );
   const course = useCoursePlayerStore((state) => state.course);
-  const reloadCourse = useCallback(async (options?: { silent?: boolean }) => {
-    if (!slug) return;
+  const reloadCourse = useCallback(
+    async (options?: { silent?: boolean }) => {
+      if (!slug) return;
 
-    if (!options?.silent) {
-      setLoading(true);
-    }
+      if (!options?.silent) {
+        setLoading(true);
+      }
 
-    const res = await getCourseWithProgress(slug);
-    setCourse(res.data);
-    if (!options?.silent) {
-      setLoading(false);
-    }
-  }, [setCourse, slug]);
+      const res = await getCourseWithProgress(slug);
+      setCourse(res.data);
+      if (!options?.silent) {
+        setLoading(false);
+      }
+    },
+    [setCourse, slug],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -46,7 +49,7 @@ export function useCoursePlayerData({
       const res = await getCourseWithProgress(slug!);
       console.log("res getCourseWithProgress", res);
       if (cancelled) return;
-      // TODO: Si res.message === "No estÃ¡s inscrito en este curso" redirigir a la vista de compra del curso
+      // TODO: Si res.message === "No estás inscrito en este curso" redirigir a la vista de compra del curso
 
       setCourse(res.data);
       setLoading(false);

@@ -21,6 +21,7 @@ interface CourseProgressTabProps {
   navigate: NavigateFunction;
   setActiveLessonId: (lessonId: string) => void;
   reloadCourse: (options?: { silent?: boolean }) => Promise<void>;
+  onGoToReviews: () => void;
   onContinueToPractice: () => Promise<void>;
 }
 
@@ -186,6 +187,7 @@ export function CourseProgressTab({
   navigate,
   setActiveLessonId,
   reloadCourse,
+  onGoToReviews,
   onContinueToPractice,
 }: CourseProgressTabProps) {
   const theorySection = getTheorySectionSummary(course);
@@ -363,7 +365,11 @@ export function CourseProgressTab({
           summaryDescription={practiceSection.description}
           nextStep={practiceSection.nextStep}
         >
-          <StudentPracticePanel course={course} reloadCourse={reloadCourse} />
+          <StudentPracticePanel
+            course={course}
+            reloadCourse={reloadCourse}
+            onGoToReviews={onGoToReviews}
+          />
         </ProgressSection>
       )}
     </div>

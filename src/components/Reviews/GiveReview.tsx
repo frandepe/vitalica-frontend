@@ -190,6 +190,7 @@ export const GiveReview: React.FC<GiveReviewProps> = ({
 
         <CardFooter>
           <Button
+            size="lg"
             type="submit"
             className="mt-6"
             disabled={sending || isResendDisabled}

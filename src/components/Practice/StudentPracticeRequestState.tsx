@@ -1,5 +1,4 @@
 import { MapPin, UserRound } from "lucide-react";
-import { PracticeReviewCard } from "@/components/Practice/PracticeReviewCard";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +20,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type {
-  PracticeReview,
   PracticeRequestStudentView,
 } from "@/types/practice.types";
 import { formatDate } from "@/utils/formatDate";
@@ -42,7 +40,7 @@ interface StudentPracticeRequestStateProps {
   cancelling: boolean;
   onOpenRequestModal: () => void;
   onCancel: () => Promise<void>;
-  onReviewCreated: (review: PracticeReview) => void;
+  onGoToReviews?: () => void;
 }
 
 export function StudentPracticeRequestState({
@@ -52,7 +50,7 @@ export function StudentPracticeRequestState({
   cancelling,
   onOpenRequestModal,
   onCancel,
-  onReviewCreated,
+  onGoToReviews,
 }: StudentPracticeRequestStateProps) {
   if (requestLoading) {
     return (
@@ -270,13 +268,25 @@ export function StudentPracticeRequestState({
           </aside>
         </div>
 
-        {request.status === "COMPLETED" && (
+        {request.status === "COMPLETED" && onGoToReviews && (
           <div className="border-t pt-6">
-            <PracticeReviewCard
-              practiceRequestId={request.id}
-              existingReview={request.review}
-              onCreated={onReviewCreated}
-            />
+            <div className="rounded-2xl border bg-muted/20 px-5 py-5">
+              <p className="text-sm font-semibold text-foreground">
+                Reseña práctica
+              </p>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                {request.review
+                  ? "Tu reseña práctica ahora se encuentra en la pestaña Reseñas, junto con la reseña teórica."
+                  : "Ya completaste la práctica. Ahora podés dejar tu reseña práctica desde la pestaña Reseñas, donde también vas a encontrar la reseña teórica."}
+              </p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={onGoToReviews}
+              >
+                {request.review ? "Ver reseña práctica" : "Ir a Reseñas"}
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>

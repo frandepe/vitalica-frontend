@@ -3,7 +3,7 @@ export interface ReviewUser {
   avatarUrl: string;
 }
 
-export interface Review {
+export interface PublicReview {
   id: string;
   rating: number;
   comment?: string;
@@ -12,5 +12,5 @@ export interface Review {
 }
 
 export interface ReviewItemProps {
-  review: Review;
+  review: PublicReview;
 }

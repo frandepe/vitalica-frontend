@@ -1,13 +1,3 @@
-// Ejemplo de contenido: https://www.coursera.org/learn/protocolo-medico
-// Ejemplo de UI: https://ar.pinterest.com/pin/247557310762397920/
-// Opcion 2: https://ar.pinterest.com/pin/149885493844270331/
-// Opcion 3 muy valida: https://ar.pinterest.com/pin/788622584791449039/
-
-// Podria andar para el video promo https://21st.dev/community/components/ravikatiyar/onboarding-checklist/default
-
-// Usuario NO comprador → vista informativa + CTA de comprar
-// Usuario comprador → vista de acceso / continuar curso
-
 import { Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

@@ -61,6 +61,21 @@ export const getPracticeCertificate = async (enrollmentId: string) => {
   });
 };
 
+export const getCoursePracticeReviews = async (
+  courseId: string,
+  page: number,
+  limit: number,
+) => {
+  return apiRequest({
+    url: `${API_ROUTES.PRACTICE}/reviews/course/${courseId}`,
+    method: "GET",
+    params: {
+      page,
+      limit,
+    },
+  });
+};
+
 export const getInstructorPracticeRequests = async () => {
   return apiRequest({
     url: `${API_ROUTES.PRACTICE}/instructor/requests`,

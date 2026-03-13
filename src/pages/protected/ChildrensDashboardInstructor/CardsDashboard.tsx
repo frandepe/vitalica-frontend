@@ -52,7 +52,7 @@ const features = [
     icon: <BookPlus />,
   },
   {
-    title: "Resenas y Calificaciones",
+    title: "Reseñas y Calificaciones",
     href: "/perfil/resenas",
     description:
       "Lee la opinion de tus estudiantes, revisa sus valoraciones y mejora tu propuesta educativa.",

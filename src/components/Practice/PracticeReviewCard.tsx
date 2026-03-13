@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
+import { useIntervalClick } from "@/hooks/useIntervalClick";
 import {
   createPracticeReview,
   getPracticeReview,
@@ -37,13 +38,16 @@ export function PracticeReviewCard({
   const { showToast } = useToast();
   const [loading, setLoading] = useState(!existingReview);
   const [sending, setSending] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [review, setReview] = useState<PracticeReview | null>(
     existingReview ?? null,
   );
+  const { isResendDisabled, setIsResendDisabled, setTimer, timer } =
+    useIntervalClick();
   const {
     control,
     handleSubmit,
-    setValue,
+    reset,
     formState: { errors },
   } = useForm<PracticeReviewFormValues>({
     defaultValues: {
@@ -55,6 +59,10 @@ export function PracticeReviewCard({
   useEffect(() => {
     if (existingReview) {
       setReview(existingReview);
+      reset({
+        rating: existingReview.rating,
+        comment: existingReview.comment ?? "",
+      });
       setLoading(false);
       return;
     }
@@ -67,8 +75,10 @@ export function PracticeReviewCard({
 
       if (response.success && response.data) {
         setReview(response.data);
-        setValue("rating", response.data.rating);
-        setValue("comment", response.data.comment ?? "");
+        reset({
+          rating: response.data.rating,
+          comment: response.data.comment ?? "",
+        });
       }
 
       setLoading(false);
@@ -79,16 +89,19 @@ export function PracticeReviewCard({
     return () => {
       cancelled = true;
     };
-  }, [existingReview, practiceRequestId, setValue]);
+  }, [existingReview, practiceRequestId, reset]);
 
   const onSubmit = async (data: PracticeReviewFormValues) => {
+    if (isResendDisabled) return;
+
+    const isUpdating = Boolean(review);
     setSending(true);
 
     const response = await createPracticeReview(practiceRequestId, data);
 
     if (!response.success || !response.data) {
       showToast(
-        response.message ?? "No se pudo guardar la reseña de práctica",
+        response.message ?? "No se pudo guardar la reseña de practica",
         "error",
         "top-right",
       );
@@ -98,7 +111,20 @@ export function PracticeReviewCard({
 
     setReview(response.data);
     onCreated(response.data);
-    showToast("Reseña de práctica enviada", "success", "top-right");
+    setSubmitted(true);
+    setTimer(10);
+    setIsResendDisabled(true);
+    reset({
+      rating: response.data.rating,
+      comment: response.data.comment ?? "",
+    });
+    showToast(
+      isUpdating
+        ? "Reseña de practica actualizada"
+        : "Reseña de practica enviada",
+      "success",
+      "top-right",
+    );
     setSending(false);
   };
 
@@ -112,42 +138,30 @@ export function PracticeReviewCard({
     );
   }
 
-  if (review) {
+  if (submitted) {
     return (
       <Card className="border-primary/20 bg-primary/5">
-        <CardHeader className="px-6 pt-6">
-          <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <CheckCircle2 className="h-4 w-4 text-primary" />
-            Tu reseña de práctica
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 px-6 pb-6">
-          <div className="flex items-center gap-1 text-yellow-500">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Star
-                key={index}
-                className="h-4 w-4"
-                fill={index < review.rating ? "currentColor" : "none"}
-              />
-            ))}
-            <span className="ml-2 text-sm font-medium text-foreground">
-              {review.rating}/5
-            </span>
+        <CardContent className="flex flex-col items-center justify-center space-y-4 px-6 py-10 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
+            <CheckCircle2 className="h-6 w-6" />
           </div>
 
-          {review.comment ? (
-            <div className="rounded-xl border bg-background px-4 py-3 text-sm text-foreground">
-              {review.comment}
-            </div>
-          ) : (
+          <div className="space-y-1">
+            <h3 className="text-base font-semibold text-foreground">
+              {review ? "Tu reseña se actualizó" : "Tu reseña fue enviada"}
+            </h3>
             <p className="text-sm text-muted-foreground">
-              Enviastes una reseña sin comentario adicional.
+              Tu opinión sobre la práctica fue guardada correctamente.
             </p>
-          )}
+          </div>
 
-          <p className="text-xs text-muted-foreground">
-            Enviada el {formatDate(review.createdAt, { showTime: false })}
-          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSubmitted(false)}
+          >
+            Editar reseña
+          </Button>
         </CardContent>
       </Card>
     );
@@ -159,7 +173,7 @@ export function PracticeReviewCard({
         <CardHeader className="px-6 pt-6">
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <MessageSquareQuote className="h-4 w-4 text-primary" />
-            Contanos cómo fue tu práctica
+            Contanos como fue tu practica
           </CardTitle>
         </CardHeader>
 
@@ -188,7 +202,7 @@ export function PracticeReviewCard({
 
           {errors.rating && (
             <p className="text-xs text-destructive">
-              Seleccioná una calificación entre 1 y 5 estrellas.
+              Selecciona una calificacion entre 1 y 5 estrellas.
             </p>
           )}
 
@@ -201,14 +215,33 @@ export function PracticeReviewCard({
                 className="min-h-28 resize-none"
                 maxLength={2000}
                 placeholder="Comentario opcional"
+                disabled={sending}
               />
             )}
           />
+
+          {review && (
+            <p className="text-xs text-muted-foreground">
+              Enviada el {formatDate(review.createdAt, { showTime: false })}
+            </p>
+          )}
         </CardContent>
 
         <CardFooter className="px-6 pb-6 pt-2">
-          <Button type="submit" disabled={sending}>
-            {sending ? "Enviando..." : "Enviar reseña"}
+          <Button
+            size="lg"
+            type="submit"
+            disabled={sending || isResendDisabled}
+          >
+            {sending
+              ? review
+                ? "Actualizando..."
+                : "Enviando..."
+              : isResendDisabled
+                ? `Espera ${timer}s`
+                : review
+                  ? "Actualizar reseña"
+                  : "Enviar reseña"}
           </Button>
         </CardFooter>
       </form>

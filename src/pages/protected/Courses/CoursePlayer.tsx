@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import MuxPlayer from "@mux/mux-player-react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -109,7 +109,7 @@ export default function CoursePlayer() {
     console.log("rescomplet", { res, lessonId });
   };
 
-  const setCoursePlayerTab = (
+  const setCoursePlayerTab = useCallback((
     tab: CoursePlayerTab,
     options?: { replace?: boolean },
   ) => {
@@ -122,12 +122,12 @@ export default function CoursePlayer() {
     }
 
     setSearchParams(nextSearchParams, { replace: options?.replace ?? false });
-  };
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     if (requestedTab === activeTab) return;
     setCoursePlayerTab(activeTab, { replace: true });
-  }, [activeTab, requestedTab]);
+  }, [activeTab, requestedTab, setCoursePlayerTab]);
 
   if (loading || !course) return <GlobalLoading text="Obteniendo curso..." />;
 
@@ -296,6 +296,11 @@ export default function CoursePlayer() {
                   navigate={navigate}
                   setActiveLessonId={setActiveLessonId}
                   reloadCourse={reloadCourse}
+                  onGoToReviews={() => {
+                    setCoursePlayerTab(COURSE_PLAYER_TABS.reviews, {
+                      replace: true,
+                    });
+                  }}
                   onContinueToPractice={async () => {
                     setCoursePlayerTab(COURSE_PLAYER_TABS.progress, {
                       replace: true,
@@ -308,10 +313,7 @@ export default function CoursePlayer() {
                 value={COURSE_PLAYER_TABS.reviews}
                 className="pt-6 space-y-10"
               >
-                <CourseReviewTab
-                  courseId={course.id}
-                  percentage={course.progress.percentage}
-                />
+                <CourseReviewTab course={course} />
               </TabsContent>
             </Tabs>
           </div>
