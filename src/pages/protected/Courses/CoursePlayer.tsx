@@ -236,7 +236,7 @@ export default function CoursePlayer() {
               <TabsList className="relative h-auto w-full justify-start gap-1 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-border">
                 <TabsTrigger
                   value={COURSE_PLAYER_TABS.modules}
-                  className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
+                  className="rounded-b-none border-b-2 border-transparent px-4 py-2 text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
                   Módulos
                 </TabsTrigger>
@@ -244,26 +244,26 @@ export default function CoursePlayer() {
                   <TabsTrigger
                     value={COURSE_PLAYER_TABS.downloads}
                     disabled={materials.length === 0}
-                    className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
+                    className="rounded-b-none border-b-2 border-transparent px-4 py-2 text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                   >
                     Descargas
                   </TabsTrigger>
                 )}
                 <TabsTrigger
                   value={COURSE_PLAYER_TABS.about}
-                  className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
+                  className="rounded-b-none border-b-2 border-transparent px-4 py-2 text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
                   Sobre el curso
                 </TabsTrigger>
                 <TabsTrigger
                   value={COURSE_PLAYER_TABS.progress}
-                  className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
+                  className="rounded-b-none border-b-2 border-transparent px-4 py-2 text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
                   Progreso
                 </TabsTrigger>
                 <TabsTrigger
                   value={COURSE_PLAYER_TABS.reviews}
-                  className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
+                  className="rounded-b-none border-b-2 border-transparent px-4 py-2 text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
                   Reseñas
                 </TabsTrigger>
