@@ -19,6 +19,12 @@ export const CourseLevelLabels = {
   ADVANCED: "Avanzado",
 } as const;
 
+export const StatusPracticeRequestLabels = {
+  PENDING: "Pendiente",
+  COMPLETED: "Completado",
+  CANCELLED: "Cancelado",
+} as const;
+
 export const levels = Object.keys(CourseLevelLabels)
   .filter((key) => isNaN(Number(key)))
   .map((key, index) => ({

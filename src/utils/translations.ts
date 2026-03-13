@@ -2,6 +2,7 @@ import {
   CourseLevelLabels,
   courseStatusDescription,
   SpecialtyLabels,
+  StatusPracticeRequestLabels,
   translateInstructorApplicationStatus,
   translateInstructorStatus,
   translateRole,
@@ -16,6 +17,11 @@ const dict = {
   courseStatusDescription: courseStatusDescription,
   courseSpecialty: SpecialtyLabels,
   courseLevel: CourseLevelLabels,
+  statusPracticeRequest: StatusPracticeRequestLabels,
+  practiceContactMethod: {
+    DIRECT_CONTACT: "Contacto directo con el instructor",
+    REQUEST_CONTACT: "El instructor contacta al alumno",
+  },
 };
 
 type Dict = typeof dict;

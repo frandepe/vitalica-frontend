@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Star, CheckCircle2, MessageSquareQuote } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
-import { createPracticeReview, getPracticeReview } from "@/api/practiceEndpoints";
+import {
+  createPracticeReview,
+  getPracticeReview,
+} from "@/api/practiceEndpoints";
 import { PracticeReview } from "@/types/practice.types";
 import { formatDate } from "@/utils/formatDate";
 
@@ -28,7 +37,9 @@ export function PracticeReviewCard({
   const { showToast } = useToast();
   const [loading, setLoading] = useState(!existingReview);
   const [sending, setSending] = useState(false);
-  const [review, setReview] = useState<PracticeReview | null>(existingReview ?? null);
+  const [review, setReview] = useState<PracticeReview | null>(
+    existingReview ?? null,
+  );
   const {
     control,
     handleSubmit,
@@ -163,7 +174,9 @@ export function PracticeReviewCard({
                   <Star
                     key={star}
                     className={`h-6 w-6 cursor-pointer transition-colors ${
-                      field.value >= star ? "text-yellow-500" : "text-muted-foreground/40"
+                      field.value >= star
+                        ? "text-yellow-500"
+                        : "text-muted-foreground/40"
                     }`}
                     fill={field.value >= star ? "currentColor" : "none"}
                     onClick={() => field.onChange(star)}
@@ -193,7 +206,7 @@ export function PracticeReviewCard({
           />
         </CardContent>
 
-        <CardFooter className="px-6 pb-6">
+        <CardFooter className="px-6 pb-6 pt-2">
           <Button type="submit" disabled={sending}>
             {sending ? "Enviando..." : "Enviar reseña"}
           </Button>

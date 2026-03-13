@@ -2,9 +2,6 @@ import {
   ArrowRight,
   Target,
   Crown,
-  Star,
-  HeartHandshake,
-  Compass,
   Route,
 } from "lucide-react";
 import { Button } from "../ui/button";

@@ -11,7 +11,6 @@ import {
 import {
   cancelPracticeRequest,
   createPracticeRequest,
-  getPracticeCertificate,
   getPracticeInstructors,
   getPracticeRequestById,
 } from "@/api";
@@ -49,17 +48,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
 import { ICourseProgressResponse } from "@/types/courseProgress.types";
 import {
-  PracticeCertificate,
   PracticeInstructor,
   PracticeProgressInfo,
   PracticeRequestStudentView,
   PracticeReview,
 } from "@/types/practice.types";
 import { formatDate } from "@/utils/formatDate";
+import { t } from "@/utils/translations";
+import { useNavigate } from "react-router-dom";
+import { formatLocation } from "@/utils/format-location";
+import { formatFullName } from "@/utils/format-fullname";
 
 interface StudentPracticePanelProps {
   course: ICourseProgressResponse;
-  reloadCourse: () => Promise<void>;
+  reloadCourse: (options?: { silent?: boolean }) => Promise<void>;
 }
 
 interface PracticeRequestFormValues {
@@ -73,22 +75,12 @@ const CONTACT_METHOD_LABELS = {
   REQUEST_CONTACT: "El instructor te contacta",
 } as const;
 
-function formatFullName(firstName?: string | null, lastName?: string | null) {
-  return (
-    `${firstName ?? ""} ${lastName ?? ""}`.trim() || "Instructor disponible"
-  );
-}
-
-function formatLocation(city?: string | null, state?: string | null) {
-  return [city, state].filter(Boolean).join(", ") || "Ubicacion no informada";
-}
-
 function getStatusCopy(practice: PracticeProgressInfo) {
   if (practice.practiceCompleted) {
     return {
-      title: "Practica completada",
+      title: "Práctica completada",
       description:
-        "Tu practica ya fue registrada y el certificado esta disponible.",
+        "Tu práctica ya fue registrada y el certificado esta disponible.",
       badge: "Completada",
       variant: "success" as const,
       icon: CheckCircle2,
@@ -118,7 +110,7 @@ function getStatusCopy(practice: PracticeProgressInfo) {
 
   if (practice.practiceUnlockedAt) {
     return {
-      title: "Practica disponible",
+      title: "Práctica disponible",
       description: "Ya podes elegir instructor y crear tu solicitud.",
       badge: "Disponible",
       variant: "info" as const,
@@ -127,9 +119,9 @@ function getStatusCopy(practice: PracticeProgressInfo) {
   }
 
   return {
-    title: "Practica bloqueada",
+    title: "Práctica bloqueada",
     description:
-      "La practica se habilita cuando completes la parte teorica requerida.",
+      "La práctica se habilita cuando completes la parte teorica requerida.",
     badge: "Bloqueada",
     variant: "warning" as const,
     icon: AlertCircle,
@@ -142,6 +134,7 @@ export function StudentPracticePanel({
 }: StudentPracticePanelProps) {
   const practice = course.practice;
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [request, setRequest] = useState<PracticeRequestStudentView | null>(
     null,
   );
@@ -151,14 +144,9 @@ export function StudentPracticePanel({
   const [instructors, setInstructors] = useState<PracticeInstructor[]>([]);
   const [instructorsLoading, setInstructorsLoading] = useState(false);
   const [requestModalOpen, setRequestModalOpen] = useState(false);
-  const [certificateModalOpen, setCertificateModalOpen] = useState(false);
   const [selectedInstructorId, setSelectedInstructorId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [cancelling, setCancelling] = useState(false);
-  const [certificateLoading, setCertificateLoading] = useState(false);
-  const [certificate, setCertificate] = useState<PracticeCertificate | null>(
-    null,
-  );
   const {
     control,
     handleSubmit,
@@ -226,40 +214,6 @@ export function StudentPracticePanel({
     };
   }, [instructors.length, requestModalOpen]);
 
-  useEffect(() => {
-    if (
-      !certificateModalOpen ||
-      !practice?.practiceCertificateAvailable ||
-      certificate
-    ) {
-      return;
-    }
-
-    let cancelled = false;
-    setCertificateLoading(true);
-
-    const load = async () => {
-      const response = await getPracticeCertificate(practice.enrollmentId);
-
-      if (!cancelled && response.success && response.data) {
-        setCertificate(response.data as PracticeCertificate);
-      }
-
-      if (!cancelled) setCertificateLoading(false);
-    };
-
-    load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    certificate,
-    certificateModalOpen,
-    practice?.enrollmentId,
-    practice?.practiceCertificateAvailable,
-  ]);
-
   const selectedInstructor = useMemo(
     () => instructors.find((item) => item.id === selectedInstructorId) ?? null,
     [instructors, selectedInstructorId],
@@ -269,6 +223,12 @@ export function StudentPracticePanel({
 
   const status = getStatusCopy(practice);
   const StatusIcon = status.icon;
+  const requestStatusVariant =
+    request?.status === "COMPLETED"
+      ? "success"
+      : request?.status === "CANCELLED"
+        ? "warning"
+        : "info";
 
   const onSubmit = handleSubmit(async (values) => {
     if (!selectedInstructor) {
@@ -288,7 +248,7 @@ export function StudentPracticePanel({
 
     if (!response.success || !response.data) {
       showToast(
-        response.message ?? "No se pudo crear la solicitud de practica",
+        response.message ?? "No se pudo crear la solicitud de práctica",
         "error",
         "top-right",
       );
@@ -300,8 +260,8 @@ export function StudentPracticePanel({
     reset();
     setSelectedInstructorId("");
     setRequestModalOpen(false);
-    await reloadCourse();
-    showToast("Solicitud de practica creada", "success", "top-right");
+    await reloadCourse({ silent: true });
+    showToast("Solicitud de práctica creada", "success", "top-right");
     setSubmitting(false);
   });
 
@@ -322,7 +282,7 @@ export function StudentPracticePanel({
     }
 
     setRequest(response.data as PracticeRequestStudentView);
-    await reloadCourse();
+    await reloadCourse({ silent: true });
     showToast("Solicitud cancelada", "success", "top-right");
     setCancelling(false);
   };
@@ -333,27 +293,33 @@ export function StudentPracticePanel({
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="border-primary/15">
-        <CardHeader className="px-6 pt-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-2">
+    <div className="space-y-5">
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.04] via-background to-background">
+        <CardHeader className="space-y-5 px-6 py-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-2xl space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={status.variant} size="sm">
                   {status.badge}
                 </Badge>
-                <Badge variant="outline" size="sm">
-                  Practica presencial
-                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  Práctica presencial
+                </span>
               </div>
-              <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                <StatusIcon className="h-5 w-5 text-primary" />
-                {status.title}
-              </CardTitle>
-              <CardDescription>{status.description}</CardDescription>
+              <div className="space-y-2">
+                <CardTitle className="flex items-center gap-3 text-xl font-semibold tracking-tight">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <StatusIcon className="h-5 w-5" />
+                  </span>
+                  <span>{status.title}</span>
+                </CardTitle>
+                <CardDescription className="max-w-xl text-sm leading-6">
+                  {status.description}
+                </CardDescription>
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
               {practice.practiceUnlockedAt && !practice.practiceCompleted && (
                 <Button onClick={() => setRequestModalOpen(true)}>
                   Nueva solicitud
@@ -362,7 +328,9 @@ export function StudentPracticePanel({
               {practice.practiceCertificateAvailable && (
                 <Button
                   variant="outline"
-                  onClick={() => setCertificateModalOpen(true)}
+                  onClick={() =>
+                    navigate(`/certificado-practico/${practice.enrollmentId}`)
+                  }
                 >
                   Ver certificado practico
                 </Button>
@@ -370,79 +338,83 @@ export function StudentPracticePanel({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="grid gap-3 px-6 pb-6 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-xl border bg-background px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Desbloqueo
-            </p>
-            <p className="mt-1 text-sm font-medium">
-              {practice.practiceUnlockedAt
-                ? formatDate(practice.practiceUnlockedAt, { showTime: false })
-                : "Pendiente"}
-            </p>
-          </div>
-          <div className="rounded-xl border bg-background px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Solicitud actual
-            </p>
-            <p className="mt-1 text-sm font-medium">
-              {practice.latestPracticeRequestStatus ?? "Sin solicitud"}
-            </p>
-          </div>
-          <div className="rounded-xl border bg-background px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Practica completada
-            </p>
-            <p className="mt-1 text-sm font-medium">
-              {practice.practiceCompletedAt
-                ? formatDate(practice.practiceCompletedAt, { showTime: false })
-                : "No"}
-            </p>
-          </div>
-          <div className="rounded-xl border bg-background px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Certificado
-            </p>
-            <p className="mt-1 text-sm font-medium">
-              {practice.practiceCertificateAvailable ? "Disponible" : "Aun no"}
-            </p>
+        <CardContent className="border-t px-6 py-5">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Desbloqueo
+              </p>
+              <p className="text-sm font-medium text-foreground">
+                {practice.practiceUnlockedAt
+                  ? formatDate(practice.practiceUnlockedAt, { showTime: false })
+                  : "Pendiente"}
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Solicitud actual
+              </p>
+              {practice.latestPracticeRequestStatus && (
+                <p className="text-sm font-medium text-foreground">
+                  {t(
+                    "statusPracticeRequest",
+                    practice.latestPracticeRequestStatus,
+                  )}
+                </p>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Práctica completada
+              </p>
+              <p className="text-sm font-medium text-foreground">
+                {practice.practiceCompletedAt
+                  ? formatDate(practice.practiceCompletedAt, {
+                      showTime: false,
+                    })
+                  : "No"}
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Certificado
+              </p>
+              <p className="text-sm font-medium text-foreground">
+                {practice.practiceCertificateAvailable
+                  ? "Disponible"
+                  : "Aun no"}
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {requestLoading ? (
-        <Card className="border-dashed">
+        <Card className="border-dashed bg-muted/20">
           <CardContent className="px-6 py-8 text-sm text-muted-foreground">
-            Cargando solicitud de practica...
+            Cargando solicitud de práctica...
           </CardContent>
         </Card>
       ) : request ? (
         <Card>
-          <CardHeader className="px-6 pt-6">
+          <CardHeader className="space-y-4 px-6 py-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="space-y-2">
-                <Badge
-                  variant={
-                    request.status === "COMPLETED"
-                      ? "success"
-                      : request.status === "CANCELLED"
-                        ? "warning"
-                        : "info"
-                  }
-                  size="sm"
-                >
-                  {request.status}
+              <div className="space-y-3">
+                <Badge variant={requestStatusVariant} size="sm">
+                  {t("statusPracticeRequest", request.status)}
                 </Badge>
-                <CardTitle className="text-lg font-semibold">
-                  {formatFullName(
-                    request.instructor.firstName,
-                    request.instructor.lastName,
-                  )}
-                </CardTitle>
-                <CardDescription>
-                  {request.instructor.headline ||
-                    "Instructor disponible para practica"}
-                </CardDescription>
+                <div className="space-y-2">
+                  <CardTitle className="text-xl font-semibold tracking-tight">
+                    {formatFullName(
+                      request.instructor.firstName,
+                      request.instructor.lastName,
+                    )}
+                  </CardTitle>
+                  <CardDescription className="max-w-2xl text-sm leading-6">
+                    {request.instructor.headline ||
+                      "Instructor disponible para práctica"}
+                  </CardDescription>
+                </div>
               </div>
 
               {request.status === "PENDING" && (
@@ -474,108 +446,168 @@ export function StudentPracticePanel({
             </div>
           </CardHeader>
           <CardContent className="space-y-6 px-6 pb-6">
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="rounded-xl border bg-background px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                  Metodo de contacto
-                </p>
-                <p className="mt-1 text-sm font-medium">
-                  {CONTACT_METHOD_LABELS[request.contactMethod]}
-                </p>
-              </div>
-              <div className="rounded-xl border bg-background px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                  Solicitada
-                </p>
-                <p className="mt-1 text-sm font-medium">
-                  {formatDate(request.requestedAt, { showTime: false })}
-                </p>
-              </div>
-              <div className="rounded-xl border bg-background px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                  Ubicacion
-                </p>
-                <p className="mt-1 text-sm font-medium">
-                  {formatLocation(
-                    request.instructor.city,
-                    request.instructor.state,
-                  )}
-                </p>
-              </div>
-              <div className="rounded-xl border bg-background px-4 py-3">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                  Estado
-                </p>
-                <p className="mt-1 text-sm font-medium">
-                  {request.completedAt
-                    ? `Completada el ${formatDate(request.completedAt, {
-                        showTime: false,
-                      })}`
-                    : request.cancelledAt
-                      ? `Cancelada el ${formatDate(request.cancelledAt, {
-                          showTime: false,
-                        })}`
-                      : "Pendiente de coordinacion"}
-                </p>
-              </div>
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
+              <section className="space-y-6">
+                <div className="rounded-2xl border bg-muted/20 px-5 py-5">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <UserRound className="h-4 w-4" />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-foreground">
+                        Instructor asignado
+                      </p>
+                      <p className="text-sm leading-6 text-muted-foreground">
+                        {CONTACT_METHOD_LABELS[request.contactMethod] ===
+                        "Contacto directo"
+                          ? "Podés contactar al instructor directamente con los datos disponibles en esta solicitud."
+                          : "El instructor se pondrá en contacto con vos usando los datos que compartiste."}
+                      </p>
+                      <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        {formatLocation(
+                          request.instructor.city,
+                          request.instructor.state,
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <section className="space-y-4">
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-semibold text-foreground">
+                      Detalles de la solicitud
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Estado actual y datos de coordinación de tu práctica.
+                    </p>
+                  </div>
+
+                  <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <dt className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                        Método de contacto
+                      </dt>
+                      <dd className="text-sm font-medium text-foreground">
+                        {CONTACT_METHOD_LABELS[request.contactMethod]}
+                      </dd>
+                    </div>
+                    <div className="space-y-1">
+                      <dt className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                        Solicitada
+                      </dt>
+                      <dd className="text-sm font-medium text-foreground">
+                        {formatDate(request.requestedAt, { showTime: false })}
+                      </dd>
+                    </div>
+                    <div className="space-y-1">
+                      <dt className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                        Ubicación
+                      </dt>
+                      <dd className="text-sm font-medium text-foreground">
+                        {formatLocation(
+                          request.instructor.city,
+                          request.instructor.state,
+                        )}
+                      </dd>
+                    </div>
+                    <div className="space-y-1">
+                      <dt className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                        Estado
+                      </dt>
+                      <dd className="text-sm font-medium text-foreground">
+                        {request.completedAt
+                          ? `Completada el ${formatDate(request.completedAt, {
+                              showTime: false,
+                            })}`
+                          : request.cancelledAt
+                            ? `Cancelada el ${formatDate(request.cancelledAt, {
+                                showTime: false,
+                              })}`
+                            : "Pendiente de coordinación"}
+                      </dd>
+                    </div>
+                  </dl>
+                </section>
+              </section>
+
+              <aside className="space-y-4 rounded-2xl border bg-background px-5 py-5">
+                {request.contactMethod === "DIRECT_CONTACT" && (
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold text-foreground">
+                      Coordinación por contacto directo
+                    </p>
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      La solicitud ya esta creada. Si el instructor publicó
+                      canales de contacto, usalos para coordinar tu práctica.
+                    </p>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      {request.instructor.publicContact?.practiceWhatsapp && (
+                        <p>
+                          WhatsApp:{" "}
+                          {request.instructor.publicContact.practiceWhatsapp}
+                        </p>
+                      )}
+                      {request.instructor.publicContact?.practiceEmail && (
+                        <p>
+                          Email:{" "}
+                          {request.instructor.publicContact.practiceEmail}
+                        </p>
+                      )}
+                      {!request.instructor.publicContact?.practiceWhatsapp &&
+                        !request.instructor.publicContact?.practiceEmail && (
+                          <p>No hay canales publicos cargados.</p>
+                        )}
+                    </div>
+                  </div>
+                )}
+
+                {request.contactMethod === "REQUEST_CONTACT" && (
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold text-foreground">
+                      Datos enviados al instructor
+                    </p>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <p>
+                        WhatsApp:{" "}
+                        {request.studentContact.studentWhatsapp ||
+                          "No informado"}
+                      </p>
+                      <p>
+                        Email:{" "}
+                        {request.studentContact.studentEmail || "No informado"}
+                      </p>
+                      {request.studentMessage && (
+                        <p className="leading-6">
+                          Mensaje: {request.studentMessage}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </aside>
             </div>
 
-            {request.contactMethod === "DIRECT_CONTACT" && (
-              <div className="rounded-2xl border bg-primary/5 p-4 text-sm text-muted-foreground">
-                <p className="font-medium text-foreground">
-                  Coordinacion por contacto directo
-                </p>
-                <p className="mt-2">
-                  La solicitud ya esta creada. Si el instructor publicó canales
-                  de contacto, usalos para coordinar tu practica.
-                </p>
-                {request.instructor.publicContact?.practiceWhatsapp && (
-                  <p className="mt-3">
-                    WhatsApp:{" "}
-                    {request.instructor.publicContact.practiceWhatsapp}
-                  </p>
-                )}
-                {request.instructor.publicContact?.practiceEmail && (
-                  <p>Email: {request.instructor.publicContact.practiceEmail}</p>
-                )}
-              </div>
-            )}
-
-            {request.contactMethod === "REQUEST_CONTACT" && (
-              <div className="rounded-2xl border bg-secondary/30 p-4 text-sm">
-                <p className="font-medium">Datos enviados al instructor</p>
-                <p className="mt-2 text-muted-foreground">
-                  WhatsApp:{" "}
-                  {request.studentContact.studentWhatsapp || "No informado"}
-                </p>
-                <p className="text-muted-foreground">
-                  Email: {request.studentContact.studentEmail || "No informado"}
-                </p>
-                {request.studentMessage && (
-                  <p className="mt-2 text-muted-foreground">
-                    Mensaje: {request.studentMessage}
-                  </p>
-                )}
-              </div>
-            )}
-
             {request.status === "COMPLETED" && (
-              <PracticeReviewCard
-                practiceRequestId={request.id}
-                existingReview={request.review}
-                onCreated={onReviewCreated}
-              />
+              <div className="border-t pt-6">
+                <PracticeReviewCard
+                  practiceRequestId={request.id}
+                  existingReview={request.review}
+                  onCreated={onReviewCreated}
+                />
+              </div>
             )}
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-dashed">
+        <Card className="border-dashed bg-muted/20">
           <CardContent className="space-y-3 px-6 py-8">
-            <p className="text-sm font-medium">
-              Todavia no generaste una solicitud.
+            <p className="text-sm font-medium text-foreground">
+              Todavía no generaste una solicitud.
             </p>
-            <p className="text-sm text-muted-foreground">
-              Cuando la practica este disponible vas a poder elegir instructor y
+            <p className="max-w-xl text-sm leading-6 text-muted-foreground">
+              Cuando la práctica este disponible vas a poder elegir instructor y
               seguir todo desde esta seccion.
             </p>
             {practice.practiceUnlockedAt && (
@@ -591,20 +623,26 @@ export function StudentPracticePanel({
       )}
 
       <Modal open={requestModalOpen} onOpenChange={setRequestModalOpen}>
-        <ModalContent side="bottom" className="max-h-[90vh] max-w-4xl">
+        <ModalContent side="bottom" className="max-h-[90vh] lg:max-w-4xl">
           <ModalHeader>
-            <ModalTitle>Solicitar practica</ModalTitle>
+            <ModalTitle>Solicitar práctica</ModalTitle>
             <ModalDescription>
-              Elige instructor y completa el flujo segun el tipo de contacto.
+              Elegí un instructor y completá el flujo según el tipo de contacto.
             </ModalDescription>
           </ModalHeader>
-          <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold">
-                Instructores disponibles
-              </h3>
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]">
+            <section className="space-y-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Instructores disponibles
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Selecciona un instructor para ver el flujo de contacto y
+                  completar tu solicitud.
+                </p>
+              </div>
               {instructorsLoading ? (
-                <div className="rounded-xl border border-dashed px-4 py-8 text-sm text-muted-foreground">
+                <div className="rounded-2xl border border-dashed bg-muted/20 px-4 py-8 text-sm text-muted-foreground">
                   Cargando instructores...
                 </div>
               ) : (
@@ -617,47 +655,55 @@ export function StudentPracticePanel({
                         key={instructor.id}
                         type="button"
                         onClick={() => setSelectedInstructorId(instructor.id)}
-                        className={`w-full rounded-2xl border p-4 text-left transition-colors ${
+                        className={`w-full rounded-2xl border px-4 py-4 text-left transition-colors cursor-pointer ${
                           selected
-                            ? "border-primary bg-primary/5"
-                            : "border-border bg-background hover:border-primary/30"
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border bg-background hover:border-primary/30 hover:bg-muted/20"
                         }`}
                       >
-                        <div className="flex items-center gap-2">
-                          <UserRound className="h-4 w-4 text-primary" />
-                          <p className="font-semibold">
-                            {formatFullName(
-                              instructor.firstName,
-                              instructor.lastName,
-                            )}
-                          </p>
-                        </div>
-                        <p className="mt-2 text-sm text-muted-foreground">
-                          {instructor.headline ||
-                            "Instructor disponible para practica"}
-                        </p>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <Badge size="sm" variant="outline">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <UserRound className="h-4 w-4 text-primary" />
+                              <p className="font-semibold text-foreground">
+                                {formatFullName(
+                                  instructor.firstName,
+                                  instructor.lastName,
+                                )}
+                              </p>
+                            </div>
+                            <p className="text-sm leading-6 text-muted-foreground">
+                              {instructor.headline ||
+                                "Instructor disponible para práctica"}
+                            </p>
+                          </div>
+                          <Badge
+                            size="sm"
+                            variant={selected ? "primary" : "outline"}
+                          >
                             {CONTACT_METHOD_LABELS[instructor.contactMethod]}
                           </Badge>
-                          <Badge size="sm" variant="secondary">
-                            {instructor.practiceRatingCount} resenas
-                          </Badge>
                         </div>
-                        <p className="mt-3 inline-flex items-center gap-2 text-sm text-muted-foreground">
-                          <MapPin className="h-4 w-4" />
-                          {formatLocation(instructor.city, instructor.state)}
-                        </p>
+                        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+                          <span className="font-medium">
+                            {instructor.practiceRatingCount} reseñas
+                          </span>
+                          <span aria-hidden="true">/</span>
+                          <span className="inline-flex items-center gap-2">
+                            <MapPin className="h-4 w-4" />
+                            {formatLocation(instructor.city, instructor.state)}
+                          </span>
+                        </div>
                       </button>
                     );
                   })}
                 </div>
               )}
-            </div>
+            </section>
 
-            <Card className="h-fit">
-              <CardHeader className="px-6 pt-6">
-                <CardTitle className="text-base font-semibold">
+            <Card className="h-fit lg:sticky lg:top-0">
+              <CardHeader className="space-y-2 px-6 py-6">
+                <CardTitle className="text-lg font-semibold tracking-tight">
                   {selectedInstructor
                     ? formatFullName(
                         selectedInstructor.firstName,
@@ -665,14 +711,14 @@ export function StudentPracticePanel({
                       )
                     : "Selecciona un instructor"}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm leading-6">
                   {selectedInstructor
                     ? CONTACT_METHOD_LABELS[selectedInstructor.contactMethod]
                     : "El formulario cambia segun el modo de contacto del instructor."}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 px-6 pb-6">
-                <form className="space-y-4" onSubmit={onSubmit}>
+              <CardContent className="space-y-5 px-6 pb-6">
+                <form className="space-y-5" onSubmit={onSubmit}>
                   {selectedInstructor?.contactMethod === "REQUEST_CONTACT" && (
                     <>
                       <div className="space-y-2">
@@ -726,8 +772,8 @@ export function StudentPracticePanel({
                   )}
 
                   {selectedInstructor?.contactMethod === "DIRECT_CONTACT" && (
-                    <div className="rounded-xl border bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
-                      Al crear la solicitud vas a ver los datos publicos del
+                    <div className="rounded-2xl border bg-primary/5 px-4 py-4 text-sm leading-6 text-muted-foreground">
+                      Al crear la solicitud vas a ver los datos públicos del
                       instructor para coordinar directamente.
                     </div>
                   )}
@@ -758,9 +804,9 @@ export function StudentPracticePanel({
                 </form>
 
                 {selectedInstructor && (
-                  <div className="rounded-xl border bg-background px-4 py-3 text-sm text-muted-foreground">
+                  <div className="rounded-2xl border bg-muted/20 px-4 py-4 text-sm text-muted-foreground">
                     <p className="font-medium text-foreground">Resumen</p>
-                    <p className="mt-2 inline-flex items-center gap-2">
+                    <p className="mt-3 inline-flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-primary" />
                       {formatLocation(
                         selectedInstructor.city,
@@ -776,65 +822,6 @@ export function StudentPracticePanel({
               </CardContent>
             </Card>
           </div>
-        </ModalContent>
-      </Modal>
-
-      <Modal open={certificateModalOpen} onOpenChange={setCertificateModalOpen}>
-        <ModalContent side="bottom" className="max-w-2xl">
-          <ModalHeader>
-            <ModalTitle>Certificado practico</ModalTitle>
-            <ModalDescription>
-              Vista previa de los datos emitidos para la practica completada.
-            </ModalDescription>
-          </ModalHeader>
-          {certificateLoading ? (
-            <div className="rounded-xl border border-dashed px-4 py-8 text-sm text-muted-foreground">
-              Cargando certificado...
-            </div>
-          ) : certificate ? (
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="space-y-4 px-6 py-6">
-                <div className="text-center">
-                  <Badge size="sm" variant="success">
-                    Practica certificada
-                  </Badge>
-                  <h3 className="mt-3 text-2xl font-semibold">
-                    {certificate.studentName}
-                  </h3>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {certificate.courseName}
-                  </p>
-                </div>
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="rounded-xl border bg-background px-4 py-3">
-                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                      Instructor
-                    </p>
-                    <p className="mt-1 text-sm font-medium">
-                      {certificate.instructorName}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border bg-background px-4 py-3">
-                    <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                      Fecha
-                    </p>
-                    <p className="mt-1 text-sm font-medium">
-                      {formatDate(certificate.practiceCompletedAt, {
-                        showTime: false,
-                      })}
-                    </p>
-                  </div>
-                </div>
-                <div className="rounded-xl border bg-background px-4 py-3 text-sm text-muted-foreground">
-                  Emitido por {certificate.issuedBy || "Vitalica"}.
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="rounded-xl border border-dashed px-4 py-8 text-sm text-muted-foreground">
-              No se pudo obtener el certificado practico.
-            </div>
-          )}
         </ModalContent>
       </Modal>
     </div>

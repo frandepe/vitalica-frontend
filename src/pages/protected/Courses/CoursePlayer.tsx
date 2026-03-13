@@ -3,7 +3,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import MuxPlayer from "@mux/mux-player-react";
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,8 +25,33 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress-bar";
 import { useCoursePlayerStore } from "@/store/coursePlayer.store";
 
+const COURSE_PLAYER_TAB_PARAM = "tab";
+const COURSE_PLAYER_TABS = {
+  modules: "modules",
+  downloads: "downloads",
+  about: "about",
+  progress: "progress",
+  reviews: "reviews",
+} as const;
+
+type CoursePlayerTab =
+  (typeof COURSE_PLAYER_TABS)[keyof typeof COURSE_PLAYER_TABS];
+
+const DEFAULT_COURSE_PLAYER_TAB = COURSE_PLAYER_TABS.modules;
+
+function isCoursePlayerTab(value: string | null): value is CoursePlayerTab {
+  return (
+    value === COURSE_PLAYER_TABS.modules ||
+    value === COURSE_PLAYER_TABS.downloads ||
+    value === COURSE_PLAYER_TABS.about ||
+    value === COURSE_PLAYER_TABS.progress ||
+    value === COURSE_PLAYER_TABS.reviews
+  );
+}
+
 export default function CoursePlayer() {
   const { slug, lessonId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const setActiveLessonId = useCoursePlayerStore((s) => s.setActiveLessonId);
   const { loading, course, reloadCourse } = useCoursePlayerData({
     slug,
@@ -71,11 +96,38 @@ export default function CoursePlayer() {
       key: m.key,
       originalName: m.key.split(".").pop() || "archivo",
     })) || [];
+  const hasDownloadsTab = Boolean(activeLesson?.lessonMaterial);
+  const requestedTab = searchParams.get(COURSE_PLAYER_TAB_PARAM);
+  const activeTab =
+    isCoursePlayerTab(requestedTab) &&
+    (requestedTab !== COURSE_PLAYER_TABS.downloads || hasDownloadsTab)
+      ? requestedTab
+      : DEFAULT_COURSE_PLAYER_TAB;
 
   const completeLessonBtn = async (lessonId: string) => {
     const res = await completeLesson(lessonId);
     console.log("rescomplet", { res, lessonId });
   };
+
+  const setCoursePlayerTab = (
+    tab: CoursePlayerTab,
+    options?: { replace?: boolean },
+  ) => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+
+    if (tab === DEFAULT_COURSE_PLAYER_TAB) {
+      nextSearchParams.delete(COURSE_PLAYER_TAB_PARAM);
+    } else {
+      nextSearchParams.set(COURSE_PLAYER_TAB_PARAM, tab);
+    }
+
+    setSearchParams(nextSearchParams, { replace: options?.replace ?? false });
+  };
+
+  useEffect(() => {
+    if (requestedTab === activeTab) return;
+    setCoursePlayerTab(activeTab, { replace: true });
+  }, [activeTab, requestedTab]);
 
   if (loading || !course) return <GlobalLoading text="Obteniendo curso..." />;
 
@@ -174,61 +226,88 @@ export default function CoursePlayer() {
               <CourseInstructorCard instructor={course.instructor} />
             </div>
 
-            <Tabs defaultValue="tab-1" className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={(value) =>
+                setCoursePlayerTab(value as CoursePlayerTab)
+              }
+              className="w-full"
+            >
               <TabsList className="relative h-auto w-full justify-start gap-1 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-border">
                 <TabsTrigger
-                  value="tab-1"
+                  value={COURSE_PLAYER_TABS.modules}
                   className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
                   Módulos
                 </TabsTrigger>
-                {activeLesson?.lessonMaterial && (
+                {hasDownloadsTab && (
                   <TabsTrigger
-                    value="tab-2"
-                    disabled={activeLesson.lessonMaterial.length === 0}
+                    value={COURSE_PLAYER_TABS.downloads}
+                    disabled={materials.length === 0}
                     className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                   >
                     Descargas
                   </TabsTrigger>
                 )}
                 <TabsTrigger
-                  value="tab-3"
+                  value={COURSE_PLAYER_TABS.about}
                   className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
                   Sobre el curso
                 </TabsTrigger>
                 <TabsTrigger
-                  value="tab-4"
+                  value={COURSE_PLAYER_TABS.progress}
                   className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
                   Progreso
                 </TabsTrigger>
                 <TabsTrigger
-                  value="tab-5"
+                  value={COURSE_PLAYER_TABS.reviews}
                   className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
                 >
                   Reseñas
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="tab-1" className="pt-6 space-y-10">
+              <TabsContent
+                value={COURSE_PLAYER_TABS.modules}
+                className="pt-6 space-y-10"
+              >
                 <CourseModulesTab course={course} />
               </TabsContent>
-              <TabsContent value="tab-2" className="pt-6 space-y-10">
+              <TabsContent
+                value={COURSE_PLAYER_TABS.downloads}
+                className="pt-6 space-y-10"
+              >
                 <CourseDownloadsTab materials={materials} />
               </TabsContent>
-              <TabsContent value="tab-3" className="pt-6 space-y-10">
+              <TabsContent
+                value={COURSE_PLAYER_TABS.about}
+                className="pt-6 space-y-10"
+              >
                 <CourseAboutTab course={course} />
                 {/* TODO: corroborar y sumar el updatedAt (que tome la ultima version PUBLISHED) */}
               </TabsContent>
-              <TabsContent value="tab-4" className="pt-6 space-y-10">
+              <TabsContent
+                value={COURSE_PLAYER_TABS.progress}
+                className="pt-6 space-y-10"
+              >
                 <CourseProgressTab
                   course={course}
                   navigate={navigate}
                   setActiveLessonId={setActiveLessonId}
                   reloadCourse={reloadCourse}
+                  onContinueToPractice={async () => {
+                    setCoursePlayerTab(COURSE_PLAYER_TABS.progress, {
+                      replace: true,
+                    });
+                    await reloadCourse({ silent: true });
+                  }}
                 />
               </TabsContent>
-              <TabsContent value="tab-5" className="pt-6 space-y-10">
+              <TabsContent
+                value={COURSE_PLAYER_TABS.reviews}
+                className="pt-6 space-y-10"
+              >
                 <CourseReviewTab
                   courseId={course.id}
                   percentage={course.progress.percentage}

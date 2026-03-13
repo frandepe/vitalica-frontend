@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ICourse } from "@/types/course.types";
 
-import { BookOpen, MessageSquare } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { ModulesAccordion } from "../Accordion/ModulesAccordion";
 import { InstructorModalCard } from "../CardsAnimated/InstructorModalCard";
 import { Reviews } from "../Reviews/Reviews";

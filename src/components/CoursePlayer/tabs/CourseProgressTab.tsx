@@ -1,6 +1,14 @@
+import type { ReactNode } from "react";
 import type { NavigateFunction } from "react-router-dom";
-import { ChartPie, Info } from "lucide-react";
+import { ChartPie, GraduationCap, Info, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ProgressCard } from "@/components/ui/progress";
 import { TooltipIconButton } from "@/components/TooltipIconButton";
 import { FinalQuizCoursePlayerModule } from "@/components/Quizzes/FinalQuizCoursePlayerModule";
@@ -12,7 +20,165 @@ interface CourseProgressTabProps {
   course: ICourseProgressResponse;
   navigate: NavigateFunction;
   setActiveLessonId: (lessonId: string) => void;
-  reloadCourse: () => Promise<void>;
+  reloadCourse: (options?: { silent?: boolean }) => Promise<void>;
+  onContinueToPractice: () => Promise<void>;
+}
+
+function getTheoryProgressTitle(course: ICourseProgressResponse) {
+  if (course.finalQuiz.finalExamPassedAt) {
+    return "Continuá con la práctica presencial para completar tu avance";
+  }
+
+  if (course.progress.percentage < 100) {
+    return "Continuá con el curso para desbloquear el examen final";
+  }
+
+  return "Completá el examen final para obtener tu certificado";
+}
+
+function getTheoryProgressStatus(course: ICourseProgressResponse) {
+  if (course.finalQuiz.finalExamPassedAt) {
+    return "Aprobado";
+  }
+
+  if (course.progress.percentage === 100) {
+    return "Completado";
+  }
+
+  return "Progreso";
+}
+
+function getTheorySectionSummary(course: ICourseProgressResponse) {
+  if (course.finalQuiz.finalExamPassedAt) {
+    return {
+      title: "Teoría completada",
+      description:
+        "Ya terminaste la cursada teorica y aprobaste el examen final.",
+      nextStep:
+        "Continuá con la practica presencial para completar el recorrido.",
+    };
+  }
+
+  if (course.progress.percentage < 100) {
+    return {
+      title: "Teoría en curso",
+      description:
+        "Aca ves el avance de lecciones, el estado del examen final y tu certificado teorico.",
+      nextStep:
+        "Completa las lecciones pendientes para habilitar el examen final.",
+    };
+  }
+
+  return {
+    title: "Teoría lista para examen",
+    description:
+      "Ya completaste la cursada teorica. Solo falta rendir y aprobar el examen final.",
+    nextStep: "Presentate al examen final para cerrar esta etapa.",
+  };
+}
+
+function getPracticeSectionSummary(course: ICourseProgressResponse) {
+  const practice = course.practice;
+
+  if (!practice?.requiresPractice) return null;
+
+  if (practice.practiceCompleted) {
+    return {
+      title: "Práctica completada",
+      description:
+        "La etapa práctica ya fue registrada y desde abajo podes revisar su estado final.",
+      nextStep: "Si corresponde, accede a tu certificado práctico.",
+    };
+  }
+
+  if (practice.latestPracticeRequestStatus === "PENDING") {
+    return {
+      title: "Práctica en coordinacián",
+      description:
+        "Ya hay una solicitud creada. En esta sección podes seguir su estado y ver los datos de contacto.",
+      nextStep: "Revisá la solicitud actual y coordiná con tu instructor.",
+    };
+  }
+
+  if (practice.practiceUnlockedAt) {
+    return {
+      title: "Práctica habilitada",
+      description:
+        "Ya completaste lo necesario para pasar a la etapa presencial.",
+      nextStep: "El siguiente paso es elegir instructor y crear tu solicitud.",
+    };
+  }
+
+  return {
+    title: "Práctica bloqueada",
+    description:
+      "La práctica presencial sigue dependiendo del avance en la parte teórica.",
+    nextStep: "Primero completá la teoría y el examen final requerido.",
+  };
+}
+
+interface ProgressSectionProps {
+  eyebrow: string;
+  title: string;
+  description: string;
+  icon: ReactNode;
+  summaryTitle: string;
+  summaryDescription: string;
+  nextStep: string;
+  children: ReactNode;
+}
+
+function ProgressSection({
+  eyebrow,
+  title,
+  description,
+  icon,
+  summaryTitle,
+  summaryDescription,
+  nextStep,
+  children,
+}: ProgressSectionProps) {
+  return (
+    <section className="space-y-5 rounded-3xl border border-gray-400 bg-background/80 p-4 shadow-sm md:p-6">
+      <div className="flex flex-col gap-4 border-b pb-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {eyebrow}
+          </p>
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+              {icon}
+            </span>
+            <div className="space-y-1">
+              <h3 className="text-xl font-semibold tracking-tight text-foreground">
+                {title}
+              </h3>
+              <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+                {description}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border bg-muted/20 px-4 py-4 lg:max-w-sm">
+          <p className="text-sm font-semibold text-foreground">
+            {summaryTitle}
+          </p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            {summaryDescription}
+          </p>
+          <p className="mt-3 text-sm font-medium text-foreground">
+            Siguiente paso:{" "}
+            <span className="font-normal text-muted-foreground">
+              {nextStep}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      {children}
+    </section>
+  );
 }
 
 export function CourseProgressTab({
@@ -20,139 +186,186 @@ export function CourseProgressTab({
   navigate,
   setActiveLessonId,
   reloadCourse,
+  onContinueToPractice,
 }: CourseProgressTabProps) {
-  return (
-    <>
-      <h2 className="text-xl font-bold mb-4">Tu progreso</h2>
+  const theorySection = getTheorySectionSummary(course);
+  const practiceSection = getPracticeSectionSummary(course);
 
-      <ProgressCard
-        title={
-          course.progress.percentage < 100
-            ? "Continua con el curso para desbloquear el examen final"
-            : "Completá el examen final para obtener tu certificado"
-        }
-        value={course.progress.percentage}
-        status={course.progress.percentage === 100 ? "Completado" : "Progreso"}
-        progress={course.progress.percentage}
-        icon={<ChartPie size={20} />}
-        description={
-          <>
-            <p>
-              Lecciones completadas:{" "}
-              <span className="font-semibold text-primary">
-                {course.progress.completedLessons} de{" "}
-                {course.progress.totalLessons}
-              </span>{" "}
-            </p>
-            {course.progress.lastSeenLessonId && (
-              <Button
-                variant="link"
-                size="sm"
-                className="mt-2 px-0"
-                onClick={() =>
-                  setActiveLessonId(course.progress.lastSeenLessonId!)
-                }
-              >
-                Regresar a la última lección vista
-              </Button>
-            )}
-            {course.finalQuiz.lastExamAttemptAt && (
-              <div className="text-sm text-slate-700 dark:text-slate-300 space-y-1 p-1 max-w-max">
-                <h3 className="font-bold mb-1 underline">Examen final:</h3>
-                {course.finalQuiz.lastExamAttemptAt && (
+  return (
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Progreso del curso
+        </p>
+        <h2 className="text-xl font-bold tracking-tight text-foreground">
+          Tu progreso
+        </h2>
+        <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+          Este espacio esta dividido en dos etapas para que puedas ubicarte
+          rápido: primero tu avance teórico y, si el curso lo requiere, después
+          la práctica presencial.
+        </p>
+      </div>
+
+      <ProgressSection
+        eyebrow="Etapa 1"
+        title="Progreso teorico"
+        description="Aqui ves el avance de lecciones, el estado del examen final y el acceso al certificado teorico."
+        icon={<GraduationCap className="h-5 w-5" />}
+        summaryTitle={theorySection.title}
+        summaryDescription={theorySection.description}
+        nextStep={theorySection.nextStep}
+      >
+        <ProgressCard
+          className="border-primary/20"
+          title={getTheoryProgressTitle(course)}
+          value={course.progress.percentage}
+          status={getTheoryProgressStatus(course)}
+          progress={course.progress.percentage}
+          icon={<ChartPie size={20} />}
+          description={
+            <>
+              <p>
+                Lecciones completadas:{" "}
+                <span className="font-semibold text-primary">
+                  {course.progress.completedLessons} de{" "}
+                  {course.progress.totalLessons}
+                </span>
+              </p>
+              {course.progress.lastSeenLessonId && (
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="mt-2 px-0"
+                  onClick={() =>
+                    setActiveLessonId(course.progress.lastSeenLessonId!)
+                  }
+                >
+                  Regresar a la ultima leccion vista
+                </Button>
+              )}
+              {course.finalQuiz.lastExamAttemptAt && (
+                <div className="max-w-max space-y-1 p-1 text-sm text-slate-700 dark:text-slate-300">
+                  <h3 className="mb-1 font-bold underline">Examen final:</h3>
                   <div>
-                    Ãšltimo intento:{" "}
+                    Ultimo intento:{" "}
                     {formatDate(course.finalQuiz.lastExamAttemptAt)}
                   </div>
-                )}
 
-                <div className="flex items-center gap-1">
-                  Intentos: {course.finalQuiz.finalExamAttempts ?? 0} de 3
-                  {course.finalQuiz.finalExamAttempts != null && (
-                    <TooltipIconButton
-                      tooltip={(() => {
-                        const remaining =
-                          3 - course.finalQuiz.finalExamAttempts;
+                  <div className="flex items-center gap-1">
+                    Intentos: {course.finalQuiz.finalExamAttempts ?? 0} de 3
+                    {course.finalQuiz.finalExamAttempts != null && (
+                      <TooltipIconButton
+                        tooltip={(() => {
+                          const remaining =
+                            3 - course.finalQuiz.finalExamAttempts;
 
-                        if (remaining > 1) {
-                          return `Te quedan ${remaining} intentos. Si los agotás, se bloqueará el examen por 7 días.`;
+                          if (remaining > 1) {
+                            return `Te quedan ${remaining} intentos. Si los agotas, se bloqueara el examen por 7 dias.`;
+                          }
+
+                          if (remaining === 1) {
+                            return "Es tu ultimo intento. Si no aprobas, el examen se bloqueara por 7 dias.";
+                          }
+
+                          const unblocksAt = course.finalQuiz.unblocksAt
+                            ? formatDate(course.finalQuiz.unblocksAt)
+                            : null;
+
+                          return unblocksAt
+                            ? `Agotaste los intentos. El examen se desbloqueara el ${unblocksAt}.`
+                            : "Agotaste los intentos. Contacta a soporte para mas informacion.";
+                        })()}
+                        side="top"
+                      >
+                        <Info className="h-4 w-4 text-destructive" />
+                      </TooltipIconButton>
+                    )}
+                  </div>
+
+                  {course.finalQuiz.unblocksAt && (
+                    <div>
+                      Proximo intento disponible:{" "}
+                      {formatDate(course.finalQuiz.unblocksAt)}
+                    </div>
+                  )}
+
+                  {course.finalQuiz.finalExamPassedAt ? (
+                    <div>
+                      <p className="text-success">Examen aprobado.</p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2"
+                        onClick={() =>
+                          navigate(
+                            `/certificado/${course.finalQuiz.enrollmentId}`,
+                          )
                         }
-
-                        if (remaining === 1) {
-                          return "Es tu último intento. Si no aprobás, el examen se bloqueará por 7 días.";
-                        }
-
-                        const unblocksAt = course.finalQuiz.unblocksAt
-                          ? formatDate(course.finalQuiz.unblocksAt)
-                          : null;
-
-                        return unblocksAt
-                          ? `Agotaste los intentos. El examen se desbloqueará el ${unblocksAt}.`
-                          : "Agotaste los intentos. Contactá a soporte para más información.";
-                      })()}
-                      side="top"
-                    >
-                      <Info className="h-4 w-4 text-destructive" />
-                    </TooltipIconButton>
+                      >
+                        Ver certificado teórico
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-yellow-700">
+                      No aprobaste el examen final.
+                      {course.finalQuiz.finalExamAttempts != null &&
+                        course.finalQuiz.finalExamAttempts < 3 &&
+                        course.finalQuiz.lastExamAttemptAt && (
+                          <p>
+                            Podes reintentar a partir de:{" "}
+                            {formatDate(
+                              new Date(
+                                new Date(
+                                  course.finalQuiz.lastExamAttemptAt,
+                                ).getTime() +
+                                  24 * 60 * 60 * 1000,
+                              ),
+                            )}
+                          </p>
+                        )}
+                    </div>
                   )}
                 </div>
+              )}
+            </>
+          }
+        />
 
-                {course.finalQuiz.unblocksAt && (
-                  <div>
-                    Próximo intento disponible:{" "}
-                    {formatDate(course.finalQuiz.unblocksAt)}
-                  </div>
-                )}
+        <Card className="border-dashed bg-muted/10 p-2">
+          <CardHeader className="space-y-2 pb-4">
+            <CardTitle className="text-base font-semibold">
+              Examen final
+            </CardTitle>
+            <CardDescription className="text-sm leading-6">
+              Esta acción cierra la etapa teórica y define el pase a la práctica
+              presencial.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <FinalQuizCoursePlayerModule
+              courseId={course.id}
+              percentage={course.progress.percentage}
+              lastExamAttemptAt={course.finalQuiz.lastExamAttemptAt}
+              onContinueAfterPass={onContinueToPractice}
+            />
+          </CardContent>
+        </Card>
+      </ProgressSection>
 
-                {course.finalQuiz.finalExamPassedAt ? (
-                  <div>
-                    <p className="text-success">¡Examen aprobado!</p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="mt-2"
-                      onClick={() =>
-                        navigate(
-                          `/certificado/${course.finalQuiz.enrollmentId}`,
-                        )
-                      }
-                    >
-                      Ver certificado
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-yellow-700">
-                    No aprobaste el examen final.
-                    {course.finalQuiz.finalExamAttempts != null &&
-                      course.finalQuiz.finalExamAttempts < 3 &&
-                      course.finalQuiz.lastExamAttemptAt && (
-                        <p>
-                          Podés reintentar a partir de:{" "}
-                          {formatDate(
-                            new Date(
-                              new Date(
-                                course.finalQuiz.lastExamAttemptAt,
-                              ).getTime() +
-                                24 * 60 * 60 * 1000,
-                            ),
-                          )}
-                        </p>
-                      )}
-                  </div>
-                )}
-              </div>
-            )}
-          </>
-        }
-      />
-
-      <FinalQuizCoursePlayerModule
-        courseId={course.id}
-        percentage={course.progress.percentage}
-        lastExamAttemptAt={course.finalQuiz.lastExamAttemptAt}
-      />
-
-      <StudentPracticePanel course={course} reloadCourse={reloadCourse} />
-    </>
+      {practiceSection && (
+        <ProgressSection
+          eyebrow="Etapa 2"
+          title="Progreso práctico"
+          description="Esta sección concentra la práctica presencial, su solicitud, el seguimiento con instructor y el certificado práctico."
+          icon={<Stethoscope className="h-5 w-5" />}
+          summaryTitle={practiceSection.title}
+          summaryDescription={practiceSection.description}
+          nextStep={practiceSection.nextStep}
+        >
+          <StudentPracticePanel course={course} reloadCourse={reloadCourse} />
+        </ProgressSection>
+      )}
+    </div>
   );
 }

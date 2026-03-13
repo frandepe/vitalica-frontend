@@ -1,4 +1,3 @@
-import type React from "react";
 import { useEffect, useState } from "react";
 import { AnimatedSignalBadge } from "@/components/AnimatedSignalBadge";
 import { getCourseStatus } from "@/api";

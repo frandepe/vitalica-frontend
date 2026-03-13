@@ -78,6 +78,11 @@ export enum PayoutMethod {
   MERCADO_PAGO = "MERCADO_PAGO",
 }
 
+export enum PracticeContactMethod {
+  DIRECT_CONTACT = "DIRECT_CONTACT",
+  REQUEST_CONTACT = "REQUEST_CONTACT",
+}
+
 export interface InstructorProfile {
   id: string;
   userId: string;
@@ -108,6 +113,7 @@ export interface InstructorProfile {
   state?: string;
   zipCode?: string;
   isPublicForPractice?: boolean;
+  practiceContactMethod?: PracticeContactMethod;
   practiceWhatsapp?: string;
   practiceEmail?: string;
   instagramUrl?: string;

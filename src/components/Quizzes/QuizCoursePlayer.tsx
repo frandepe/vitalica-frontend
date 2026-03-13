@@ -17,9 +17,13 @@ import type { QuizAnswerMap, QuizQuestion } from "@/types/quiz.types";
 interface QuizCoursePlayerModuleProps {
   quizzes: QuizQuestion[];
   moduleTitle?: string;
-  onComplete?: (answers: QuizAnswerMap) => void; // devuelve respuestas al finalizar
-  isPractice?: boolean; // si true, muestra feedback inmediato
+  onComplete?: (answers: QuizAnswerMap) => void;
+  isPractice?: boolean;
   finalResult?: IFinalQuizResult;
+  passedActionLabel?: string;
+  passedActionDescription?: string;
+  onPassedAction?: () => void | Promise<void>;
+  passedActionLoading?: boolean;
 }
 
 export function QuizCoursePlayer({
@@ -27,6 +31,10 @@ export function QuizCoursePlayer({
   moduleTitle,
   onComplete,
   finalResult,
+  passedActionLabel,
+  passedActionDescription,
+  onPassedAction,
+  passedActionLoading = false,
   isPractice = false,
 }: QuizCoursePlayerModuleProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -53,7 +61,6 @@ export function QuizCoursePlayer({
     } else {
       setQuizCompleted(true);
 
-      // Convertir array de respuestas a Record<string, number>
       const answersRecord: QuizAnswerMap = {};
       quizzes.forEach((quiz, index) => {
         if (answers[index] !== null) {
@@ -92,19 +99,19 @@ export function QuizCoursePlayer({
     if (finalScore === null) return "";
     const percentage = (finalScore / quizzes.length) * 100;
     if (percentage >= 80)
-      return "Excelente desempeño. Dominás los conceptos clave.";
+      return "Excelente desempeno. Dominas los conceptos clave.";
     if (percentage >= 60)
       return "Muy buen resultado. Vas por el camino correcto.";
     if (percentage >= 40)
       return "Buen intento. Te recomendamos repasar algunos contenidos.";
-    return "Es importante reforzar los conceptos. Repasá las clases y volvé a intentarlo.";
+    return "Es importante reforzar los conceptos. Repasa las clases y vuelve a intentarlo.";
   };
 
   if (quizzes.length === 0) {
     return (
       <div className="flex items-center justify-center p-8">
         <p className="text-muted-foreground">
-          No hay preguntas disponibles para este módulo.
+          No hay preguntas disponibles para este modulo.
         </p>
       </div>
     );
@@ -113,25 +120,23 @@ export function QuizCoursePlayer({
   if (quizCompleted) {
     const finalScore = calculateScore();
     return (
-      <div className="w-full max-w-3xl mx-auto shadow-2xl bg-white/95 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg border border-slate-200 dark:border-slate-700">
-        <div className="text-center pb-8 p-6">
+      <div className="mx-auto w-full max-w-3xl rounded-lg border border-slate-200 bg-white/95 shadow-2xl backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/90">
+        <div className="p-6 pb-8 text-center">
           <div className="relative mb-6 flex justify-center">
-            <Trophy className="w-20 h-20 text-slate-500 drop-shadow-lg" />
+            <Trophy className="h-20 w-20 text-slate-500 drop-shadow-lg" />
           </div>
           <h1
             className={cn(
-              "text-4xl font-bold mb-4",
+              "mb-4 text-4xl font-bold",
               finalResult?.data?.passed
                 ? "bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent"
                 : "text-foreground/70",
             )}
           >
-            {finalResult?.data?.passed
-              ? "¡Examen aprobado!"
-              : "Examen no aprobado"}
+            {finalResult?.data?.passed ? "Examen aprobado" : "Examen no aprobado"}
           </h1>
           {moduleTitle && (
-            <p className="text-slate-600 dark:text-slate-300 text-lg">
+            <p className="text-lg text-slate-600 dark:text-slate-300">
               {moduleTitle}
             </p>
           )}
@@ -139,20 +144,20 @@ export function QuizCoursePlayer({
 
         {isPractice && finalScore !== null && (
           <div className="space-y-8 p-6">
-            <div className="relative bg-gradient-to-br rounded-2xl p-8 border border-slate-200">
-              <div className="text-center space-y-4">
-                <div className="text-7xl font-bold bg-gradient-to-r from-primary to-primary-light dark:from-primary dark:to-primary-light bg-clip-text text-transparent">
+            <div className="relative rounded-2xl border border-slate-200 p-8">
+              <div className="space-y-4 text-center">
+                <div className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-7xl font-bold text-transparent dark:from-primary dark:to-primary-light">
                   {finalScore}/{quizzes.length}
                 </div>
-                <div className="text-2xl text-slate-600 dark:text-slate-300 font-medium">
+                <div className="text-2xl font-medium text-slate-600 dark:text-slate-300">
                   {Math.round((finalScore / quizzes.length) * 100)}% Correctas
                 </div>
-                <div className="flex justify-center space-x-1 mt-6">
+                <div className="mt-6 flex justify-center space-x-1">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <div key={i}>
                       <Star
                         fill="currentColor"
-                        className={`w-10 h-10 ${
+                        className={`h-10 w-10 ${
                           i < Math.ceil((finalScore / quizzes.length) * 5)
                             ? "text-yellow-400"
                             : "text-slate-300/30 dark:text-slate-600/20"
@@ -163,35 +168,50 @@ export function QuizCoursePlayer({
                 </div>
               </div>
             </div>
-            <div className="text-center pt-4">
-              <Button onClick={resetQuiz}>Realizar Quiz de Nuevo</Button>
+            <div className="pt-4 text-center">
+              <Button onClick={resetQuiz}>Realizar quiz de nuevo</Button>
             </div>
-            <div className="text-center mt-4 text-slate-700 dark:text-slate-300">
+            <div className="mt-4 text-center text-slate-700 dark:text-slate-300">
               {getScoreMessage()}
             </div>
           </div>
         )}
 
         {!isPractice && finalResult?.success && (
-          <div className="p-6 text-center text-slate-700 space-y-2">
+          <div className="space-y-3 p-6 text-center text-slate-700">
             <p className="font-bold">{finalResult.message}</p>
             <p>
               Puntaje: {finalResult.data.score}% ({finalResult.data.correct}/
               {finalResult.data.total} correctas)
             </p>
+            {finalResult.data.passed && passedActionDescription && (
+              <p className="mx-auto max-w-xl text-sm text-muted-foreground">
+                {passedActionDescription}
+              </p>
+            )}
             {!finalResult.data.passed && (
               <p>Intentos: {finalResult.data.attemptsUsed} / 3</p>
             )}
             {!finalResult.data.passed && finalResult.data.canRetryAt && (
               <p>
-                Podés volver a intentar el:{" "}
+                Podes volver a intentar el:{" "}
                 {formatDate(finalResult.data.canRetryAt)}
               </p>
             )}
+            {finalResult.data.passed && onPassedAction && passedActionLabel && (
+              <div className="pt-4">
+                <Button onClick={() => void onPassedAction()}>
+                  {passedActionLoading
+                    ? "Actualizando progreso..."
+                    : passedActionLabel}
+                </Button>
+              </div>
+            )}
           </div>
         )}
+
         {!isPractice && !finalResult?.success && (
-          <div className="text-center text-slate-700 mb-4">
+          <div className="mb-4 text-center text-slate-700">
             {finalResult?.message}
           </div>
         )}
@@ -201,15 +221,14 @@ export function QuizCoursePlayer({
 
   return (
     <div className="flex items-center justify-center">
-      <div className="w-full mx-auto shadow-xl dark:shadow-2xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/95 rounded-lg">
+      <div className="mx-auto w-full rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700/50 dark:bg-slate-800/95 dark:shadow-2xl">
         <div className="p-6">
-          {/* Top progress y icons */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="mb-6 flex items-center justify-between">
             {quizzes.map((_, index) => (
               <div key={index} className="flex flex-col items-center space-y-2">
                 <div className="relative transition-all duration-500">
                   <CircleQuestionMark
-                    className={`w-8 h-8 transition-all duration-300 ${
+                    className={`h-8 w-8 transition-all duration-300 ${
                       answers[index] !== null
                         ? isPractice
                           ? answers[index] === quizzes[index].correctAnswer
@@ -222,11 +241,11 @@ export function QuizCoursePlayer({
                     }`}
                   />
                   {answers[index] !== null && isPractice && (
-                    <div className="absolute -top-1 -right-1">
+                    <div className="absolute -right-1 -top-1">
                       {answers[index] === quizzes[index].correctAnswer ? (
-                        <CheckCircle className="w-4 h-4 text-green-500 bg-white dark:bg-slate-800 rounded-full" />
+                        <CheckCircle className="h-4 w-4 rounded-full bg-white text-green-500 dark:bg-slate-800" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-red-500 bg-white dark:bg-slate-800 rounded-full" />
+                        <XCircle className="h-4 w-4 rounded-full bg-white text-red-500 dark:bg-slate-800" />
                       )}
                     </div>
                   )}
@@ -238,48 +257,45 @@ export function QuizCoursePlayer({
             ))}
           </div>
 
-          {/* Barra de avance */}
-          <div className="w-full bg-slate-200 dark:bg-slate-700/50 rounded-full h-3 overflow-hidden mb-6">
+          <div className="mb-6 h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700/50">
             <div
-              className="bg-gradient-to-r from-primary to-secondary dark:from-secondary dark:to-secondary-light h-3 rounded-full transition-all duration-700 ease-out shadow-sm"
+              className="h-3 rounded-full bg-gradient-to-r from-primary to-secondary shadow-sm transition-all duration-700 ease-out dark:from-secondary dark:to-secondary-light"
               style={{
                 width: `${
-                  ((currentQuestion + (showFeedback ? 1 : 0)) /
-                    quizzes.length) *
+                  ((currentQuestion + (showFeedback ? 1 : 0)) / quizzes.length) *
                   100
                 }%`,
               }}
             />
           </div>
 
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 text-balance leading-tight mb-6">
+          <h2 className="mb-6 text-2xl font-bold leading-tight text-slate-900 text-balance dark:text-slate-100">
             {quizzes[currentQuestion].question}
           </h2>
 
-          {/* Opciones */}
-          <div className="space-y-3 mb-6">
+          <div className="mb-6 space-y-3">
             {quizzes[currentQuestion].options.map((option, index) => {
               let buttonClass =
-                "w-full p-4 text-left border-2 transition-all duration-300 hover:border-primary dark:hover:border-primary hover:shadow-md dark:hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98] rounded-lg cursor-pointer";
+                "w-full rounded-lg border-2 p-4 text-left transition-all duration-300 hover:border-primary hover:shadow-md active:scale-[0.98] dark:hover:border-primary dark:hover:shadow-lg";
 
               if (selectedAnswer === index) {
                 buttonClass +=
-                  " bg-primary-light dark:bg-primary-light border-primary";
+                  " border-primary bg-primary-light dark:bg-primary-light";
               } else {
                 buttonClass +=
-                  " hover:bg-slate-100/50 dark:hover:bg-slate-700/30 border-slate-200 dark:border-slate-600/50";
+                  " border-slate-200 hover:bg-slate-100/50 dark:border-slate-600/50 dark:hover:bg-slate-700/30";
               }
 
               let icon = null;
               if (showFeedback && isPractice) {
                 if (index === quizzes[currentQuestion].correctAnswer) {
                   buttonClass +=
-                    " bg-green-100/10 dark:bg-green-400/20 text-green-600 dark:text-green-400 border-green-500 shadow-lg animate-pulse";
-                  icon = <CheckCircle className="w-5 h-5 ml-2" />;
+                    " animate-pulse border-green-500 bg-green-100/10 text-green-600 shadow-lg dark:bg-green-400/20 dark:text-green-400";
+                  icon = <CheckCircle className="ml-2 h-5 w-5" />;
                 } else if (index === selectedAnswer) {
                   buttonClass +=
-                    " bg-red-100/10 dark:bg-red-400/20 text-red-600 dark:text-red-400 border-red-500";
-                  icon = <XCircle className="w-5 h-5 ml-2" />;
+                    " border-red-500 bg-red-100/10 text-red-600 dark:bg-red-400/20 dark:text-red-400";
+                  icon = <XCircle className="ml-2 h-5 w-5" />;
                 } else {
                   buttonClass += " opacity-50 dark:opacity-40";
                 }
@@ -291,7 +307,7 @@ export function QuizCoursePlayer({
                   className={buttonClass}
                   onClick={() => handleAnswerSelect(index)}
                 >
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex w-full items-center justify-between">
                     <span className="text-base font-medium">{option}</span>
                     {icon}
                   </div>
@@ -300,13 +316,13 @@ export function QuizCoursePlayer({
             })}
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <Button
               onClick={handlePrevious}
               disabled={currentQuestion === 0}
               className="flex items-center"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="h-4 w-4" />
               <span>Anterior</span>
             </Button>
 
@@ -326,7 +342,7 @@ export function QuizCoursePlayer({
                   ? "Finalizar"
                   : "Siguiente"}
               </span>
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>

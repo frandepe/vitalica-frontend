@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getCourseWithProgress } from "@/api/courseProgressEndpoints";
 import { useCoursePlayerStore } from "@/store/coursePlayer.store";
 
@@ -10,7 +10,7 @@ interface UseCoursePlayerDataParams {
 interface UseCoursePlayerDataResult {
   loading: boolean;
   course: ReturnType<typeof useCoursePlayerStore.getState>["course"];
-  reloadCourse: () => Promise<void>;
+  reloadCourse: (options?: { silent?: boolean }) => Promise<void>;
 }
 
 export function useCoursePlayerData({
@@ -23,14 +23,19 @@ export function useCoursePlayerData({
     (state) => state.setActiveLessonId,
   );
   const course = useCoursePlayerStore((state) => state.course);
-  const reloadCourse = async () => {
+  const reloadCourse = useCallback(async (options?: { silent?: boolean }) => {
     if (!slug) return;
 
-    setLoading(true);
+    if (!options?.silent) {
+      setLoading(true);
+    }
+
     const res = await getCourseWithProgress(slug);
     setCourse(res.data);
-    setLoading(false);
-  };
+    if (!options?.silent) {
+      setLoading(false);
+    }
+  }, [setCourse, slug]);
 
   useEffect(() => {
     let cancelled = false;

@@ -3,13 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 
-import {
-  ChartPie,
-  FileCheck,
-  FileQuestion,
-  Loader,
-  Settings,
-} from "lucide-react";
+import { ChartPie, FileQuestion, Loader, Settings } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 
 import { Separator } from "@/components/ui/separator";
@@ -27,12 +21,20 @@ import { useIntervalClick } from "@/hooks/useIntervalClick";
 import {
   InstructorProfile as IInstructorProfile,
   PayoutMethod,
+  PracticeContactMethod,
 } from "@/types/instructor.types";
 import { UbicationSelect } from "@/components/Instructor/Forms/Profile/UbicationSelect";
 import { MercadoPagoConnect } from "@/components/Buttons/MercadoPagoConnect";
 import { useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { Controller } from "react-hook-form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { t } from "@/utils/translations";
 
 export default function InstructorProfile() {
@@ -60,6 +62,7 @@ export default function InstructorProfile() {
       city: "",
       zipCode: "",
       isPublicForPractice: true,
+      practiceContactMethod: PracticeContactMethod.REQUEST_CONTACT,
       practiceWhatsapp: "",
       practiceEmail: "",
       instagramUrl: "",
@@ -121,6 +124,8 @@ export default function InstructorProfile() {
       setIsResendDisabled(true);
       setTimer(20);
     } catch (error) {
+      console.log("error", error);
+
       showToast(
         "Error al actualizar datos. Vuelva a intentarlo más tarde",
         "error",
@@ -254,6 +259,39 @@ export default function InstructorProfile() {
             Desactivalo si no querés aparecer para solicitudes de clases
             presenciales.
           </p>
+
+          <div className="space-y-2">
+            <Label htmlFor="practiceContactMethod">
+              Método de contacto para prácticas
+            </Label>
+            <Controller
+              name="practiceContactMethod"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? PracticeContactMethod.REQUEST_CONTACT}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger id="practiceContactMethod">
+                    <SelectValue placeholder="Selecciona cómo quieres ser contactado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={PracticeContactMethod.DIRECT_CONTACT}>
+                      {t("practiceContactMethod", "DIRECT_CONTACT")}
+                    </SelectItem>
+                    <SelectItem value={PracticeContactMethod.REQUEST_CONTACT}>
+                      {t("practiceContactMethod", "REQUEST_CONTACT")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            <p className="text-sm text-muted-foreground">
+              Define si prefieres mostrar tus datos públicos para contacto
+              directo o recibir primero la solicitud del alumno para contactarlo
+              tú.
+            </p>
+          </div>
 
           {/* Ubicación */}
           <div>

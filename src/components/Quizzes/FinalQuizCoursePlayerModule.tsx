@@ -14,18 +14,21 @@ interface Props {
   courseId: string;
   percentage: number;
   lastExamAttemptAt: Date | null;
+  onContinueAfterPass?: () => Promise<void>;
 }
 
 export const FinalQuizCoursePlayerModule = ({
   courseId,
   percentage,
   lastExamAttemptAt,
+  onContinueAfterPass,
 }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [quizzes, setQuizzes] = useState<FinalQuizQuestion[]>([]);
   const [finalQuizResponse, setFinalQuizResponse] =
     useState<IFinalQuizResult>();
+  const [continuing, setContinuing] = useState(false);
 
   const canRetry = useMemo(() => {
     if (!lastExamAttemptAt) return true;
@@ -34,14 +37,23 @@ export const FinalQuizCoursePlayerModule = ({
     return hoursSinceLastAttempt >= 24;
   }, [lastExamAttemptAt]);
 
+  const handleModalOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+
+    if (!nextOpen) {
+      setFinalQuizResponse(undefined);
+      setContinuing(false);
+    }
+  };
+
   const handleOpenExam = async () => {
+    setFinalQuizResponse(undefined);
     setOpen(true);
 
     try {
       setLoading(true);
       const res = await getFinalCourseQuizzes(courseId);
 
-      // Guardamos los quizzes del módulo en el estado
       if (res.success && res.data) {
         setQuizzes(res.data);
         return;
@@ -54,13 +66,21 @@ export const FinalQuizCoursePlayerModule = ({
       setLoading(false);
     }
   };
-  const handleCloseModal = () => {
-    setOpen(false);
-  };
 
   const submitQuizzes = async (answers: QuizAnswerMap) => {
     const res = await submitFinalExam(courseId, answers);
     setFinalQuizResponse(res);
+  };
+
+  const handleContinueAfterPass = async () => {
+    setContinuing(true);
+
+    try {
+      await onContinueAfterPass?.();
+      handleModalOpenChange(false);
+    } finally {
+      setContinuing(false);
+    }
   };
 
   return (
@@ -87,19 +107,19 @@ export const FinalQuizCoursePlayerModule = ({
         Examen final
       </Button>
       {percentage < 100 && (
-        <p className="text-warning mt-2 text-sm">
-          Completá el curso para desbloquear el examen final
+        <p className="mt-2 text-sm text-warning">
+          Completa el curso para desbloquear el examen final
         </p>
       )}
 
       <UniversalModal
         open={open}
-        onOpenChange={handleCloseModal}
-        title={`Examen final del curso`}
+        onOpenChange={handleModalOpenChange}
+        title="Examen final del curso"
       >
         {loading ? (
           <div className="flex items-center justify-center p-8">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-2 text-muted-foreground">
               Cargando preguntas...
             </span>
@@ -107,13 +127,14 @@ export const FinalQuizCoursePlayerModule = ({
         ) : (
           <QuizCoursePlayer
             quizzes={quizzes}
-            moduleTitle={`Examen final del curso`}
-            onComplete={(answers: QuizAnswerMap) =>
-              // console.log("Respuestas enviadas", answers)
-              submitQuizzes(answers)
-            }
+            moduleTitle="Examen final del curso"
+            onComplete={(answers: QuizAnswerMap) => submitQuizzes(answers)}
             isPractice={false}
             finalResult={finalQuizResponse}
+            passedActionLabel="Ir a Progreso"
+            passedActionDescription="Tu examen ya fue aprobado. Actualiza el progreso y continua con la practica presencial."
+            onPassedAction={handleContinueAfterPass}
+            passedActionLoading={continuing}
           />
         )}
       </UniversalModal>

@@ -56,10 +56,12 @@ export default function PracticeRequests() {
   const [requests, setRequests] = useState<PracticeRequestInstructorView[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<StatusFilter>("ALL");
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
-  const [submittingAction, setSubmittingAction] = useState<"complete" | "cancel" | null>(
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     null,
   );
+  const [submittingAction, setSubmittingAction] = useState<
+    "complete" | "cancel" | null
+  >(null);
 
   const loadRequests = async () => {
     setLoading(true);
@@ -68,7 +70,8 @@ export default function PracticeRequests() {
 
       if (!response.success || !Array.isArray(response.data)) {
         showToast(
-          response.message ?? "No se pudieron cargar las solicitudes de practica",
+          response.message ??
+            "No se pudieron cargar las solicitudes de practica",
           "error",
           "top-right",
         );
@@ -115,9 +118,12 @@ export default function PracticeRequests() {
   const stats = useMemo(
     () => ({
       total: requests.length,
-      pending: requests.filter((request) => request.status === "PENDING").length,
-      completed: requests.filter((request) => request.status === "COMPLETED").length,
-      cancelled: requests.filter((request) => request.status === "CANCELLED").length,
+      pending: requests.filter((request) => request.status === "PENDING")
+        .length,
+      completed: requests.filter((request) => request.status === "COMPLETED")
+        .length,
+      cancelled: requests.filter((request) => request.status === "CANCELLED")
+        .length,
     }),
     [requests],
   );
@@ -162,8 +168,9 @@ export default function PracticeRequests() {
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold">Solicitudes de practica</h1>
         <p className="text-sm text-muted-foreground">
-          Gestiona las practicas asignadas a tu perfil. Desde aqui puedes revisar
-          el detalle de cada alumno, completar solicitudes pendientes o cancelarlas.
+          Gestiona las practicas asignadas a tu perfil. Desde aqui puedes
+          revisar el detalle de cada alumno, completar solicitudes pendientes o
+          cancelarlas.
         </p>
       </div>
 
@@ -251,7 +258,10 @@ export default function PracticeRequests() {
                         request.student.lastName,
                       )}
                     </p>
-                    <Badge variant={STATUS_META[request.status].variant} size="sm">
+                    <Badge
+                      variant={STATUS_META[request.status].variant}
+                      size="sm"
+                    >
                       {STATUS_META[request.status].label}
                     </Badge>
                   </div>
@@ -321,11 +331,13 @@ export default function PracticeRequests() {
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>
-                                Completar practica
+                                ¿Confirmás que la práctica del alumno fue
+                                realizada?
                               </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Esto cerrara la solicitud y habilitara el
-                                certificado practico del alumno.
+                                Al confirmarla, la solicitud se cerrará y el
+                                certificado práctico quedará habilitado para el
+                                alumno.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -493,7 +505,9 @@ export default function PracticeRequests() {
                     <>
                       <Separator />
                       <section className="space-y-3">
-                        <h2 className="text-lg font-semibold">Review recibida</h2>
+                        <h2 className="text-lg font-semibold">
+                          Review recibida
+                        </h2>
                         <div className="rounded-2xl border bg-primary/5 p-4">
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge variant="success" size="sm">
@@ -520,13 +534,14 @@ export default function PracticeRequests() {
                       {selectedRequest.contactMethod === "REQUEST_CONTACT" ? (
                         <p>
                           El flujo activo es de contacto solicitado: el alumno
-                          espera que lo contactes usando los datos que figuran arriba.
+                          espera que lo contactes usando los datos que figuran
+                          arriba.
                         </p>
                       ) : (
                         <p>
-                          El flujo activo es de contacto directo: la solicitud sirve
-                          como registro y seguimiento hasta que marques la practica
-                          como completada o la canceles.
+                          El flujo activo es de contacto directo: la solicitud
+                          sirve como registro y seguimiento hasta que marques la
+                          practica como completada o la canceles.
                         </p>
                       )}
                     </div>
