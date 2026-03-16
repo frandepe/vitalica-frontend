@@ -10,4 +10,5 @@ export const API_ROUTES = {
   VIDEO: "/api/video",
   ADMIN: "/api/admin",
   MP: "/api/mp",
+  COMMERCE: "/api/commerce",
 } as const;

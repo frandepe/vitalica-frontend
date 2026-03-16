@@ -13,11 +13,58 @@ import { MainCourseCard } from "@/components/CardsAnimated/MainCourseCard";
 import { DEMO_ITEMS } from "@/components/Carousel/utils/demo-items";
 import { PublicCourseCard } from "@/components/CardsAnimated/PublicCourseCard";
 
+type HomeMyCourse = CourseCardProps & {
+  completed?: boolean | null;
+  completedAt?: string | null;
+  requiresPractice?: boolean;
+  practiceUnlockedAt?: string | null;
+  progress?:
+    | number
+    | {
+        percentage?: number | null;
+      }
+    | null;
+};
+
+const getTheoreticalProgressPercentage = (course: HomeMyCourse) => {
+  if (typeof course.progress === "number") {
+    return course.progress;
+  }
+
+  if (
+    course.progress &&
+    typeof course.progress === "object" &&
+    typeof course.progress.percentage === "number"
+  ) {
+    return course.progress.percentage;
+  }
+
+  return null;
+};
+
+const hasCompletedTheoreticalCourse = (course: HomeMyCourse) => {
+  if (course.completed === true || Boolean(course.completedAt)) {
+    return true;
+  }
+
+  const progressPercentage = getTheoreticalProgressPercentage(course);
+
+  if (progressPercentage === 100) {
+    return true;
+  }
+
+  if (course.requiresPractice && Boolean(course.practiceUnlockedAt)) {
+    return true;
+  }
+
+  return false;
+};
+
 const HomePage = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [courses, setCourses] = useState<CourseCardProps[]>([]);
-  const [coursesMy, setCoursesMy] = useState<CourseCardProps[]>([]);
+  const [coursesMy, setCoursesMy] = useState<HomeMyCourse[]>([]);
   const [loadingCarousel, setLoadingCarousel] = useState(false);
   const [loadingMyCoursesCarousel, setLoadingMyCoursesCarousel] =
     useState(false);
@@ -56,12 +103,19 @@ const HomePage = () => {
   };
 
   const getMyCourses = async () => {
-    setLoadingMyCoursesCarousel(true); // inicio carga
+    setLoadingMyCoursesCarousel(true);
+
     try {
       const res = await getMyCoursesEnrrolled(1, 8, "");
-      setCoursesMy(res.data);
+
+      const myCourses = Array.isArray(res?.data) ? res.data : [];
+
+      setCoursesMy(myCourses);
+    } catch (error) {
+      console.error("Error loading my courses:", error);
+      setCoursesMy([]);
     } finally {
-      setLoadingMyCoursesCarousel(false); // fin carga
+      setLoadingMyCoursesCarousel(false);
     }
   };
 
@@ -72,6 +126,10 @@ const HomePage = () => {
   useEffect(() => {
     getCoursesFunction();
   }, []);
+
+  const coursesMyInProgress = Array.isArray(coursesMy)
+    ? coursesMy.filter((course) => !hasCompletedTheoreticalCourse(course))
+    : [];
 
   return (
     <section>
@@ -175,11 +233,11 @@ const HomePage = () => {
       <div className="mb-20">
         {loadingMyCoursesCarousel ? (
           <MainCarouselSkeleton />
-        ) : (
+        ) : coursesMyInProgress.length > 0 ? (
           <MainCarousel
             title="Seguir aprendiendo"
             subtitle="Continuá con tu formación"
-            items={coursesMy}
+            items={coursesMyInProgress}
             renderItem={(course) => (
               <PublicCourseCard
                 course={course}
@@ -187,7 +245,7 @@ const HomePage = () => {
               />
             )}
           />
-        )}
+        ) : null}
       </div>
 
       <div className="mb-20">
