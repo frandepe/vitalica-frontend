@@ -4,6 +4,10 @@ import { API_ROUTES } from "@/constants";
 import { ApiResponse } from "@/types/endpoints.types";
 import { ISpecialty } from "@/types/course.types";
 import {
+  AdminCommerceAttentionItem,
+  AdminCommerceOrderDiagnostic,
+  AdminCommerceOrdersResponse,
+  AdminCommerceRepairResult,
   AdminInstructorSpecialtyProfile,
   AdminInstructorSpecialtyRequest,
   GetAllCoursesAdminParams,
@@ -98,5 +102,45 @@ export const resolveInstructorSpecialtyRequest = async (
     url: `${API_ROUTES.ADMIN}/instructor-specialty-requests/${requestId}/resolve`,
     method: "PATCH",
     data,
+  });
+};
+
+export const getCommercialOrdersAdmin = async (params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  attentionOnly?: boolean;
+}): Promise<ApiResponse<AdminCommerceOrdersResponse>> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/commerce/orders`,
+    method: "GET",
+    params,
+  });
+};
+
+export const getCommercialOrderDiagnosticAdmin = async (
+  orderId: string,
+): Promise<ApiResponse<AdminCommerceOrderDiagnostic>> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/commerce/order/${orderId}`,
+    method: "GET",
+  });
+};
+
+export const repairCommercialOrderAccessAdmin = async (
+  orderId: string,
+): Promise<ApiResponse<AdminCommerceRepairResult>> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/commerce/order/${orderId}/repair-access`,
+    method: "POST",
+  });
+};
+
+export const getCommercialOrdersRequiringAttentionAdmin = async (): Promise<
+  ApiResponse<AdminCommerceAttentionItem[]>
+> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/commerce/orders/requiring-attention`,
+    method: "GET",
   });
 };

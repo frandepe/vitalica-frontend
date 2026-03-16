@@ -92,6 +92,9 @@ const AdminUsers = lazy(
 const AdminCourses = lazy(
   () => import("@/pages/admin/ChildrensDashboardAdmin/AdminCourses"),
 );
+const AdminPayments = lazy(
+  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminPayments"),
+);
 const CardsDashboardAdmin = lazy(
   () => import("@/pages/admin/ChildrensDashboardAdmin/CardsDashboard"),
 );
@@ -269,6 +272,7 @@ export const router = createBrowserRouter([
           { path: "usuarios", element: <AdminUsers /> },
           { path: "instructores", element: <AdminInstructorsSpecialties /> },
           { path: "cursos", element: <AdminCourses /> },
+          { path: "pagos", element: <AdminPayments /> },
           { path: "aplicaciones", element: <InstructorsApplications /> },
           { path: "aplicacion/:id", element: <InstructorApplication /> },
           { path: "curso/:id", element: <AdminCourse /> },
