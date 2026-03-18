@@ -1,25 +1,47 @@
-import { Check, Star } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Check, ShoppingCart, Sparkles, Star } from "lucide-react";
+import MuxPlayer from "@mux/mux-player-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getCourseBySlug, getCoursePurchaseSellability } from "@/api";
+import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
+import { CourseOverviewTabs } from "@/components/Tabs/CourseOverviewTabs";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { getCourseBySlug } from "@/api";
 import { useAuth } from "@/hooks/useAuth";
-import MuxPlayer from "@mux/mux-player-react";
+import type { CoursePurchaseSellabilityResponse } from "@/api";
 import { ICourse } from "@/types/course.types";
-import { t } from "@/utils/translations";
 import { formatDuration } from "@/utils/format-duration";
 import { formatPrice } from "@/utils/format-price";
-import { CourseOverviewTabs } from "@/components/Tabs/CourseOverviewTabs";
-import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
+import {
+  getStudentCommerceCopy,
+  resolveStudentCommerceState,
+} from "@/utils/commerce-journey";
+import { t } from "@/utils/translations";
+
+const commerceBadgeTone: Record<
+  string,
+  "success" | "warning" | "destructive" | "outline" | "info"
+> = {
+  ALREADY_PURCHASED: "success",
+  CHECKOUT_INITIATED: "info",
+  PAYMENT_PENDING: "warning",
+  PAYMENT_REJECTED: "destructive",
+  PAYMENT_EXPIRED: "outline",
+  MANUAL_REVIEW: "outline",
+  NOT_PURCHASED: "outline",
+};
 
 export default function CourseOverview() {
   const { slug } = useParams();
   const [course, setCourse] = useState<ICourse>();
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const [commerceLoading, setCommerceLoading] = useState(false);
+  const [sellability, setSellability] =
+    useState<CoursePurchaseSellabilityResponse | null>(null);
+  const [commerceError, setCommerceError] = useState<string | null>(null);
+  const { user, isInitialized } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,48 +54,165 @@ export default function CourseOverview() {
     fetchCourse();
   }, [slug]);
 
-  if (loading || !course) return <GlobalLoading text="Obteniendo curso..." />;
+  useEffect(() => {
+    const fetchSellability = async () => {
+      if (!course || !isInitialized) {
+        return;
+      }
 
-  const totalLessons = course.modules!.reduce(
+      if (!user.id || Number(course.price ?? 0) <= 0) {
+        setSellability(null);
+        setCommerceError(null);
+        setCommerceLoading(false);
+        return;
+      }
+
+      setCommerceLoading(true);
+      setCommerceError(null);
+
+      const response = await getCoursePurchaseSellability(course.id);
+
+      if (!response.success || !response.data) {
+        setCommerceError(
+          response.message ||
+            "No se pudo obtener el estado comercial del curso.",
+        );
+        setSellability(null);
+        setCommerceLoading(false);
+        return;
+      }
+
+      setSellability(response.data);
+      setCommerceLoading(false);
+    };
+
+    fetchSellability();
+  }, [course, isInitialized, user.id]);
+
+  const totalLessons = course?.modules?.reduce(
     (acc: number, module) => acc + (module.lessons?.length ?? 0),
     0,
-  );
+  ) ?? 0;
 
-  const handleBtnCheckout = () => {
-    navigate(`/cursos/${course.id}/pago`);
+  const commerceState = useMemo(
+    () => resolveStudentCommerceState({ sellability, orderStatus: null }),
+    [sellability],
+  );
+  const commerceCopy = getStudentCommerceCopy(commerceState);
+
+  if (loading || !course) return <GlobalLoading text="Obteniendo curso..." />;
+
+  const isPaidCourse = Number(course.price ?? 0) > 0;
+  const commerceTone = commerceBadgeTone[commerceState] ?? "outline";
+  const checkoutHref = sellability?.existingOrder
+    ? `/cursos/${course.id}/pago?orderId=${sellability.existingOrder.orderId}`
+    : `/cursos/${course.id}/pago`;
+
+  const handleCommerceAction = () => {
+    if (!isPaidCourse) {
+      navigate(`/cursos/${course.id}/pago`);
+      return;
+    }
+
+    if (commerceState === "ALREADY_PURCHASED") {
+      navigate(`/mis-cursos/${course.slug}`);
+      return;
+    }
+
+    navigate(checkoutHref);
   };
+
+  const commercePanel = (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-3">
+        <Badge variant={commerceTone} size="sm">
+          {commerceCopy.badge}
+        </Badge>
+        {sellability?.existingOrder ? (
+          <span className="text-xs font-medium text-neutral-500">
+            Orden {sellability.existingOrder.orderId.slice(-6)}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold text-neutral-950">
+          {commerceCopy.title}
+        </h3>
+        <p className="text-sm leading-6 text-neutral-600">
+          {commerceCopy.description}
+        </p>
+      </div>
+
+      {commerceLoading ? (
+        <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-500">
+          Consultando tu estado comercial actual.
+        </div>
+      ) : null}
+
+      {commerceError ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          {commerceError}
+        </div>
+      ) : null}
+
+      {sellability?.existingOrder ? (
+        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700">
+          <p className="font-medium text-neutral-950">Compra existente</p>
+          <p className="mt-2">Estado orden: {sellability.existingOrder.status}</p>
+          <p>Estado acceso: {sellability.existingOrder.accessStatus}</p>
+          {sellability.existingOrder.expiresAt ? (
+            <p>
+              Expira:{" "}
+              {new Intl.DateTimeFormat("es-AR", {
+                dateStyle: "short",
+                timeStyle: "short",
+              }).format(new Date(sellability.existingOrder.expiresAt))}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      <Button
+        onClick={handleCommerceAction}
+        size="lg"
+        className="w-full text-base"
+        disabled={commerceState === "MANUAL_REVIEW"}
+      >
+        {commerceCopy.actionLabel}
+      </Button>
+
+      {isPaidCourse ? (
+        <p className="text-center text-xs text-neutral-500">
+          El acceso se habilita recién cuando Mercado Pago confirma el pago por
+          webhook.
+        </p>
+      ) : null}
+    </div>
+  );
 
   return (
     <div className="relative bg-neutral-50">
-      {/* HERO BACKGROUND */}
-      <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-br from-primary via-primary-light to-primary" />
+      <div className="absolute top-0 left-0 h-[600px] w-full bg-gradient-to-br from-primary via-primary-light to-primary" />
 
       <div className="relative mx-auto container px-6 md:px-0">
         <div className="grid gap-16 lg:grid-cols-[1fr_380px]">
-          {/* LEFT */}
           <div className="pt-24 text-white">
             <div className="space-y-8">
               <div className="flex items-center gap-3">
                 <Badge className="bg-white/10 text-white">
                   {t("courseSpecialty", course.specialty!)}
                 </Badge>
-                {course.level && (
-                  <Badge
-                    variant="outline"
-                    className="border-white/30 text-white"
-                  >
+                {course.level ? (
+                  <Badge variant="outline" className="border-white/30 text-white">
                     {t("courseLevel", course.level)}
                   </Badge>
-                )}
+                ) : null}
               </div>
 
               <h1 className="max-w-2xl text-4xl font-semibold leading-tight md:text-5xl xl:text-6xl">
                 {course.title}
               </h1>
-
-              {/* <p className="max-w-xl text-lg text-white/80">
-                {course.description}
-              </p> */}
 
               <div className="flex items-center gap-2 text-sm text-white/90">
                 <div className="flex items-center gap-1">
@@ -89,17 +228,16 @@ export default function CourseOverview() {
                   ))}
                 </div>
                 <span className="opacity-80">
-                  {course.avgTheoreticalRating} · {course.totalStudents}{" "}
-                  estudiantes
+                  {course.avgTheoreticalRating} · {course.totalStudents} estudiantes
                 </span>
               </div>
 
-              {course.muxPromoAssetId && (
-                <div className="relative aspect-video xl:max-w-3xl overflow-hidden rounded-3xl bg-neutral-900 shadow-2xl ring-1 ring-white/10">
+              {course.muxPromoAssetId ? (
+                <div className="relative aspect-video overflow-hidden rounded-3xl bg-neutral-900 shadow-2xl ring-1 ring-white/10 xl:max-w-3xl">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <MuxPlayer
                       playbackId={course.muxPlaybackId}
-                      className="w-full h-full mux-custom"
+                      className="h-full w-full mux-custom"
                       metadata={{
                         video_id: course.muxPlaybackId,
                         video_title: `Video promocional del curso ${course.id}`,
@@ -109,57 +247,54 @@ export default function CourseOverview() {
                     />
                   </div>
                 </div>
-              )}
-              <div className="lg:hidden">
-                {course.price! > 0 ? (
-                  <div className="space-y-1">
-                    <p className="text-4xl font-semibold text-black">
-                      {course.currency} ${formatPrice(course.price)}
-                    </p>
-                    <p className="text-sm text-neutral-500">
-                      Pago único · Acceso de por vida
-                    </p>
+              ) : null}
+
+              <div className="lg:hidden rounded-3xl border border-neutral-200 bg-white p-6 text-neutral-900 shadow-xl">
+                <div className="mb-6 flex items-start justify-between gap-4">
+                  <div>
+                    {isPaidCourse ? (
+                      <div className="space-y-1">
+                        <p className="text-4xl font-semibold text-black">
+                          {course.currency} ${formatPrice(course.price)}
+                        </p>
+                        <p className="text-sm text-neutral-500">
+                          Pago único · Acceso de por vida
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-2xl font-semibold text-black">
+                        Curso gratuito
+                      </p>
+                    )}
                   </div>
-                ) : (
-                  <p className="text-2xl font-semibold text-black mb-2">
-                    Curso gratuito
-                  </p>
-                )}
+                  <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                </div>
 
-                <Button
-                  onClick={handleBtnCheckout}
-                  size="lg"
-                  className="w-full text-base"
-                >
-                  Inscribirme ahora
-                </Button>
-
-                {course.price! > 0 && (
-                  <p className="text-center text-xs text-neutral-500">
-                    Garantía de devolución de 7 días
-                  </p>
-                )}
+                {commercePanel}
               </div>
             </div>
-            <section className="pt-32 pb-24 space-y-16 text-neutral-900">
+
+            <section className="space-y-16 pb-24 pt-32 text-neutral-900">
               <CourseOverviewTabs {...course} />
             </section>
           </div>
 
-          {/* RIGHT */}
           <div className="hidden lg:block">
             <div className="sticky top-0 pt-24">
-              <Card className="rounded-3xl shadow-2xl bg-background">
+              <Card className="rounded-3xl bg-background shadow-2xl">
                 <CardContent className="space-y-6 p-8">
-                  {course.thumbnailUrl && (
+                  {course.thumbnailUrl ? (
                     <img
                       src={course.thumbnailUrl}
                       className="rounded-lg"
                       alt={course.title}
                     />
-                  )}
+                  ) : null}
+
                   <div className="space-y-1">
-                    {course.price! > 0 ? (
+                    {isPaidCourse ? (
                       <p className="text-4xl font-semibold">
                         {course.currency} ${formatPrice(course.price)}
                       </p>
@@ -168,44 +303,42 @@ export default function CourseOverview() {
                         Curso gratuito
                       </p>
                     )}
-                    {course.price! > 0 && (
+                    {isPaidCourse ? (
                       <p className="text-sm text-neutral-500">
                         Pago único · Acceso de por vida
                       </p>
-                    )}
+                    ) : null}
                   </div>
 
-                  <Button
-                    onClick={handleBtnCheckout}
-                    size="lg"
-                    className="w-full text-base"
-                  >
-                    Inscribirme ahora
-                  </Button>
-
-                  {course.price! > 0 && (
-                    <p className="text-center text-xs text-neutral-500">
-                      Garantía de devolución de 7 días
-                    </p>
-                  )}
+                  {commercePanel}
 
                   <Separator />
 
+                  <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900">
+                    <div className="flex items-start gap-3">
+                      <ShoppingCart className="mt-0.5 h-4 w-4 shrink-0" />
+                      <p>
+                        Si ya existe una orden comercial, el sistema la reutiliza
+                        para evitar compras duplicadas.
+                      </p>
+                    </div>
+                  </div>
+
                   <ul className="space-y-3 text-sm">
-                    {course.level && (
+                    {course.level ? (
                       <li className="flex gap-2">
                         <Check className="mt-0.5 h-4 w-4 text-emerald-500" />
                         <span>{t("courseLevel", course.level)}</span>
                       </li>
-                    )}
-                    {course.duration && (
+                    ) : null}
+                    {course.duration ? (
                       <li className="flex gap-2">
                         <Check className="mt-0.5 h-4 w-4 text-emerald-500" />
                         <span>
                           {formatDuration(course.duration)} horas de contenido
                         </span>
                       </li>
-                    )}
+                    ) : null}
                     <li className="flex gap-2">
                       <Check className="mt-0.5 h-4 w-4 text-emerald-500" />
                       <span>{totalLessons} lecciones on-demand</span>
@@ -224,5 +357,3 @@ export default function CourseOverview() {
     </div>
   );
 }
-
-// /cursos/:slug/inscripcion   → Enroll // no creo que se implemente esto
