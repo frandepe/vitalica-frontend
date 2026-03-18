@@ -1,4 +1,5 @@
-﻿import { Card } from "@/components/ui/card";
+import { INSTRUCTOR_ROUTES } from "@/constants";
+import { Card } from "@/components/ui/card";
 import {
   BadgeCheck,
   BarChart3,
@@ -18,77 +19,77 @@ import { useNavigate } from "react-router-dom";
 const features = [
   {
     title: "Perfil",
-    href: "/perfil/perfil-de-instructor",
+    href: INSTRUCTOR_ROUTES.PROFILE,
     description:
       "Actualiza tu informacion personal y profesional para que tus estudiantes te conozcan mejor.",
     icon: <UserRoundPen />,
   },
   {
     title: "Especialidades",
-    href: "/perfil/especialidades",
+    href: INSTRUCTOR_ROUTES.SPECIALTIES,
     description:
       "Consulta tus especialidades aprobadas y solicita nuevas especialidades para revision administrativa.",
     icon: <BadgeCheck />,
   },
   {
     title: "Analiticas",
-    href: "/perfil/analiticas",
+    href: INSTRUCTOR_ROUTES.ANALYTICS,
     description:
       "Consulta estadisticas sobre tus cursos, estudiantes y desempeno general como instructor.",
     icon: <ChartNoAxesCombined />,
   },
   {
     title: "Mis Cursos",
-    href: "/perfil/cursos",
+    href: INSTRUCTOR_ROUTES.COURSES,
     description:
       "Administra todos tus cursos: edita, organiza el contenido y realiza actualizaciones facilmente.",
     icon: <BookOpen />,
   },
   {
     title: "Nuevo curso",
-    href: "/perfil/editar-curso",
+    href: INSTRUCTOR_ROUTES.COURSES,
     description:
       "Crea un curso desde cero y compartelo con tu comunidad de estudiantes.",
     icon: <BookPlus />,
   },
   {
     title: "Reseñas y Calificaciones",
-    href: "/perfil/resenas",
+    href: INSTRUCTOR_ROUTES.REVIEWS,
     description:
       "Lee la opinion de tus estudiantes, revisa sus valoraciones y mejora tu propuesta educativa.",
     icon: <Star />,
   },
   {
-    title: "Practicas",
-    href: "/perfil/practicas",
+    title: "Prácticas",
+    href: INSTRUCTOR_ROUTES.PRACTICES,
     description:
       "Revisa solicitudes de practica, ve el detalle de cada alumno y marca las practicas como completadas o canceladas.",
     icon: <ClipboardCheck />,
   },
   {
     title: "Mensajes",
-    href: "/perfil/mensajes",
+    href: INSTRUCTOR_ROUTES.MESSAGES,
     description:
       "Mantente en contacto con tus estudiantes: responde consultas y envia notificaciones importantes.",
     icon: <MessageCircle />,
   },
   {
     title: "Ingresos",
-    href: "/perfil/ingresos",
+    href: INSTRUCTOR_ROUTES.INCOME,
     description:
       "Visualiza tus ganancias, historial de pagos y administra tus finanzas como instructor.",
     icon: <Wallet />,
   },
   {
     title: "Soporte",
-    href: "/perfil/soporte",
+    href: INSTRUCTOR_ROUTES.SUPPORT,
     description:
       "Obten ayuda sobre cualquier problema tecnico o consulta relacionada con tu cuenta y cursos.",
     icon: <LifeBuoy />,
   },
   {
     title: "Panel administrativo",
-    href: "/perfil/panel-administrativo",
+    href: INSTRUCTOR_ROUTES.DASHBOARD,
     description:
       "Gestiona configuraciones avanzadas, reportes y herramientas administrativas de tu perfil de instructor.",
     icon: <BarChart3 />,

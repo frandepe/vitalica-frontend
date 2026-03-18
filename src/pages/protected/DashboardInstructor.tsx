@@ -18,6 +18,7 @@ import {
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useStickyTop } from "@/hooks/useStickyTop";
 import { useAuth } from "@/hooks/useAuth";
+import { INSTRUCTOR_ROUTES } from "@/constants";
 
 interface NavigationItem {
   id: string;
@@ -33,64 +34,64 @@ const navigationItems: NavigationItem[] = [
     id: "panel-administrativo",
     name: "Penel administrativo",
     icon: BarChart3,
-    href: "/perfil/panel-administrativo",
+    href: INSTRUCTOR_ROUTES.DASHBOARD,
   },
   {
     id: "perfil-de-instructor",
     name: "Perfil",
     icon: UserRoundPen,
-    href: "/perfil/perfil-de-instructor",
+    href: INSTRUCTOR_ROUTES.PROFILE,
   },
   {
     id: "especialidades",
     name: "Especialidades",
     icon: BadgeCheck,
-    href: "/perfil/especialidades",
+    href: INSTRUCTOR_ROUTES.SPECIALTIES,
   },
   {
     id: "analiticas",
     name: "Analíticas",
     icon: ChartNoAxesCombined,
-    href: "/perfil/analiticas",
+    href: INSTRUCTOR_ROUTES.ANALYTICS,
   },
   {
     id: "cursos",
     name: "Mis Cursos",
     icon: BookOpen,
-    href: "/perfil/cursos",
+    href: INSTRUCTOR_ROUTES.COURSES,
     badge: "0",
   },
   {
     id: "resenas",
     name: "Reseñas y Calificaciones",
     icon: Star,
-    href: "/perfil/resenas",
+    href: INSTRUCTOR_ROUTES.REVIEWS,
     badge: "0",
   },
   {
     id: "practicas",
-    name: "Practicas",
+    name: "Prácticas",
     icon: ClipboardCheck,
-    href: "/perfil/practicas",
+    href: INSTRUCTOR_ROUTES.PRACTICES,
+    badge: "0",
   },
   {
     id: "mensajes",
     name: "Mensajes",
     icon: MessageCircle,
-    href: "/perfil/mensajes",
-    badge: "0",
+    href: INSTRUCTOR_ROUTES.MESSAGES,
   },
   {
     id: "ingresos",
     name: "Ingresos",
     icon: Wallet,
-    href: "/perfil/ingresos",
+    href: INSTRUCTOR_ROUTES.INCOME,
   },
   {
     id: "soporte",
     name: "Soporte",
     icon: LifeBuoy,
-    href: "/perfil/soporte",
+    href: INSTRUCTOR_ROUTES.SUPPORT,
   },
 ];
 
@@ -103,19 +104,23 @@ export default function DashboardInstructor() {
 
   useEffect(() => {
     const pathToIdMap: Record<string, string> = {
-      "/perfil/panel-administrativo": "panel-administrativo",
-      "/perfil/perfil-de-instructor": "perfil-de-instructor",
-      "/perfil/especialidades": "especialidades",
-      "/perfil/analiticas": "analiticas",
-      "/perfil/cursos": "cursos",
-      "/perfil/resenas": "resenas",
-      "/perfil/practicas": "practicas",
-      "/perfil/mensajes": "mensajes",
-      "/perfil/ingresos": "ingresos",
-      "/perfil/soporte": "soporte",
+      [INSTRUCTOR_ROUTES.DASHBOARD]: "panel-administrativo",
+      [INSTRUCTOR_ROUTES.PROFILE]: "perfil-de-instructor",
+      [INSTRUCTOR_ROUTES.SPECIALTIES]: "especialidades",
+      [INSTRUCTOR_ROUTES.ANALYTICS]: "analiticas",
+      [INSTRUCTOR_ROUTES.COURSES]: "cursos",
+      [INSTRUCTOR_ROUTES.REVIEWS]: "resenas",
+      [INSTRUCTOR_ROUTES.PRACTICES]: "practicas",
+      [INSTRUCTOR_ROUTES.MESSAGES]: "mensajes",
+      [INSTRUCTOR_ROUTES.INCOME]: "ingresos",
+      [INSTRUCTOR_ROUTES.SUPPORT]: "soporte",
     };
 
-    const id = pathToIdMap[location.pathname];
+    const id =
+      pathToIdMap[location.pathname] ??
+      (location.pathname.startsWith(`${INSTRUCTOR_ROUTES.EDIT_COURSE}/`)
+        ? "cursos"
+        : undefined);
     if (id) setActiveItem(id);
   }, [location.pathname]);
 

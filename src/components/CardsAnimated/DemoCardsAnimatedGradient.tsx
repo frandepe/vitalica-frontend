@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { CardsAnimatedGradient } from "./CardsAnimatedGradient";
 import { useNavigate } from "react-router-dom";
+import { INSTRUCTOR_ROUTES } from "@/constants";
 import {
   BarChart3,
   BookOpen,
@@ -24,29 +25,29 @@ const urlMapping: Record<
     icon: React.ComponentType<{ className?: string }>;
   }
 > = {
-  "/perfil/panel-administrativo": {
+  [INSTRUCTOR_ROUTES.DASHBOARD]: {
     title: "Panel de Instructor",
     subtitle:
       "Visualiza métricas, administra cursos, revisa estudiantes, reseñas y actualiza tu perfil",
     icon: BarChart3,
   },
 
-  "/perfil/perfil-de-instructor": {
+  [INSTRUCTOR_ROUTES.PROFILE]: {
     title: "Perfil del Instructor",
     subtitle: "Visualiza y edita tu información personal",
     icon: UserRoundPen,
   },
-  "/perfil/analiticas": {
+  [INSTRUCTOR_ROUTES.ANALYTICS]: {
     title: "Analíticas",
     subtitle: "Estadísticas y desempeño",
     icon: ChartNoAxesCombined,
   },
-  "/perfil/cursos": {
+  [INSTRUCTOR_ROUTES.COURSES]: {
     title: "Cursos Activos",
     subtitle: "Gestión de cursos disponibles",
     icon: BookOpen,
   },
-  "/perfil/resenas": {
+  [INSTRUCTOR_ROUTES.REVIEWS]: {
     title: "Satisfacción del Cliente",
     subtitle: "Reseñas y feedback de usuarios",
     icon: Star,
@@ -115,31 +116,31 @@ const AnimatedGradientDemo: React.FC = () => {
           <BentoCard
             colors={["#189cf4", "#60A5FA", "#93C5FD"]}
             delay={0.2}
-            redirectUrl="/perfil/panel-administrativo"
+            redirectUrl={INSTRUCTOR_ROUTES.DASHBOARD}
           />
         </div>
         <BentoCard
           colors={["#adebf3", "#34D399", "#93C5FD"]}
           delay={0.4}
-          redirectUrl="/perfil/perfil-de-instructor"
+          redirectUrl={INSTRUCTOR_ROUTES.PROFILE}
         />
         <BentoCard
           colors={["#20ab9f", "#A78BFA", "#FCD34D"]}
           delay={0.6}
-          redirectUrl="/perfil/analiticas"
+          redirectUrl={INSTRUCTOR_ROUTES.ANALYTICS}
         />
         <div className="md:col-span-2">
           <BentoCard
             colors={["#3B82F6", "#A78BFA", "#FBCFE8"]}
             delay={0.8}
-            redirectUrl="/perfil/cursos"
+            redirectUrl={INSTRUCTOR_ROUTES.COURSES}
           />
         </div>
         <div className="md:col-span-3">
           <BentoCard
             colors={["#72d0ba", "#F472B6", "#20ab9f"]}
             delay={1}
-            redirectUrl="/perfil/resenas"
+            redirectUrl={INSTRUCTOR_ROUTES.REVIEWS}
           />
         </div>
       </div>

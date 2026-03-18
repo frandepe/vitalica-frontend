@@ -17,6 +17,7 @@ import { formatPrice } from "@/utils/format-price";
 import { formatDuration } from "@/utils/format-duration";
 import { Separator } from "../ui/separator";
 import { createOrGetCourseDraft } from "@/api";
+import { INSTRUCTOR_ROUTES } from "@/constants";
 
 export const CardInstructorCourse: React.FC<ICourse> = ({
   id,
@@ -61,7 +62,7 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
 
       // 1️⃣ Si ya hay una versión editable → ir a esa
       if (editableVersion) {
-        navigate(`/perfil/editar-curso/${editableVersion.id}`);
+        navigate(`${INSTRUCTOR_ROUTES.EDIT_COURSE}/${editableVersion.id}`);
         return;
       }
 
@@ -69,7 +70,7 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
       const res = await createOrGetCourseDraft(courseId);
       const draftId = res.data.draftId;
 
-      navigate(`/perfil/editar-curso/${draftId}`);
+      navigate(`${INSTRUCTOR_ROUTES.EDIT_COURSE}/${draftId}`);
     } catch (error) {
       console.error("Error al crear/obtener draft", error);
     } finally {
@@ -218,7 +219,7 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
                 onClick={() =>
                   navigate(
                     canEdit
-                      ? `/perfil/editar-curso/${id}`
+                      ? `${INSTRUCTOR_ROUTES.EDIT_COURSE}/${id}`
                       : `/estado-curso/${id}`,
                   )
                 }

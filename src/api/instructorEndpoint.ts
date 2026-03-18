@@ -5,6 +5,12 @@ import {
   InstructorProfile,
   InstructorSpecialtyRequest,
 } from "@/types/instructor.types";
+import {
+  InstructorReviewItem,
+  InstructorReviewType,
+  InstructorReviewsMeta,
+  InstructorReviewsSummary,
+} from "@/types/instructor-reviews.types";
 import { API_ROUTES } from "@/constants";
 
 export const upsertInstructorApplication = async (
@@ -77,6 +83,31 @@ export const getCoursesByInstructor = async (
       page,
       limit,
       search,
+    },
+  });
+};
+
+export const getInstructorReviews = async (params: {
+  page: number;
+  limit: number;
+  courseId?: string;
+  type: InstructorReviewType;
+}): Promise<
+  ApiResponse<InstructorReviewItem[]> & {
+    meta?: InstructorReviewsMeta;
+    summary?: InstructorReviewsSummary;
+  }
+> => {
+  const { page, limit, courseId, type } = params;
+
+  return apiRequest({
+    url: `${API_ROUTES.INSTRUCTOR}/reviews`,
+    method: "GET",
+    params: {
+      page,
+      limit,
+      courseId: courseId || undefined,
+      type,
     },
   });
 };

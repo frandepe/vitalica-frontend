@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { useMedia } from "@/hooks/useMedia";
 import { useAuth } from "@/hooks/useAuth";
 import RoleBadge from "./RoleBadge";
+import { INSTRUCTOR_ROUTES } from "@/constants";
 
 export default function ProfileMenu() {
   const { user, logout } = useAuth();
@@ -101,7 +102,7 @@ export default function ProfileMenu() {
             {user?.role === "INSTRUCTOR" && (
               <button
                 className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
-                onClick={() => navigate("/perfil/panel-administrativo")}
+                onClick={() => navigate(INSTRUCTOR_ROUTES.DASHBOARD)}
               >
                 <Settings className="h-4 w-4" />
                 Panel de Instructor
@@ -183,7 +184,7 @@ export default function ProfileMenu() {
         {user?.role === "INSTRUCTOR" && (
           <DropdownItem
             className="gap-2"
-            onClick={() => navigate("/perfil/panel-administrativo")}
+            onClick={() => navigate(INSTRUCTOR_ROUTES.DASHBOARD)}
           >
             <Settings className="h-4 w-4" />
             Panel de Instructor

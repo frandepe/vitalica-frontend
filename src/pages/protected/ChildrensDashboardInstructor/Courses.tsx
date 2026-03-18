@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { ICourse } from "@/types/course.types";
 import { InstructorMyCoursesSkeleton } from "@/components/Skeletons/InstructorMyCoursesSkeleton";
 import { Button } from "@/components/ui/button";
+import { INSTRUCTOR_ROUTES } from "@/constants";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -59,7 +60,7 @@ export default function Courses() {
         console.error("Error creating course:", res.message);
         return;
       }
-      navigate(`/perfil/editar-curso/${res.data.id}`);
+      navigate(`${INSTRUCTOR_ROUTES.EDIT_COURSE}/${res.data.id}`);
     } catch (error) {
       console.log(error);
     } finally {

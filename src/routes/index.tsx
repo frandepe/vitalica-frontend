@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import PublicLayout from "../layouts/public.layout";
 import AuthLayout from "../layouts/auth.layout";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
+import InstructorRoute from "../components/auth/InstructorRoute";
 
 // Lazy loading de páginas para mejor performance
 import { lazy } from "react";
@@ -79,6 +80,9 @@ const Courses = lazy(
 const PracticeRequests = lazy(
   () =>
     import("@/pages/protected/ChildrensDashboardInstructor/PracticeRequests"),
+);
+const Reviews = lazy(
+  () => import("@/pages/protected/ChildrensDashboardInstructor/Reviews"),
 );
 const EditCourse = lazy(
   () => import("@/pages/protected/ChildrensDashboardInstructor/EditCourse"),
@@ -207,13 +211,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: "perfil",
+        path: "instructor",
         element: (
-          <ProtectedRoute>
+          <InstructorRoute>
             <DashboardInstructor />
-          </ProtectedRoute>
+          </InstructorRoute>
         ),
         children: [
+          { index: true, element: <Navigate to="panel-administrativo" replace /> },
           { path: "panel-administrativo", element: <CardsDashboard /> },
           {
             path: "perfil-de-instructor",
@@ -227,7 +232,7 @@ export const router = createBrowserRouter([
           { path: "cursos", element: <Courses /> },
           { path: "practicas", element: <PracticeRequests /> },
           { path: "editar-curso/:courseId", element: <EditCourse /> },
-          { path: "resenas", element: <div>Reviews</div> },
+          { path: "resenas", element: <Reviews /> },
         ],
       },
     ],
