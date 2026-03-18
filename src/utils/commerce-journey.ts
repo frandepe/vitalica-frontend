@@ -20,9 +20,7 @@ export const isPaidAccessState = (
   accessStatus?: CommercialOrderAccessStatus | null,
 ) => accessStatus === "GRANTED" || orderStatus === "PAID";
 
-export const isTerminalStudentCommerceState = (
-  state: StudentCommerceState,
-) =>
+export const isTerminalStudentCommerceState = (state: StudentCommerceState) =>
   state === "PAYMENT_APPROVED" ||
   state === "PAYMENT_REJECTED" ||
   state === "PAYMENT_EXPIRED" ||
@@ -36,7 +34,9 @@ export const resolveStudentCommerceState = (params: {
   const { sellability, orderStatus } = params;
 
   const effectiveAccessStatus =
-    orderStatus?.accessStatus ?? sellability?.existingOrder?.accessStatus ?? null;
+    orderStatus?.accessStatus ??
+    sellability?.existingOrder?.accessStatus ??
+    null;
   const effectiveOrderStatus =
     orderStatus?.orderStatus ?? sellability?.existingOrder?.status ?? null;
 
@@ -99,7 +99,7 @@ export const getStudentCommerceCopy = (state: StudentCommerceState) => {
         badge: "Checkout iniciado",
         title: "Tu compra ya fue iniciada",
         description:
-          "Retomá la orden existente para continuar en Mercado Pago sin crear una nueva compra.",
+          "Retomá la orden existente para continuar en Mercado Pago.",
         actionLabel: "Continuar compra",
       };
     case "PAYMENT_PENDING":
@@ -115,7 +115,7 @@ export const getStudentCommerceCopy = (state: StudentCommerceState) => {
         badge: "Pago aprobado",
         title: "El pago fue aprobado",
         description:
-          "La orden ya quedó pagada. Si el acceso todavía no aparece, esperá unos segundos a que termine la sincronización del webhook.",
+          "La compra ya está confirmada. El acceso al curso puede demorar unos segundos en habilitarse.",
         actionLabel: "Ver estado de compra",
       };
     case "PAYMENT_REJECTED":
@@ -146,9 +146,8 @@ export const getStudentCommerceCopy = (state: StudentCommerceState) => {
     default:
       return {
         badge: "Disponible",
-        title: "Podés comprar este curso",
-        description:
-          "El acceso se otorga recién cuando Mercado Pago confirma el estado real del pago por webhook.",
+        title: "Este curso está disponible",
+        description: "Compralo para acceder a todo el contenido al instante",
         actionLabel: "Comprar",
       };
   }

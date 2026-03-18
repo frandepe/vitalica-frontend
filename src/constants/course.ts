@@ -25,6 +25,31 @@ export const StatusPracticeRequestLabels = {
   CANCELLED: "Cancelado",
 } as const;
 
+export const SellabilityExistingOrderStatusLabels = {
+  CREATED: "Creada",
+  CHECKOUT_PENDING: "Esperando pago",
+  PAYMENT_PENDING: "Pago en proceso",
+  PAID: "Pagado",
+  PAYMENT_FAILED: "Pago rechazado",
+  CANCELLED: "Cancelada",
+  EXPIRED: "Expirada",
+  REFUNDED: "Reembolsada",
+  DISPUTED: "En disputa",
+} as const;
+
+export const SellabilityExistingOrderAccessStatusLabels = {
+  PENDING: "Pendiente",
+  GRANTED: "Acceso habilitado",
+  FAILED: "Error al habilitar acceso",
+  REVOKED: "Acceso revocado",
+} as const;
+
+export const SellabilityOrderResolutionLabels = {
+  CREATE_ORDER: "Crear compra",
+  REUSE_EXISTING_ORDER: "Continuar compra",
+  BLOCKED: "No disponible",
+} as const;
+
 export const levels = Object.keys(CourseLevelLabels)
   .filter((key) => isNaN(Number(key)))
   .map((key, index) => ({

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ShoppingCart, Sparkles, Star } from "lucide-react";
+import { Check, Sparkles, Star } from "lucide-react";
 import MuxPlayer from "@mux/mux-player-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCourseBySlug, getCoursePurchaseSellability } from "@/api";
@@ -89,10 +89,11 @@ export default function CourseOverview() {
     fetchSellability();
   }, [course, isInitialized, user.id]);
 
-  const totalLessons = course?.modules?.reduce(
-    (acc: number, module) => acc + (module.lessons?.length ?? 0),
-    0,
-  ) ?? 0;
+  const totalLessons =
+    course?.modules?.reduce(
+      (acc: number, module) => acc + (module.lessons?.length ?? 0),
+      0,
+    ) ?? 0;
 
   const commerceState = useMemo(
     () => resolveStudentCommerceState({ sellability, orderStatus: null }),
@@ -159,17 +160,20 @@ export default function CourseOverview() {
       {sellability?.existingOrder ? (
         <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700">
           <p className="font-medium text-neutral-950">Compra existente</p>
-          <p className="mt-2">Estado orden: {sellability.existingOrder.status}</p>
-          <p>Estado acceso: {sellability.existingOrder.accessStatus}</p>
-          {sellability.existingOrder.expiresAt ? (
-            <p>
-              Expira:{" "}
-              {new Intl.DateTimeFormat("es-AR", {
-                dateStyle: "short",
-                timeStyle: "short",
-              }).format(new Date(sellability.existingOrder.expiresAt))}
-            </p>
-          ) : null}
+          <p className="mt-2">
+            Estado orden:{" "}
+            {t(
+              "sellabilityExistinOrderStatus",
+              sellability.existingOrder.status,
+            )}
+          </p>
+          <p>
+            Estado acceso:{" "}
+            {t(
+              "sellabilityExistinOrderAccessStatus",
+              sellability.existingOrder.accessStatus,
+            )}
+          </p>
         </div>
       ) : null}
 
@@ -204,7 +208,10 @@ export default function CourseOverview() {
                   {t("courseSpecialty", course.specialty!)}
                 </Badge>
                 {course.level ? (
-                  <Badge variant="outline" className="border-white/30 text-white">
+                  <Badge
+                    variant="outline"
+                    className="border-white/30 text-white"
+                  >
                     {t("courseLevel", course.level)}
                   </Badge>
                 ) : null}
@@ -228,7 +235,8 @@ export default function CourseOverview() {
                   ))}
                 </div>
                 <span className="opacity-80">
-                  {course.avgTheoreticalRating} · {course.totalStudents} estudiantes
+                  {course.avgTheoreticalRating} · {course.totalStudents}{" "}
+                  estudiantes
                 </span>
               </div>
 
@@ -313,16 +321,6 @@ export default function CourseOverview() {
                   {commercePanel}
 
                   <Separator />
-
-                  <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900">
-                    <div className="flex items-start gap-3">
-                      <ShoppingCart className="mt-0.5 h-4 w-4 shrink-0" />
-                      <p>
-                        Si ya existe una orden comercial, el sistema la reutiliza
-                        para evitar compras duplicadas.
-                      </p>
-                    </div>
-                  </div>
 
                   <ul className="space-y-3 text-sm">
                     {course.level ? (

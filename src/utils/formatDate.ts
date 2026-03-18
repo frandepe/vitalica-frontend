@@ -17,11 +17,7 @@ const localeMap: Record<string, Locale> = {
 
 export function formatDate(
   dateInput: string | Date,
-  {
-    showTime = true,
-    locale = "es-ES",
-    formatOptions,
-  }: FormatDateOptions = {},
+  { showTime = true, locale = "es-ES", formatOptions }: FormatDateOptions = {},
 ) {
   try {
     const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
@@ -41,7 +37,7 @@ export function formatDate(
       locale: dateFnsLocale,
     });
   } catch (error) {
-    console.error("Invalid date format:", dateInput);
+    console.error("Invalid date format:", { error, dateInput });
     return "";
   }
 }

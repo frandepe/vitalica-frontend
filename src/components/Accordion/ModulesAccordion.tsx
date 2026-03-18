@@ -42,12 +42,13 @@ export function ModulesAccordion({
   };
 
   const handleOpenFreeLesson = async (lessonClicked: Lesson) => {
-      setOpen(true);
+    setOpen(true);
 
     try {
       setLoading(true);
       const res = (await getFreeLessons(courseId)) as FreeLessonsResponse;
-      const lessons = res.data?.modules.flatMap((module) => module.lessons) ?? [];
+      const lessons =
+        res.data?.modules.flatMap((module) => module.lessons) ?? [];
 
       setFreeLessons(lessons);
 
@@ -75,9 +76,12 @@ export function ModulesAccordion({
   };
 
   const handleBtnCheckout = () => {
-    price > 0
-      ? navigate(`/cursos/${courseId}/pago`)
-      : navigate(`/mis-cursos/${slug}`);
+    if (price > 0) {
+      navigate(`/cursos/${courseId}/pago`);
+      return;
+    }
+
+    navigate(`/mis-cursos/${slug}`);
   };
 
   return (

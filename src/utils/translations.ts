@@ -1,6 +1,9 @@
 import {
   CourseLevelLabels,
   courseStatusDescription,
+  SellabilityExistingOrderAccessStatusLabels,
+  SellabilityExistingOrderStatusLabels,
+  SellabilityOrderResolutionLabels,
   SpecialtyLabels,
   StatusPracticeRequestLabels,
   translateInstructorApplicationStatus,
@@ -22,6 +25,10 @@ const dict = {
     DIRECT_CONTACT: "Contacto directo con el instructor",
     REQUEST_CONTACT: "El instructor contacta al alumno",
   },
+  sellabilityExistinOrderStatus: SellabilityExistingOrderStatusLabels,
+  sellabilityExistinOrderAccessStatus:
+    SellabilityExistingOrderAccessStatusLabels,
+  sellabilityOrderResolution: SellabilityOrderResolutionLabels,
 };
 
 type Dict = typeof dict;
