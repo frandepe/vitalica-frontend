@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,19 +16,20 @@ import {
   LifeBuoy,
 } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { getInstructorDashboardCounts } from "@/api";
+import { INSTRUCTOR_ROUTES } from "@/constants";
 import { useStickyTop } from "@/hooks/useStickyTop";
 import { useAuth } from "@/hooks/useAuth";
-import { INSTRUCTOR_ROUTES } from "@/constants";
+import { InstructorDashboardCounts } from "@/types/instructor.types";
 
 interface NavigationItem {
   id: string;
   name: string;
   icon: React.ComponentType<{ className?: string }>;
   href: string;
-  badge?: string;
+  badgeCountKey?: keyof InstructorDashboardCounts;
 }
 
-// Updated navigation items - remove logout from here
 const navigationItems: NavigationItem[] = [
   {
     id: "panel-administrativo",
@@ -50,7 +51,7 @@ const navigationItems: NavigationItem[] = [
   },
   {
     id: "analiticas",
-    name: "Analíticas",
+    name: "Analiticas",
     icon: ChartNoAxesCombined,
     href: INSTRUCTOR_ROUTES.ANALYTICS,
   },
@@ -59,21 +60,21 @@ const navigationItems: NavigationItem[] = [
     name: "Mis Cursos",
     icon: BookOpen,
     href: INSTRUCTOR_ROUTES.COURSES,
-    badge: "0",
+    badgeCountKey: "courses",
   },
   {
     id: "resenas",
     name: "Reseñas y Calificaciones",
     icon: Star,
     href: INSTRUCTOR_ROUTES.REVIEWS,
-    badge: "0",
+    badgeCountKey: "reviews",
   },
   {
     id: "practicas",
     name: "Prácticas",
     icon: ClipboardCheck,
     href: INSTRUCTOR_ROUTES.PRACTICES,
-    badge: "0",
+    badgeCountKey: "practices",
   },
   {
     id: "mensajes",
@@ -99,6 +100,8 @@ export default function DashboardInstructor() {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeItem, setActiveItem] = useState("panel-administrativo");
+  const [dashboardCounts, setDashboardCounts] =
+    useState<InstructorDashboardCounts | null>(null);
   const location = useLocation();
   const { user } = useAuth();
 
@@ -124,9 +127,28 @@ export default function DashboardInstructor() {
     if (id) setActiveItem(id);
   }, [location.pathname]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadDashboardCounts = async () => {
+      const response = await getInstructorDashboardCounts();
+
+      if (!response.success || !response.data || !isMounted) {
+        return;
+      }
+
+      setDashboardCounts(response.data);
+    };
+
+    loadDashboardCounts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const navigate = useNavigate();
 
-  // Auto-open sidebar on desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
@@ -151,15 +173,27 @@ export default function DashboardInstructor() {
     navigate(href);
   };
 
+  const resolvedNavigationItems = useMemo(
+    () =>
+      navigationItems.map((item) => ({
+        ...item,
+        badge:
+          item.badgeCountKey && dashboardCounts
+            ? String(dashboardCounts[item.badgeCountKey])
+            : undefined,
+      })),
+    [dashboardCounts],
+  );
+
   const navbarHeight = 60.8; // px
   const top = useStickyTop(navbarHeight);
   const sidebarHeight = `calc(100vh - ${top}px)`;
+
   return (
     <div className="flex">
-      {/* Mobile hamburger button */}
       <button
         onClick={toggleSidebar}
-        className="fixed top-8 left-0 z-50 p-3 rounded-r-lg bg-white shadow border border-slate-100 md:hidden hover:bg-slate-50 transition-all duration-200"
+        className="fixed top-8 left-0 z-50 rounded-r-lg border border-slate-100 bg-white p-3 shadow transition-all duration-200 hover:bg-slate-50 md:hidden"
         aria-label="Toggle sidebar"
       >
         {isOpen ? (
@@ -169,32 +203,29 @@ export default function DashboardInstructor() {
         )}
       </button>
 
-      {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 md:hidden transition-opacity duration-300"
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity duration-300 md:hidden"
           onClick={toggleSidebar}
         />
       )}
 
-      {/* Sidebar */}
       <div
         className={`
-        fixed left-0 bg-white border-r border-slate-200 z-40 transition-all duration-300 ease-in-out flex flex-col
+        fixed left-0 z-40 flex flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
         ${isCollapsed ? "w-28" : "w-72"}
       `}
         style={{ top, height: sidebarHeight }}
       >
-        {/* Header with logo and collapse button */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-slate-50/60">
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/60 p-5">
           {!isCollapsed && (
             <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold text-base">I</span>
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-sm">
+                <span className="text-base font-bold text-white">I</span>
               </div>
               <div className="flex flex-col">
-                <span className="font-semibold text-slate-800 text-base">
+                <span className="text-base font-semibold text-slate-800">
                   Instructor
                 </span>
                 <span className="text-xs text-slate-500">
@@ -205,15 +236,14 @@ export default function DashboardInstructor() {
           )}
 
           {isCollapsed && (
-            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center mx-auto shadow-sm">
-              <span className="text-white font-bold text-base">I</span>
+            <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-sm">
+              <span className="text-base font-bold text-white">I</span>
             </div>
           )}
 
-          {/* Desktop collapse button */}
           <button
             onClick={toggleCollapse}
-            className="hidden md:flex p-1.5 rounded-md hover:bg-slate-100 transition-all duration-200"
+            className="hidden rounded-md p-1.5 transition-all duration-200 hover:bg-slate-100 md:flex"
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? (
@@ -224,24 +254,22 @@ export default function DashboardInstructor() {
           </button>
         </div>
 
-        {/* Search Bar */}
         {!isCollapsed && (
           <div className="px-4 py-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 transform text-slate-400" />
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-9 pr-4 text-sm placeholder-slate-400 transition-all duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
         )}
 
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-2 overflow-y-auto">
+        <nav className="flex-1 overflow-y-auto px-3 py-2">
           <ul className="space-y-0.5">
-            {navigationItems.map((item) => {
+            {resolvedNavigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeItem === item.id;
 
@@ -250,17 +278,18 @@ export default function DashboardInstructor() {
                   <button
                     onClick={() => handleItemClick(item.href)}
                     className={`
-                      w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-md text-left transition-all duration-200 group
+                      group w-full rounded-md px-3 py-2.5 text-left transition-all duration-200
+                      ${isCollapsed ? "justify-center px-2" : ""}
                       ${
                         isActive
                           ? "bg-blue-50 text-primary"
                           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                       }
-                      ${isCollapsed ? "justify-center px-2" : ""}
+                      flex items-center space-x-2.5
                     `}
                     title={isCollapsed ? item.name : undefined}
                   >
-                    <div className="flex items-center justify-center min-w-[24px]">
+                    <div className="flex min-w-[24px] items-center justify-center">
                       <Icon
                         className={`
                           h-4.5 w-4.5 flex-shrink-0
@@ -274,7 +303,7 @@ export default function DashboardInstructor() {
                     </div>
 
                     {!isCollapsed && (
-                      <div className="flex items-center justify-between w-full">
+                      <div className="flex w-full items-center justify-between">
                         <span
                           className={`text-sm ${
                             isActive ? "font-medium" : "font-normal"
@@ -282,10 +311,10 @@ export default function DashboardInstructor() {
                         >
                           {item.name}
                         </span>
-                        {item.badge && (
+                        {item.badge !== undefined && (
                           <span
                             className={`
-                            px-1.5 py-0.5 text-xs font-medium rounded-full
+                            rounded-full px-1.5 py-0.5 text-xs font-medium
                             ${
                               isActive
                                 ? "bg-blue-100 text-blue-700"
@@ -299,25 +328,15 @@ export default function DashboardInstructor() {
                       </div>
                     )}
 
-                    {/* Badge for collapsed state */}
-                    {/* {isCollapsed && item.badge && (
-                      <div className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center rounded-full bg-blue-100 border border-white">
-                        <span className="text-[10px] font-medium text-blue-700">
-                          {parseInt(item.badge) > 9 ? "9+" : item.badge}
-                        </span>
-                      </div>
-                    )} */}
-
-                    {/* Tooltip for collapsed state */}
                     {isCollapsed && (
-                      <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                      <div className="invisible absolute left-full z-50 ml-2 whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
                         {item.name}
-                        {item.badge && (
-                          <span className="ml-1.5 px-1 py-0.5 bg-slate-700 rounded-full text-[10px]">
+                        {item.badge !== undefined && (
+                          <span className="ml-1.5 rounded-full bg-slate-700 px-1 py-0.5 text-[10px]">
                             {item.badge}
                           </span>
                         )}
-                        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-slate-800 rotate-45" />
+                        <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-x-1 -translate-y-1/2 rotate-45 transform bg-slate-800" />
                       </div>
                     )}
                   </button>
@@ -327,74 +346,69 @@ export default function DashboardInstructor() {
           </ul>
         </nav>
 
-        {/* Bottom section with profile and logout */}
         <div className="mt-auto border-t border-slate-200">
-          {/* Profile Section */}
           <div
             className={`border-b border-slate-200 bg-slate-50/30 ${
-              isCollapsed ? "py-3 px-2" : "p-3"
+              isCollapsed ? "px-2 py-3" : "p-3"
             }`}
           >
             {!isCollapsed ? (
-              <div className="flex items-center px-3 py-2 rounded-md bg-white hover:bg-slate-50 transition-colors duration-200">
-                <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-                  <span className="text-slate-700 font-medium text-sm">
+              <div className="flex items-center rounded-md bg-white px-3 py-2 transition-colors duration-200 hover:bg-slate-50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200">
+                  <span className="text-sm font-medium text-slate-700">
                     {user.firstName?.charAt(0)}
                     {user.lastName?.charAt(0) || "AA"}
                   </span>
                 </div>
-                <div className="flex-1 min-w-0 ml-2.5">
-                  <p className="text-sm font-medium text-slate-800 truncate">
+                <div className="ml-2.5 min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-slate-800">
                     {user.firstName} {user.lastName}
                   </p>
-                  <p className="text-xs text-slate-500 truncate">
+                  <p className="truncate text-xs text-slate-500">
                     {user.email}
                   </p>
                 </div>
-                <div className="w-2 h-2 bg-green-500 rounded-full ml-2" />
+                <div className="ml-2 h-2 w-2 rounded-full bg-green-500" />
               </div>
             ) : (
               <div className="flex justify-center">
                 <div className="relative">
-                  <div className="w-9 h-9 bg-slate-200 rounded-full flex items-center justify-center">
-                    <span className="text-slate-700 font-medium text-sm">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200">
+                    <span className="text-sm font-medium text-slate-700">
                       JD
                     </span>
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                  <div className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-white bg-green-500" />
                 </div>
               </div>
             )}
           </div>
 
-          {/* Logout Button */}
           <div className="p-3">
             <button
               onClick={() => navigate("/perfil")}
               className={`
-                w-full flex items-center rounded-md text-left transition-all duration-200 group
-                hover:bg-gray-50 hover:text-black-600 cursor-pointer
+                group w-full rounded-md text-left transition-all duration-200
+                cursor-pointer hover:bg-gray-50 hover:text-black-600
                 ${
                   isCollapsed
                     ? "justify-center p-2.5"
                     : "space-x-2.5 px-3 py-2.5"
                 }
+                flex items-center
               `}
               title={isCollapsed ? "Panel de usuario" : undefined}
             >
-              <div className="flex items-center justify-center min-w-[24px]">
+              <div className="flex min-w-[24px] items-center justify-center">
                 <ArrowLeftFromLine className="h-4.5 w-4.5 flex-shrink-0" />
               </div>
 
-              {!isCollapsed && (
-                <span className="text-sm">Panel de usuario</span>
-              )}
+              {!isCollapsed && <span className="text-sm">Panel de usuario</span>}
 
-              {/* Tooltip for collapsed state */}
               {isCollapsed && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                <div className="invisible absolute left-full z-50 ml-2 whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
                   Panel de usuario
-                  <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-slate-800 rotate-45" />
+                  <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-x-1 -translate-y-1/2 rotate-45 transform bg-slate-800" />
                 </div>
               )}
             </button>
@@ -402,9 +416,8 @@ export default function DashboardInstructor() {
         </div>
       </div>
 
-      {/* Main Content Area */}
       <div
-        className={`flex-1 transition-all duration-300 px-4 ${
+        className={`flex-1 px-4 transition-all duration-300 ${
           !isOpen ? "ml-0" : isCollapsed ? "ml-28" : "ml-72"
         }`}
       >

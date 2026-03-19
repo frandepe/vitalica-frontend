@@ -162,7 +162,7 @@ const HomePage = () => {
               },
             }}
           >
-            Formación avanzada en
+            Formación híbrida en
             <span className="text-primary"> emergencias médicas</span>
           </motion.h1>
 

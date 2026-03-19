@@ -126,3 +126,9 @@ export interface InstructorProfile {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface InstructorDashboardCounts {
+  courses: number;
+  reviews: number;
+  practices: number;
+}

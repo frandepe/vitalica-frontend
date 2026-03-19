@@ -2,6 +2,7 @@ import { ApiResponse } from "@/types/endpoints.types";
 import { apiRequest } from "./configEndpoint";
 import {
   IApplyInstructor,
+  InstructorDashboardCounts,
   InstructorProfile,
   InstructorSpecialtyRequest,
 } from "@/types/instructor.types";
@@ -109,5 +110,14 @@ export const getInstructorReviews = async (params: {
       courseId: courseId || undefined,
       type,
     },
+  });
+};
+
+export const getInstructorDashboardCounts = async (): Promise<
+  ApiResponse<InstructorDashboardCounts>
+> => {
+  return apiRequest({
+    url: `${API_ROUTES.INSTRUCTOR}/dashboard-counts`,
+    method: "GET",
   });
 };

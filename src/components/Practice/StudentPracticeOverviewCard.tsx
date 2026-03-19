@@ -28,7 +28,7 @@ export function StudentPracticeOverviewCard({
   const StatusIcon = status.icon;
 
   return (
-    <Card className="border-primary/20 bg-gradient-to-br from-primary/[0.04] via-background to-background">
+    <Card className="border-border bg-gradient-to-br from-primary/[0.04] via-background to-background">
       <CardHeader className="space-y-5 px-6 py-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-2xl space-y-3">
@@ -83,7 +83,10 @@ export function StudentPracticeOverviewCard({
             </p>
             {practice.latestPracticeRequestStatus && (
               <p className="text-sm font-medium text-foreground">
-                {t("statusPracticeRequest", practice.latestPracticeRequestStatus)}
+                {t(
+                  "statusPracticeRequest",
+                  practice.latestPracticeRequestStatus,
+                )}
               </p>
             )}
           </div>
