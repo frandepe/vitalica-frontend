@@ -27,7 +27,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
@@ -164,139 +170,208 @@ export default function PracticeRequests() {
   };
 
   return (
-    <div className="py-8 space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold">Solicitudes de practica</h1>
-        <p className="text-sm text-muted-foreground">
-          Gestiona las practicas asignadas a tu perfil. Desde aqui puedes
-          revisar el detalle de cada alumno, completar solicitudes pendientes o
-          cancelarlas.
-        </p>
-      </div>
+    <div className="space-y-8 py-6 lg:space-y-10 lg:py-8">
+      <Card className="overflow-hidden border-border/70 bg-gradient-to-br from-background via-background to-primary/5 shadow-sm">
+        <CardContent className="px-6 py-6 sm:px-8 sm:py-7">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl space-y-3">
+              <Badge variant="outline" size="sm" className="w-fit">
+                Panel de gestion
+              </Badge>
+              <div className="space-y-2">
+                <h1 className="text-3xl font-semibold tracking-tight">
+                  Solicitudes de practica
+                </h1>
+                <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-[15px]">
+                  Gestiona las practicas asignadas a tu perfil. Desde aqui
+                  puedes revisar el detalle de cada alumno, completar
+                  solicitudes pendientes o cancelarlas.
+                </p>
+              </div>
+            </div>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardContent className="px-5 py-5">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Total
+            <div className="grid grid-cols-2 gap-3 sm:min-w-[320px] sm:grid-cols-4">
+              <div className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3 backdrop-blur">
+                <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                  Total
+                </p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight">
+                  {stats.total}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3 backdrop-blur">
+                <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                  Pendientes
+                </p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight">
+                  {stats.pending}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3 backdrop-blur">
+                <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                  Completadas
+                </p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight">
+                  {stats.completed}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border/70 bg-background/80 px-4 py-3 backdrop-blur">
+                <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                  Canceladas
+                </p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight">
+                  {stats.cancelled}
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold tracking-tight">
+              Filtrar solicitudes
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Cambia la vista para revisar pendientes, completadas o canceladas.
             </p>
-            <p className="mt-2 text-2xl font-semibold">{stats.total}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="px-5 py-5">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          </div>
+
+          <Badge variant="outline" size="sm" className="w-fit">
+            {filteredRequests.length} visibles
+          </Badge>
+        </div>
+
+        <Tabs
+          value={filter}
+          onValueChange={(value) => setFilter(value as StatusFilter)}
+          className="space-y-6"
+        >
+          <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-2xl border border-border/70 bg-muted/40 p-1.5">
+            <TabsTrigger value="ALL" className="rounded-xl px-4">
+              Todas
+            </TabsTrigger>
+            <TabsTrigger value="PENDING" className="rounded-xl px-4">
               Pendientes
-            </p>
-            <p className="mt-2 text-2xl font-semibold">{stats.pending}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="px-5 py-5">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            </TabsTrigger>
+            <TabsTrigger value="COMPLETED" className="rounded-xl px-4">
               Completadas
-            </p>
-            <p className="mt-2 text-2xl font-semibold">{stats.completed}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="px-5 py-5">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            </TabsTrigger>
+            <TabsTrigger value="CANCELLED" className="rounded-xl px-4">
               Canceladas
-            </p>
-            <p className="mt-2 text-2xl font-semibold">{stats.cancelled}</p>
-          </CardContent>
-        </Card>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
-
-      <Tabs
-        value={filter}
-        onValueChange={(value) => setFilter(value as StatusFilter)}
-        className="space-y-6"
-      >
-        <TabsList className="h-auto flex-wrap justify-start">
-          <TabsTrigger value="ALL">Todas</TabsTrigger>
-          <TabsTrigger value="PENDING">Pendientes</TabsTrigger>
-          <TabsTrigger value="COMPLETED">Completadas</TabsTrigger>
-          <TabsTrigger value="CANCELLED">Canceladas</TabsTrigger>
-        </TabsList>
-      </Tabs>
 
       {loading ? (
-        <Card>
-          <CardContent className="px-6 py-10 text-sm text-muted-foreground">
+        <Card className="border-dashed">
+          <CardContent className="px-6 py-14 text-center text-sm text-muted-foreground">
             Cargando solicitudes de practica...
           </CardContent>
         </Card>
       ) : filteredRequests.length === 0 ? (
-        <Card>
-          <CardContent className="px-6 py-10 text-sm text-muted-foreground">
-            No hay solicitudes en el estado seleccionado.
+        <Card className="border-dashed">
+          <CardContent className="px-6 py-14 text-center">
+            <div className="mx-auto max-w-md space-y-2">
+              <p className="text-base font-medium text-foreground">
+                No hay solicitudes en el estado seleccionado
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Prueba con otro filtro para revisar el resto de tus practicas.
+              </p>
+            </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px_1fr]">
-          <aside className="space-y-3">
-            {filteredRequests.map((request) => {
-              const isSelected = selectedRequest?.id === request.id;
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[380px_minmax(0,1fr)] xl:items-start">
+          <aside>
+            <Card className="overflow-hidden">
+              <CardHeader className="border-b border-border/70 px-5 py-4">
+                <CardTitle className="text-base font-semibold tracking-tight">
+                  Solicitudes
+                </CardTitle>
+                <CardDescription>
+                  Selecciona una tarjeta para ver el detalle completo.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 p-3">
+                {filteredRequests.map((request) => {
+                  const isSelected = selectedRequest?.id === request.id;
 
-              return (
-                <button
-                  key={request.id}
-                  type="button"
-                  onClick={() => setSelectedRequestId(request.id)}
-                  className={`w-full rounded-xl border p-4 text-left transition-colors ${
-                    isSelected
-                      ? "border-primary bg-primary/5"
-                      : "border-border bg-card hover:border-primary/30"
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium">
-                      {formatFullName(
-                        request.student.firstName,
-                        request.student.lastName,
-                      )}
-                    </p>
-                    <Badge
-                      variant={STATUS_META[request.status].variant}
-                      size="sm"
+                  return (
+                    <button
+                      key={request.id}
+                      type="button"
+                      onClick={() => setSelectedRequestId(request.id)}
+                      className={`w-full rounded-2xl border p-4 text-left transition-all ${
+                        isSelected
+                          ? "border-primary/30 bg-primary/5 shadow-sm"
+                          : "border-border/70 bg-card hover:border-primary/20 hover:bg-muted/30"
+                      }`}
                     >
-                      {STATUS_META[request.status].label}
-                    </Badge>
-                  </div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 space-y-1">
+                          <p className="truncate text-sm font-semibold text-foreground">
+                            {formatFullName(
+                              request.student.firstName,
+                              request.student.lastName,
+                            )}
+                          </p>
+                          <p className="line-clamp-2 text-sm leading-5 text-muted-foreground">
+                            {request.course.title || "Curso sin titulo"}
+                          </p>
+                        </div>
+                        <Badge
+                          variant={STATUS_META[request.status].variant}
+                          size="sm"
+                          className="shrink-0"
+                        >
+                          {STATUS_META[request.status].label}
+                        </Badge>
+                      </div>
 
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {request.course.title || "Curso sin titulo"}
-                  </p>
-
-                  <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <Clock3 className="h-3.5 w-3.5" />
-                      {formatDate(request.requestedAt, { showTime: false })}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {CONTACT_METHOD_META[request.contactMethod]}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
+                      <div className="mt-4 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+                        <span className="inline-flex items-center gap-2 rounded-lg bg-muted/50 px-2.5 py-2">
+                          <Clock3 className="h-3.5 w-3.5" />
+                          {formatDate(request.requestedAt, {
+                            showTime: false,
+                          })}
+                        </span>
+                        <span className="inline-flex items-center gap-2 rounded-lg bg-muted/50 px-2.5 py-2">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {CONTACT_METHOD_META[request.contactMethod]}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </CardContent>
+            </Card>
           </aside>
 
           <main>
             {!selectedRequest ? (
-              <Card>
-                <CardContent className="px-6 py-10 text-sm text-muted-foreground">
-                  Selecciona una solicitud para ver el detalle.
+              <Card className="border-dashed">
+                <CardContent className="px-6 py-14 text-center">
+                  <div className="mx-auto max-w-md space-y-2">
+                    <p className="text-base font-medium text-foreground">
+                      Selecciona una solicitud para ver el detalle
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      El panel derecho muestra datos del alumno, estado y
+                      acciones disponibles.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             ) : (
-              <Card>
-                <CardHeader className="space-y-3 px-6 pt-6">
+              <Card className="overflow-hidden">
+                <CardHeader className="space-y-4 border-b border-border/70 bg-muted/20 px-6 py-6">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <div className="flex flex-wrap gap-2">
                         <Badge
                           variant={STATUS_META[selectedRequest.status].variant}
@@ -308,35 +383,39 @@ export default function PracticeRequests() {
                           {CONTACT_METHOD_META[selectedRequest.contactMethod]}
                         </Badge>
                       </div>
-                      <CardTitle className="text-xl font-semibold">
-                        {selectedRequest.course.title || "Curso sin titulo"}
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        Alumno asignado:{" "}
-                        <span className="font-medium text-foreground">
-                          {formatFullName(
-                            selectedRequest.student.firstName,
-                            selectedRequest.student.lastName,
-                          )}
-                        </span>
-                      </p>
+                      <div className="space-y-2">
+                        <CardTitle className="text-2xl font-semibold tracking-tight">
+                          {selectedRequest.course.title || "Curso sin titulo"}
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Alumno asignado:{" "}
+                          <span className="font-medium text-foreground">
+                            {formatFullName(
+                              selectedRequest.student.firstName,
+                              selectedRequest.student.lastName,
+                            )}
+                          </span>
+                        </p>
+                      </div>
                     </div>
 
                     {selectedRequest.status === "PENDING" && (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 lg:justify-end">
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button>Marcar completada</Button>
+                            <Button className="min-w-[180px]">
+                              Marcar completada
+                            </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>
-                                ¿Confirmás que la práctica del alumno fue
+                                Confirmas que la practica del alumno fue
                                 realizada?
                               </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Al confirmarla, la solicitud se cerrará y el
-                                certificado práctico quedará habilitado para el
+                                Al confirmarla, la solicitud se cerrara y el
+                                certificado practico quedara habilitado para el
                                 alumno.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
@@ -358,7 +437,9 @@ export default function PracticeRequests() {
 
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="outline">Cancelar</Button>
+                            <Button variant="outline" className="min-w-[140px]">
+                              Cancelar
+                            </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
@@ -391,23 +472,23 @@ export default function PracticeRequests() {
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-6 px-6 pb-6">
+                <CardContent className="space-y-8 px-6 py-6">
                   <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-xl border bg-background px-4 py-3">
-                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    <div className="rounded-2xl border border-border/70 bg-background px-4 py-4">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                         Solicitada
                       </p>
-                      <p className="mt-1 text-sm font-medium">
+                      <p className="mt-2 text-sm font-semibold text-foreground">
                         {formatDate(selectedRequest.requestedAt, {
                           showTime: false,
                         })}
                       </p>
                     </div>
-                    <div className="rounded-xl border bg-background px-4 py-3">
-                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    <div className="rounded-2xl border border-border/70 bg-background px-4 py-4">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                         Estado final
                       </p>
-                      <p className="mt-1 text-sm font-medium">
+                      <p className="mt-2 text-sm font-semibold text-foreground">
                         {selectedRequest.completedAt
                           ? `Completada el ${formatDate(
                               selectedRequest.completedAt,
@@ -421,19 +502,19 @@ export default function PracticeRequests() {
                             : "Pendiente"}
                       </p>
                     </div>
-                    <div className="rounded-xl border bg-background px-4 py-3">
-                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    <div className="rounded-2xl border border-border/70 bg-background px-4 py-4">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                         Slug del curso
                       </p>
-                      <p className="mt-1 text-sm font-medium">
+                      <p className="mt-2 break-all text-sm font-semibold text-foreground">
                         {selectedRequest.course.slug}
                       </p>
                     </div>
-                    <div className="rounded-xl border bg-background px-4 py-3">
-                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                    <div className="rounded-2xl border border-border/70 bg-background px-4 py-4">
+                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                         Review
                       </p>
-                      <p className="mt-1 text-sm font-medium">
+                      <p className="mt-2 text-sm font-semibold text-foreground">
                         {selectedRequest.review
                           ? `${selectedRequest.review.rating}/5`
                           : "Sin review"}
@@ -441,44 +522,59 @@ export default function PracticeRequests() {
                     </div>
                   </div>
 
-                  <Separator />
+                  <section className="space-y-4">
+                    <div className="space-y-1">
+                      <h2 className="text-lg font-semibold tracking-tight">
+                        Alumno
+                      </h2>
+                      <p className="text-sm text-muted-foreground">
+                        Informacion de contacto y mensaje asociado a la
+                        solicitud.
+                      </p>
+                    </div>
 
-                  <section className="space-y-3">
-                    <h2 className="text-lg font-semibold">Alumno</h2>
-                    <div className="rounded-2xl border bg-background p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-                          <UserRound className="h-5 w-5" />
+                    <div className="rounded-3xl border border-border/70 bg-background p-5 shadow-sm">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                            <UserRound className="h-5 w-5" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-base font-semibold text-foreground">
+                              {formatFullName(
+                                selectedRequest.student.firstName,
+                                selectedRequest.student.lastName,
+                              )}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              ID: {selectedRequest.student.id}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">
-                            {formatFullName(
-                              selectedRequest.student.firstName,
-                              selectedRequest.student.lastName,
-                            )}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            ID: {selectedRequest.student.id}
-                          </p>
-                        </div>
+
+                        <Badge variant="outline" size="sm" className="w-fit">
+                          {CONTACT_METHOD_META[selectedRequest.contactMethod]}
+                        </Badge>
                       </div>
 
-                      <div className="mt-4 grid gap-3 md:grid-cols-2">
-                        <div className="rounded-xl border px-4 py-3">
-                          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                      <Separator className="my-5" />
+
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-4">
+                          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                             WhatsApp
                           </p>
-                          <p className="mt-1 inline-flex items-center gap-2 text-sm font-medium">
+                          <p className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-foreground">
                             <Phone className="h-4 w-4 text-primary" />
                             {selectedRequest.studentContact.studentWhatsapp ||
                               "No informado"}
                           </p>
                         </div>
-                        <div className="rounded-xl border px-4 py-3">
-                          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                        <div className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-4">
+                          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                             Email
                           </p>
-                          <p className="mt-1 inline-flex items-center gap-2 text-sm font-medium">
+                          <p className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-foreground">
                             <Mail className="h-4 w-4 text-primary" />
                             {selectedRequest.studentContact.studentEmail ||
                               "No informado"}
@@ -486,12 +582,12 @@ export default function PracticeRequests() {
                         </div>
                       </div>
 
-                      <div className="mt-4 rounded-xl border px-4 py-3">
-                        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                      <div className="mt-3 rounded-2xl border border-border/70 bg-muted/20 px-4 py-4">
+                        <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                           Mensaje del alumno
                         </p>
-                        <p className="mt-2 inline-flex items-start gap-2 text-sm text-foreground">
-                          <MessageSquare className="mt-0.5 h-4 w-4 text-primary" />
+                        <p className="mt-3 inline-flex items-start gap-2 text-sm leading-6 text-foreground">
+                          <MessageSquare className="mt-1 h-4 w-4 shrink-0 text-primary" />
                           <span>
                             {selectedRequest.studentMessage ||
                               "El alumno no dejo mensaje adicional."}
@@ -502,35 +598,38 @@ export default function PracticeRequests() {
                   </section>
 
                   {selectedRequest.review && (
-                    <>
-                      <Separator />
-                      <section className="space-y-3">
-                        <h2 className="text-lg font-semibold">
+                    <section className="space-y-4">
+                      <div className="space-y-1">
+                        <h2 className="text-lg font-semibold tracking-tight">
                           Review recibida
                         </h2>
-                        <div className="rounded-2xl border bg-primary/5 p-4">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Badge variant="success" size="sm">
-                              {selectedRequest.review.rating}/5
-                            </Badge>
-                            <p className="text-sm text-muted-foreground">
-                              Enviada el{" "}
-                              {formatDate(selectedRequest.review.createdAt, {
-                                showTime: false,
-                              })}
-                            </p>
-                          </div>
-                          <p className="mt-3 text-sm text-foreground">
-                            {selectedRequest.review.comment ||
-                              "El alumno no dejo comentario adicional."}
+                        <p className="text-sm text-muted-foreground">
+                          Valoracion y comentario enviados por el alumno.
+                        </p>
+                      </div>
+
+                      <div className="rounded-3xl border border-primary/10 bg-primary/5 p-5">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant="success" size="sm">
+                            {selectedRequest.review.rating}/5
+                          </Badge>
+                          <p className="text-sm text-muted-foreground">
+                            Enviada el{" "}
+                            {formatDate(selectedRequest.review.createdAt, {
+                              showTime: false,
+                            })}
                           </p>
                         </div>
-                      </section>
-                    </>
+                        <p className="mt-3 text-sm leading-6 text-foreground">
+                          {selectedRequest.review.comment ||
+                            "El alumno no dejo comentario adicional."}
+                        </p>
+                      </div>
+                    </section>
                   )}
 
                   {selectedRequest.status === "PENDING" && (
-                    <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                    <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 p-4 text-sm leading-6 text-muted-foreground">
                       {selectedRequest.contactMethod === "REQUEST_CONTACT" ? (
                         <p>
                           El flujo activo es de contacto solicitado: el alumno
