@@ -132,7 +132,16 @@ const HomePage = () => {
     : [];
 
   return (
-    <section>
+    <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f5fffc_0%,#ffffff_24%,#ffffff_100%)]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div className="absolute left-[-8rem] top-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute right-[-7rem] top-14 h-72 w-72 rounded-full bg-secondary/10 blur-3xl" />
+        <div className="absolute bottom-[-8rem] left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      </div>
       <motion.div
         className="py-10 lg:py-0 lg:mt-10 px-6 lg:px-0"
         initial="hidden"

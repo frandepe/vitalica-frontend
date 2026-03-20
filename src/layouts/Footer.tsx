@@ -1,210 +1,287 @@
-import React from "react";
-
+import type { ComponentProps, ReactNode } from "react";
+import { Link } from "react-router-dom";
 import {
-  FacebookIcon,
-  FrameIcon,
-  InstagramIcon,
-  LinkedinIcon,
-  YoutubeIcon,
+  ArrowRight,
+  HeartPulse,
+  Instagram,
+  Linkedin,
+  Mail,
+  ShieldCheck,
 } from "lucide-react";
-
 import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/utils/cn";
-import { Button } from "@/components/ui/button";
 
 interface FooterLink {
   title: string;
   href: string;
-  icon?: React.ComponentType<{ className?: string }>;
 }
+
 interface FooterLinkGroup {
   label: string;
   links: FooterLink[];
 }
 
-type StickyFooterProps = React.ComponentProps<"footer">;
+type FooterProps = ComponentProps<"footer">;
 
-export function Footer({ className, ...props }: StickyFooterProps) {
+const footerLinkGroups: FooterLinkGroup[] = [
+  {
+    label: "Aprender",
+    links: [
+      { title: "Explorar cursos", href: "/buscar?search=&page=1&limit=10" },
+      { title: "Primeros pasos", href: "/primeros-pasos" },
+      { title: "Blog y guias", href: "/blogs" },
+      { title: "Mis cursos", href: "/mis-cursos" },
+    ],
+  },
+  {
+    label: "Enseñar",
+    links: [
+      { title: "Enseña en Vitalica", href: "/dar-cursos" },
+      {
+        title: "Postularme como instructor",
+        href: "/solicitar-ser-instructor",
+      },
+      { title: "Perfil profesional", href: "/perfil" },
+      { title: "Panel de instructor", href: "/instructor" },
+    ],
+  },
+  {
+    label: "Vitalica",
+    links: [
+      { title: "Sobre nosotros", href: "/sobre-nosotros" },
+      { title: "Contacto", href: "/contacto" },
+      {
+        title: "Politicas de privacidad",
+        href: "/politicas-de-privacidad",
+      },
+      {
+        title: "Terminos y condiciones",
+        href: "/terminos-y-condiciones",
+      },
+    ],
+  },
+];
+
+const trustPillars = [
+  "Formacion orientada a emergencias medicas",
+  "Instructores con perfil profesional",
+  "Aprendizaje flexible y acompanado",
+];
+
+const socialLinks = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/vitalica.academia/",
+    icon: Instagram,
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/vitalica-academia",
+    icon: Linkedin,
+  },
+  { label: "Email", href: "mailto:hola@vitalica.com", icon: Mail },
+];
+
+export function Footer({ className, ...props }: FooterProps) {
   return (
     <footer
-      className={cn("relative h-[720px] w-full mt-10", className)}
-      style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
+      className={cn(
+        "relative overflow-hidden border-t border-border/70 bg-[linear-gradient(180deg,#ffffff_0%,#f8fffd_100%)]",
+        className,
+      )}
       {...props}
     >
-      <div className="fixed bottom-0 w-full">
-        <div className="sticky top-[calc(100vh-720px)] h-full overflow-y-auto">
-          <div className="relative flex size-full flex-col justify-between gap-5 border-t px-4 py-8 md:px-12">
-            <div
-              aria-hidden
-              className="absolute inset-0 isolate z-0 contain-strict"
-            >
-              <div className="bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,--theme(--color-foreground/.06)_0,hsla(0,0%,55%,.02)_50%,--theme(--color-foreground/.01)_80%)] absolute top-0 left-0 h-320 w-140 -translate-y-87.5 -rotate-45 rounded-full" />
-              <div className="bg-[radial-gradient(50%_50%_at_50%_50%,--theme(--color-foreground/.04)_0,--theme(--color-foreground/.01)_80%,transparent_100%)] absolute top-0 left-0 h-320 w-60 [translate:5%_-50%] -rotate-45 rounded-full" />
-              <div className="bg-[radial-gradient(50%_50%_at_50%_50%,--theme(--color-foreground/.04)_0,--theme(--color-foreground/.01)_80%,transparent_100%)] absolute top-0 left-0 h-320 w-60 -translate-y-87.5 -rotate-45 rounded-full" />
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute left-[-8rem] top-16 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute right-[-6rem] top-10 h-72 w-72 rounded-full bg-secondary/8 blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      </div>
+
+      <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-16 sm:px-6 lg:px-8">
+        <Reveal className="grid gap-10 border-b border-border/60 pb-12 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-end">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              <HeartPulse className="h-3.5 w-3.5" />
+              Formacion con criterio
             </div>
-            <div className="mt-10 flex flex-col gap-8 md:flex-row xl:mt-0">
-              <AnimatedContainer className="w-full max-w-sm min-w-2xs space-y-4">
-                <FrameIcon className="size-8" />
-                <p className="text-muted-foreground mt-8 text-sm md:mt-0">
-                  Innovative fintech empowering businesses with seamless
-                  payments, lending, and financial infrastructure worldwide.
-                </p>
-                <div className="flex gap-2">
-                  {socialLinks.map((link, index) => (
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="size-8"
-                      key={index}
-                    >
-                      <link.icon className="size-4" />
-                    </Button>
-                  ))}
-                </div>
-              </AnimatedContainer>
-              {footerLinkGroups.map((group, index) => (
-                <AnimatedContainer
-                  key={group.label}
-                  delay={0.1 + index * 0.1}
-                  className="w-full"
+
+            <h2 className="mt-6 max-w-2xl text-4xl font-semibold tracking-[-0.04em] text-foreground sm:text-5xl">
+              Aprendizaje híbrido
+            </h2>
+
+            <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
+              Vitalica conecta a alumnos e instructores en una experiencia de
+              formacion clara, profesional y centrada en emergencias medicas.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <LinkCard
+              href="/buscar?search=&page=1&limit=10"
+              eyebrow="Para alumnos"
+              title="Ver cursos"
+              description="Encontra formacion teorica y practica para avanzar a tu ritmo."
+            />
+            <LinkCard
+              href="/dar-cursos"
+              eyebrow="Para instructores"
+              title="Compartir experiencia"
+              description="Presenta tu propuesta y construí tu espacio de enseñanza."
+            />
+          </div>
+        </Reveal>
+
+        <div className="grid gap-12 py-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <Reveal className="space-y-8">
+            <div>
+              <Link
+                to="/"
+                className="inline-flex items-center gap-3 text-foreground transition-opacity hover:opacity-90"
+              >
+                <img
+                  src="/Logo/logoVitalica.png"
+                  alt="Vitalica"
+                  className="h-10 w-auto"
+                />
+              </Link>
+            </div>
+
+            <div className="space-y-4">
+              {trustPillars.map((pillar) => (
+                <div
+                  key={pillar}
+                  className="flex items-start gap-3 text-sm leading-6 text-muted-foreground"
                 >
-                  <div className="mb-10 md:mb-0">
-                    <h3 className="text-sm uppercase">{group.label}</h3>
-                    <ul className="text-muted-foreground mt-4 space-y-2  text-sm md:text-xs lg:text-sm">
-                      {group.links.map((link) => (
-                        <li key={link.title}>
-                          <a
-                            href={link.href}
-                            className="hover:text-foreground inline-flex items-center transition-all duration-300"
-                          >
-                            {link.icon && <link.icon className="me-1 size-4" />}
-                            {link.title}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </AnimatedContainer>
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <span>{pillar}</span>
+                </div>
               ))}
             </div>
-            <div className="text-muted-foreground flex flex-col items-center justify-between gap-2 border-t pt-2 text-sm md:flex-row">
-              <p>© 2025 Cognition, Inc. All rights reserved.</p>
-              <p>asme inc.</p>
+
+            <div className="flex flex-wrap gap-3">
+              {socialLinks.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-background/80 text-muted-foreground transition-all hover:border-primary/30 hover:text-primary"
+                  aria-label={item.label}
+                >
+                  <item.icon className="h-4 w-4" />
+                </a>
+              ))}
             </div>
-          </div>
+          </Reveal>
+
+          <Reveal
+            delay={0.08}
+            className="grid gap-10 sm:grid-cols-3 sm:gap-8 lg:pl-8"
+          >
+            {footerLinkGroups.map((group) => (
+              <div key={group.label}>
+                <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-foreground">
+                  {group.label}
+                </h3>
+                <ul className="mt-5 space-y-3">
+                  {group.links.map((link) => (
+                    <li key={link.title}>
+                      <Link
+                        to={link.href}
+                        className="text-sm leading-6 text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </Reveal>
         </div>
+
+        <Reveal
+          delay={0.12}
+          className="flex flex-col gap-4 border-t border-border/60 pt-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between"
+        >
+          <p>© 2026 Vitalica. Formacion online en emergencias medicas.</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              to="/politicas-de-privacidad"
+              className="transition-colors hover:text-foreground"
+            >
+              Privacidad
+            </Link>
+            <Link
+              to="/terminos-y-condiciones"
+              className="transition-colors hover:text-foreground"
+            >
+              Terminos
+            </Link>
+            <Link
+              to="/contacto"
+              className="transition-colors hover:text-foreground"
+            >
+              Contacto
+            </Link>
+          </div>
+        </Reveal>
       </div>
     </footer>
   );
 }
 
-const socialLinks = [
-  { title: "Facebook", href: "#", icon: FacebookIcon },
-  { title: "Instagram", href: "#", icon: InstagramIcon },
-  { title: "Youtube", href: "#", icon: YoutubeIcon },
-  { title: "LinkedIn", href: "#", icon: LinkedinIcon },
-];
+interface LinkCardProps {
+  href: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+}
 
-const footerLinkGroups: FooterLinkGroup[] = [
-  {
-    label: "Product",
-    links: [
-      { title: "Payments", href: "#" },
-      { title: "Cards & Issuing", href: "#" },
-      { title: "Lending & Credit", href: "#" },
-      { title: "Wealth Management", href: "#" },
-      { title: "Insurance", href: "#" },
-      { title: "Crypto Wallets", href: "#" },
-      { title: "FX & Currency Exchange", href: "#" },
-      { title: "Treasury Management", href: "#" },
-      { title: "Merchant Services", href: "#" },
-      { title: "Point of Sale", href: "#" },
-      { title: "Embedded Finance", href: "#" },
-      { title: "Open Banking API", href: "#" },
-      { title: "SDKs & Integrations", href: "#" },
-      { title: "Pricing", href: "#" },
-    ],
-  },
-  {
-    label: "Solutions",
-    links: [
-      { title: "Startups", href: "#" },
-      { title: "Enterprises", href: "#" },
-      { title: "Marketplaces", href: "#" },
-      { title: "Freelancers", href: "#" },
-      { title: "E-commerce", href: "#" },
-      { title: "Banks & Credit Unions", href: "#" },
-      { title: "Investment Platforms", href: "#" },
-      { title: "Insurance Providers", href: "#" },
-      { title: "Payment Gateways", href: "#" },
-      { title: "Government & Public Sector", href: "#" },
-      { title: "Nonprofits", href: "#" },
-      { title: "Education", href: "#" },
-      { title: "Healthcare", href: "#" },
-    ],
-  },
-  {
-    label: "Resources",
-    links: [
-      { title: "Blog", href: "#" },
-      { title: "Case Studies", href: "#" },
-      { title: "Documentation", href: "#" },
-      { title: "API Reference", href: "#" },
-      { title: "Developer Tools", href: "#" },
-      { title: "Guides & Tutorials", href: "#" },
-      { title: "Whitepapers", href: "#" },
-      { title: "Reports & Research", href: "#" },
-      { title: "Events & Webinars", href: "#" },
-      { title: "E-books", href: "#" },
-      { title: "Community Forum", href: "#" },
-      { title: "Release Notes", href: "#" },
-      { title: "System Status", href: "#" },
-    ],
-  },
-  {
-    label: "Company",
-    links: [
-      { title: "About Us", href: "#" },
-      { title: "Leadership", href: "#" },
-      { title: "Careers", href: "#" },
-      { title: "Press", href: "#" },
-      { title: "Sustainability", href: "#" },
-      { title: "Diversity & Inclusion", href: "#" },
-      { title: "Investor Relations", href: "#" },
-      { title: "Partners", href: "#" },
-      { title: "Legal & Compliance", href: "#" },
-      { title: "Privacy Policy", href: "#" },
-      { title: "Cookie Policy", href: "#" },
-      { title: "Terms of Service", href: "#" },
-      { title: "AML & KYC Policy", href: "#" },
-      { title: "Regulatory Disclosures", href: "#" },
-    ],
-  },
-];
+function LinkCard({ href, eyebrow, title, description }: LinkCardProps) {
+  return (
+    <Link
+      to={href}
+      className="group rounded-lg border border-border/70 bg-background/85 p-5 shadow-[0_18px_50px_-32px_rgba(34,80,69,0.28)] transition-all hover:-translate-y-0.5 hover:border-primary/25"
+    >
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+        {eyebrow}
+      </p>
+      <div className="mt-3 flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-lg font-semibold tracking-tight text-foreground">
+            {title}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            {description}
+          </p>
+        </div>
+        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 text-muted-foreground transition-colors group-hover:border-primary/30 group-hover:text-primary">
+          <ArrowRight className="h-4 w-4" />
+        </span>
+      </div>
+    </Link>
+  );
+}
 
-type AnimatedContainerProps = React.ComponentProps<typeof motion.div> & {
-  children?: React.ReactNode;
+type RevealProps = {
+  children?: ReactNode;
+  className?: string;
   delay?: number;
 };
 
-function AnimatedContainer({
-  delay = 0.1,
-  children,
-  ...props
-}: AnimatedContainerProps) {
+function Reveal({ delay = 0, children, className }: RevealProps) {
   const shouldReduceMotion = useReducedMotion();
 
   if (shouldReduceMotion) {
-    return children;
+    return <div className={className}>{children}</div>;
   }
 
   return (
     <motion.div
-      initial={{ filter: "blur(4px)", translateY: -8, opacity: 0 }}
-      whileInView={{ filter: "blur(0px)", translateY: 0, opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ delay, duration: 0.8 }}
-      {...props}
+      className={className}
+      initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>

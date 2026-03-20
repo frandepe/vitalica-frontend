@@ -20,23 +20,35 @@ import { Button } from "@/components/ui/button";
 export function Navbar() {
   const navigationItems = [
     {
-      title: "Product",
-      description: "Managing a small business today is already tough.",
+      title: "Aprender",
+      description:
+        "Accede rapido a los recorridos mas utiles para descubrir cursos, empezar tu formacion o enseñar en Vitalica.",
+      ctaLabel: "Ver cursos",
+      ctaHref: "/buscar?search=&page=1&limit=10",
       items: [
-        { title: "Enseñá en Vitalica", href: "/dar-cursos" },
-        { title: "Statistics", href: "/statistics" },
-        { title: "Dashboards", href: "/dashboards" },
-        { title: "Recordings", href: "/recordings" },
+        { title: "Explorar cursos", href: "/buscar?search=&page=1&limit=10" },
+        { title: "Primeros pasos", href: "/primeros-pasos" },
+        { title: "Blog y guias", href: "/blogs" },
+        { title: "Enseña en Vitalica", href: "/dar-cursos" },
       ],
     },
     {
-      title: "Company",
-      description: "Managing a small business today is already tough.",
+      title: "Ayuda y confianza",
+      description:
+        "Todo lo importante para entender la plataforma, resolver dudas y revisar la informacion legal esencial.",
+      ctaLabel: "Contactanos",
+      ctaHref: "/contacto",
       items: [
-        { title: "About us", href: "/about" },
-        { title: "Fundraising", href: "/fundraising" },
-        { title: "Investors", href: "/investors" },
-        { title: "Contact us", href: "/contact" },
+        { title: "Sobre Vitalica", href: "/sobre-nosotros" },
+        { title: "Contacto", href: "/contacto" },
+        {
+          title: "Politicas de privacidad",
+          href: "/politicas-de-privacidad",
+        },
+        {
+          title: "Terminos y condiciones",
+          href: "/terminos-y-condiciones",
+        },
       ],
     },
   ];
@@ -70,8 +82,12 @@ export function Navbar() {
                             {item.description}
                           </p>
                         </div>
-                        <Button size="sm" className="mt-10">
-                          Book a call today
+                        <Button
+                          size="sm"
+                          className="mt-10"
+                          onClick={() => navigate(item.ctaHref)}
+                        >
+                          {item.ctaLabel}
                         </Button>
                       </div>
                       <div className="flex flex-col text-sm h-full justify-end">
@@ -115,15 +131,15 @@ export function Navbar() {
                 className="hidden md:inline"
                 onClick={() => navigate("/dar-cursos")}
               >
-                Enseñá en Vitalica
+                Enseña en Vitalica
               </Button>
             )}
             <div className="border-r hidden md:inline"></div>
             <Button variant="outline" onClick={() => navigate("/auth/login")}>
-              Iniciar sesión
+              Iniciar sesion
             </Button>
             <Button onClick={() => navigate("/auth/register")}>
-              Regístrate
+              Registrate
             </Button>
           </div>
         ) : (
@@ -133,14 +149,14 @@ export function Navbar() {
               className="hidden md:inline"
               onClick={() => navigate("/dar-cursos")}
             >
-              Enseñá en Vitalica
+              Enseña en Vitalica
             </Button>
             <DropdownMenuNotifications />
             <DropdownMenuProfile />
           </div>
         )}
 
-        {/* MOBILE MENU → Drawer */}
+        {/* MOBILE MENU */}
         <div className="flex w-12 shrink lg:hidden items-end justify-end">
           <Drawer>
             <DrawerTrigger asChild>

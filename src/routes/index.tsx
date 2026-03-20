@@ -18,8 +18,14 @@ import BlogsLayout from "@/layouts/blogs.layout";
 const Onboarding = lazy(() => import("@/pages/public/Onboarding"));
 const HomePage = lazy(() => import("@/pages/public/HomePage"));
 const AboutPage = lazy(() => import("@/pages/public/AboutPage"));
+const PrivacyPolicyPage = lazy(
+  () => import("@/pages/public/PrivacyPolicyPage"),
+);
 const Search = lazy(() => import("@/pages/public/Courses/Search"));
 const ContactPage = lazy(() => import("@/pages/public/ContactPage"));
+const TermsAndConditionsPage = lazy(
+  () => import("@/pages/public/TermsAndConditionsPage"),
+);
 const ApplyToBeInstructor = lazy(
   () => import("@/pages/public/ApplyToBeInstructor"),
 );
@@ -70,9 +76,7 @@ const InstructorProfile = lazy(
 );
 const InstructorSpecialties = lazy(
   () =>
-    import(
-      "@/pages/protected/ChildrensDashboardInstructor/InstructorSpecialties"
-    ),
+    import("@/pages/protected/ChildrensDashboardInstructor/InstructorSpecialties"),
 );
 const Courses = lazy(
   () => import("@/pages/protected/ChildrensDashboardInstructor/Courses"),
@@ -107,9 +111,7 @@ const InstructorsApplications = lazy(
 );
 const AdminInstructorsSpecialties = lazy(
   () =>
-    import(
-      "@/pages/admin/ChildrensDashboardAdmin/AdminInstructorsSpecialties"
-    ),
+    import("@/pages/admin/ChildrensDashboardAdmin/AdminInstructorsSpecialties"),
 );
 const InstructorApplication = lazy(
   () => import("@/pages/admin/ChildrensDashboardAdmin/InstructorApplication"),
@@ -129,7 +131,7 @@ export const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "about",
+        path: "sobre-nosotros",
         element: <AboutPage />,
       },
       {
@@ -159,6 +161,14 @@ export const router = createBrowserRouter([
       {
         path: "contacto",
         element: <ContactPage />,
+      },
+      {
+        path: "politicas-de-privacidad",
+        element: <PrivacyPolicyPage />,
+      },
+      {
+        path: "terminos-y-condiciones",
+        element: <TermsAndConditionsPage />,
       },
       {
         path: "upload-test",
@@ -218,7 +228,10 @@ export const router = createBrowserRouter([
           </InstructorRoute>
         ),
         children: [
-          { index: true, element: <Navigate to="panel-administrativo" replace /> },
+          {
+            index: true,
+            element: <Navigate to="panel-administrativo" replace />,
+          },
           { path: "panel-administrativo", element: <CardsDashboard /> },
           {
             path: "perfil-de-instructor",
