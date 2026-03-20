@@ -121,3 +121,13 @@ export const getInstructorDashboardCounts = async (): Promise<
     method: "GET",
   });
 };
+
+export const sendInstructorInvitation = async (data: {
+  email: string;
+}): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.INSTRUCTOR}/invite-email`,
+    method: "POST",
+    data,
+  });
+};

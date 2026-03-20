@@ -1,16 +1,84 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+
+import { sendInstructorInvitation } from "@/api";
 import GlassmorphismHero from "@/components/Hero/GlassmorphismHero";
 import ReasonsToTech from "@/components/Sections/ReasonsToTeach";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useIntervalClick } from "@/hooks/useIntervalClick";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const TeachesOnVitalica = () => {
   const navigate = useNavigate();
+  const { timer, isResendDisabled, setIsResendDisabled, setTimer } =
+    useIntervalClick();
+  const [email, setEmail] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  const handleInviteInstructor = async () => {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      setFeedback({
+        type: "error",
+        message: "Ingresá un correo para enviar la invitación.",
+      });
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      setFeedback({
+        type: "error",
+        message: "Ingresá un email válido.",
+      });
+      return;
+    }
+
+    try {
+      setIsSending(true);
+      setFeedback(null);
+
+      const response = await sendInstructorInvitation({
+        email: normalizedEmail,
+      });
+
+      if (!response?.success) {
+        setFeedback({
+          type: "error",
+          message:
+            response?.message ||
+            "No pudimos enviar la invitación. Intentá nuevamente.",
+        });
+        return;
+      }
+
+      setFeedback({
+        type: "success",
+        message: "Invitación enviada. La persona recibirá el correo en breve.",
+      });
+      setEmail("");
+      setIsResendDisabled(true);
+      setTimer(15);
+    } catch {
+      setFeedback({
+        type: "error",
+        message: "Ocurrió un error al enviar la invitación.",
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <div>
       <GlassmorphismHero />
-      {/* <ReasonsSection /> */}
       <ReasonsToTech />
       <motion.div
         className="flex flex-col md:flex-row justify-center items-center gap-4 bg-gradient-to-r from-primary to-primary/80 text-white py-10 px-6 rounded-lg overflow-hidden relative"
@@ -18,14 +86,12 @@ const TeachesOnVitalica = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
-        {/* Fondo sutil animado */}
         <motion.div
           className="absolute inset-0 bg-white/10 rounded-lg"
           animate={{ opacity: [0.1, 0.2, 0.1] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        {/* Texto */}
         <motion.h3
           className="text-2xl md:text-4xl font-bold relative z-10 text-center md:text-left"
           initial={{ x: -20, opacity: 0 }}
@@ -35,7 +101,6 @@ const TeachesOnVitalica = () => {
           Convertite en instructor ahora
         </motion.h3>
 
-        {/* Botón */}
         <motion.button
           className="relative z-10 px-6 py-2 bg-white text-primary font-semibold rounded-md shadow-md hover:bg-white/90 transition-colors cursor-pointer"
           onClick={() => navigate("/solicitar-ser-instructor")}
@@ -61,14 +126,44 @@ const TeachesOnVitalica = () => {
               type="email"
               placeholder="correo@instructor.com"
               className="flex-1"
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                if (feedback) setFeedback(null);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  if (!isSending && !isResendDisabled) {
+                    void handleInviteInstructor();
+                  }
+                }
+              }}
+              aria-label="Email para invitar instructor"
             />
             <Button
               className="whitespace-nowrap"
-              onClick={() => alert("TODO: Logica para enviar invite")}
+              onClick={() => void handleInviteInstructor()}
+              disabled={isSending || isResendDisabled}
             >
-              Enviar invitación
+              {isSending
+                ? "Enviando..."
+                : isResendDisabled
+                  ? `Reenviar en ${timer}s`
+                  : "Enviar invitación"}
             </Button>
           </div>
+          {feedback ? (
+            <p
+              className={`mt-3 text-sm ${
+                feedback.type === "success"
+                  ? "text-emerald-600"
+                  : "text-red-500"
+              }`}
+            >
+              {feedback.message}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>
@@ -76,12 +171,3 @@ const TeachesOnVitalica = () => {
 };
 
 export default TeachesOnVitalica;
-
-/*
- armar algo tipo https://www.udemy.com/teaching/
-1 - Banner veni a enseñar con nosotros (ok)
-2 - Razones para empezar
-3 - Cómo empezar (crea tu programa, graba tu video, publica tu curso)
-4 - Texto que redirija a un blog llamado Por qué enseñar en Vitalica
-5 - Banner mas simple pero con el proposito del primero
-*/

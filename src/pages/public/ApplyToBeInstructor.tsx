@@ -146,20 +146,6 @@ const ApplyToBeInstructor = () => {
         urlCertificate: finalCertificates,
       };
 
-      console.log("[v0] Datos a enviar:", instructorData);
-      console.log(
-        "[v0] DNI - Existentes:",
-        dniImages.existing.length,
-        "Nuevas:",
-        dniImages.new.length,
-      );
-      console.log(
-        "[v0] Certificados - Existentes:",
-        certificateImages.existing.length,
-        "Nuevos:",
-        certificateImages.new.length,
-      );
-
       const response = await upsertInstructorApplication(instructorData);
       console.log("response", response);
       if (response.errors && response.errors.length > 0) {
