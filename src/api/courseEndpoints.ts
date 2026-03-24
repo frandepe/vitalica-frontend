@@ -85,7 +85,18 @@ export const saveCourseThumbnail = async (
 // AWS S3 Material Upload Test
 interface UploadUrlResponse {
   uploadUrl: string;
-  key: string;
+  key?: string;
+  material?: {
+    id: string;
+    lessonId: string;
+    type: string;
+    originalName: string;
+    mimeType: string;
+    sizeBytes: number;
+    key: string;
+    createdAt: string;
+    updatedAt: string;
+  };
 }
 
 export const requestMaterialUploadUrlTest = async (
@@ -108,12 +119,12 @@ interface DownloadMaterialResponse {
 }
 
 export const requestMaterialDownloadUrl = async (
-  key: string,
+  materialId: string,
 ): Promise<ApiResponse<DownloadMaterialResponse>> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/download-material`,
     method: "GET",
-    params: { key },
+    params: { materialId },
   });
 };
 
@@ -167,7 +178,17 @@ export const requestMaterialUploadUrl = async (
       lessonId,
       fileType: file.type,
       originalName: file.name,
+      fileSize: file.size,
     },
+  });
+};
+
+export const deleteLessonMaterial = async (
+  materialId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/lesson-material/${materialId}`,
+    method: "DELETE",
   });
 };
 

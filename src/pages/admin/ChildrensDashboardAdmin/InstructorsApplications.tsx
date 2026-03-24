@@ -5,25 +5,48 @@ import { useEffect, useState } from "react";
 
 const InstructorsApplications = () => {
   const [applicationsData, setApplicationsData] = useState<
-    InstructorApplication[] | null
-  >(null);
+    InstructorApplication[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const getApplication = async () => {
     try {
-      // TODO: Optimizar esta consulta, no necesito toda la data
+      setIsLoading(true);
+      setErrorMessage(null);
       const response = await getInstructorApplications();
-      if (response.success && response.data) {
-        setApplicationsData(response.data as InstructorApplication[]);
+
+      if (!response.success) {
+        setApplicationsData([]);
+        setErrorMessage(
+          response.message || "No se pudieron cargar las aplicaciones",
+        );
+        return;
       }
+
+      setApplicationsData((response.data as InstructorApplication[]) || []);
     } catch (error) {
       console.error("Error fetching instructor application:", error);
+      setApplicationsData([]);
+      setErrorMessage("No se pudieron cargar las aplicaciones");
+    } finally {
+      setIsLoading(false);
     }
   };
-  useEffect(() => {
-    getApplication();
-  }, []);
-  console.log("applicationsData", applicationsData);
 
-  if (!applicationsData) {
+  useEffect(() => {
+    void getApplication();
+  }, []);
+
+  if (isLoading) {
+    return <p>Cargando aplicaciones...</p>;
+  }
+
+  if (errorMessage) {
+    return <p>{errorMessage}</p>;
+  }
+
+  if (applicationsData.length === 0) {
     return <p>No hay aplicaciones registradas</p>;
   }
 

@@ -31,6 +31,13 @@ export const getInstructorApplication = async () => {
   });
 };
 
+export const submitInstructorApplication = async (): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.INSTRUCTOR}/application-submit`,
+    method: "POST",
+  });
+};
+
 export const upsertInstructorProfile = async (
   data: Partial<InstructorProfile>,
 ): Promise<ApiResponse> => {

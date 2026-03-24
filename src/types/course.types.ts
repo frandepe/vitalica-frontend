@@ -97,10 +97,12 @@ export interface LessonMaterial {
   id: string;
   lessonId: string;
   type: LessonMaterialType;
+  originalName: string;
   mimeType: string;
+  sizeBytes: number;
   key: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Lesson {
@@ -155,7 +157,15 @@ export type CourseStatus =
   | "REJECTED"
   | "ARCHIVED";
 export type QuizStatus = "PENDING" | "APPROVED" | "REJECTED";
-export type LessonMaterialType = "PDF" | "IMAGE" | "VIDEO" | "OTHER";
+export type LessonMaterialType =
+  | "PDF"
+  | "JPG"
+  | "JPEG"
+  | "PNG"
+  | "DOCX"
+  | "XLSX"
+  | "PPTX"
+  | "ZIP";
 export type LessonType = "content" | "videoFile";
 
 export interface CourseReview {
@@ -165,14 +175,6 @@ export interface CourseReview {
   rating: number;
   comment?: string;
   createdAt: string;
-}
-
-// __________________ NUEVO CURSO ____________________
-
-export interface LessonMaterial {
-  type: LessonMaterialType;
-  key: string;
-  mimeType: string;
 }
 
 export interface LessonFormValues {

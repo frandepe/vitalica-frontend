@@ -966,8 +966,13 @@ export const Step4 = ({
                                 {/* lessonMaterial */}
                                 <UploadMaterial
                                   lessonId={lesson.id}
-                                  existingMaterial={
-                                    lesson.lessonMaterial?.[0] ?? null
+                                  existingMaterials={lesson.lessonMaterial ?? []}
+                                  onMaterialsChange={(materials) =>
+                                    setValue(
+                                      `modules.${moduleIndex}.lessons.${lessonIndex}.lessonMaterial`,
+                                      materials,
+                                      { shouldDirty: true },
+                                    )
                                   }
                                 />
                               </div>

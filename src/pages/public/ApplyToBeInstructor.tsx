@@ -1,4 +1,8 @@
-import { getInstructorApplication, upsertInstructorApplication } from "@/api";
+import {
+  getInstructorApplication,
+  submitInstructorApplication,
+  upsertInstructorApplication,
+} from "@/api";
 import BannerTop from "@/components/Banners/BannerTop";
 import { DotsCard } from "@/components/CardsAnimated/DotsCard";
 import { Button } from "@/components/ui/button";
@@ -146,24 +150,50 @@ const ApplyToBeInstructor = () => {
         urlCertificate: finalCertificates,
       };
 
-      const response = await upsertInstructorApplication(instructorData);
-      console.log("response", response);
-      if (response.errors && response.errors.length > 0) {
-        setBackendErrors(response.errors);
+      const upsertResponse = await upsertInstructorApplication(instructorData);
+
+      if (upsertResponse.errors && upsertResponse.errors.length > 0) {
+        setBackendErrors(upsertResponse.errors);
         return;
       }
-      clearErrors();
-      if (response.success) {
+
+      if (!upsertResponse.success) {
+        setBackendErrors([]);
         showToast(
-          applicationData
-            ? "Solicitud actualizada exitosamente"
-            : "Solicitud enviada exitosamente",
-          "success",
+          upsertResponse.message || "No se pudo guardar la solicitud",
+          "error",
           "top-right",
         );
-        navigate("/estado-aplicacion");
-        getApplication(); // refresca la data
+        return;
       }
+
+      const submitResponse = await submitInstructorApplication();
+
+      if (submitResponse.errors && submitResponse.errors.length > 0) {
+        setBackendErrors(submitResponse.errors);
+        return;
+      }
+
+      if (!submitResponse.success) {
+        setBackendErrors([]);
+        showToast(
+          submitResponse.message || "No se pudo enviar la solicitud",
+          "error",
+          "top-right",
+        );
+        return;
+      }
+
+      clearErrors();
+      showToast(
+        applicationData
+          ? "Solicitud actualizada y enviada exitosamente"
+          : "Solicitud enviada exitosamente",
+        "success",
+        "top-right",
+      );
+      navigate("/estado-aplicacion");
+      void getApplication();
     } catch (error) {
       console.error("[v0] Error submitting form:", error);
       alert("Error al enviar la solicitud");

@@ -93,10 +93,13 @@ export default function CoursePlayer() {
 
   const materials =
     activeLesson?.lessonMaterial?.map((m) => ({
+      id: m.id,
       key: m.key,
-      originalName: m.key.split(".").pop() || "archivo",
+      originalName: m.originalName,
+      sizeBytes: m.sizeBytes,
+      type: m.type,
     })) || [];
-  const hasDownloadsTab = Boolean(activeLesson?.lessonMaterial);
+  const hasDownloadsTab = materials.length > 0;
   const requestedTab = searchParams.get(COURSE_PLAYER_TAB_PARAM);
   const activeTab =
     isCoursePlayerTab(requestedTab) &&
