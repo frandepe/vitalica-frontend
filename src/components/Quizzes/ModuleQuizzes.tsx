@@ -7,18 +7,30 @@ import { Card } from "@/components/ui/card";
 import {
   closestCenter,
   DndContext,
-  DragEndEvent,
+  type DragEndEvent,
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { ClipboardPenLine, GripVertical, Loader2, Plus, Trash2 } from "lucide-react";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
+  ClipboardPenLine,
+  GripVertical,
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import {
   createModuleQuiz,
   deleteModuleQuiz,
   getModuleQuizzes,
   reorderModuleQuizzes,
+  updateCourseQuiz,
 } from "@/api";
 
 import { UniversalModal } from "../UniversalModal";
@@ -33,6 +45,8 @@ interface Props {
   moduleId: string;
 }
 
+const EMPTY_OPTIONS = ["", "", "", ""];
+
 export const ModuleQuizzes = ({ moduleId }: Props) => {
   const [quizzes, setQuizzes] = useState<ModuleQuiz[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,8 +54,13 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
   const [reordering, setReordering] = useState(false);
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
-  const [options, setOptions] = useState(["", "", "", ""]);
+  const [options, setOptions] = useState([...EMPTY_OPTIONS]);
   const [correctAnswer, setCorrectAnswer] = useState<number | null>(null);
+  const [editingQuizId, setEditingQuizId] = useState<string | null>(null);
+  const [editQuestion, setEditQuestion] = useState("");
+  const [editOptions, setEditOptions] = useState([...EMPTY_OPTIONS]);
+  const [editCorrectAnswer, setEditCorrectAnswer] = useState<number | null>(null);
+  const [savingQuizId, setSavingQuizId] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -65,13 +84,29 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
     fetchQuizzes();
   }, [moduleId]);
 
+  const resetCreateForm = () => {
+    setQuestion("");
+    setOptions([...EMPTY_OPTIONS]);
+    setCorrectAnswer(null);
+  };
+
+  const resetEditForm = () => {
+    setEditingQuizId(null);
+    setEditQuestion("");
+    setEditOptions([...EMPTY_OPTIONS]);
+    setEditCorrectAnswer(null);
+    setSavingQuizId(null);
+  };
+
   const handleCreateQuiz = async () => {
     if (
       !question.trim() ||
-      options.some((o) => !o.trim()) ||
+      options.length !== 4 ||
+      options.some((option) => !option.trim()) ||
       correctAnswer === null
-    )
+    ) {
       return;
+    }
 
     setCreating(true);
 
@@ -83,10 +118,8 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
     });
 
     if (res.success) {
-      setQuestion("");
-      setOptions(["", "", "", ""]);
-      setCorrectAnswer(null);
-      fetchQuizzes();
+      resetCreateForm();
+      await fetchQuizzes();
     }
 
     setCreating(false);
@@ -94,7 +127,44 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
 
   const handleDeleteQuiz = async (quizId: string) => {
     await deleteModuleQuiz(quizId);
-    fetchQuizzes();
+    if (editingQuizId === quizId) {
+      resetEditForm();
+    }
+    await fetchQuizzes();
+  };
+
+  const handleStartEdit = (quiz: ModuleQuiz) => {
+    setEditingQuizId(quiz.id);
+    setEditQuestion(quiz.question);
+    setEditOptions([...quiz.options]);
+    setEditCorrectAnswer(quiz.correctAnswer);
+  };
+
+  const handleSaveEdit = async (quizId: string) => {
+    if (
+      !editQuestion.trim() ||
+      editOptions.length !== 4 ||
+      editOptions.some((option) => !option.trim()) ||
+      editCorrectAnswer === null
+    ) {
+      return;
+    }
+
+    setSavingQuizId(quizId);
+
+    const res = await updateCourseQuiz(quizId, {
+      question: editQuestion,
+      options: editOptions,
+      correctAnswer: editCorrectAnswer,
+    });
+
+    if (!res.success) {
+      setSavingQuizId(null);
+      return;
+    }
+
+    resetEditForm();
+    await fetchQuizzes();
   };
 
   const handleDragEnd = async ({ active, over }: DragEndEvent) => {
@@ -133,16 +203,16 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
         onClick={() => setOpen(true)}
       >
         <ClipboardPenLine className="w-4 h-4" />
-        Preguntas de evaluación del módulo ({quizzes.length}/5)
+        Preguntas de evaluacion del modulo ({quizzes.length}/5)
       </Button>
       <UniversalModal
         open={open}
         onOpenChange={setOpen}
-        title="Evaluación del módulo"
+        title="Evaluacion del modulo"
       >
         <div className="max-h-[65vh] overflow-y-auto pr-2 space-y-4">
           <h4 className="font-semibold">
-            Preguntas de evaluación del módulo ({quizzes.length}/5)
+            Preguntas de evaluacion del modulo ({quizzes.length}/5)
           </h4>
 
           {loading && <Loader2 className="animate-spin" />}
@@ -159,7 +229,7 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
               {quizzes.map((quiz, i) => (
                 <SortableItem key={quiz.id} id={quiz.id} className="mb-3">
                   {({ attributes, listeners, setActivatorNodeRef, isDragging }) => (
-                    <Card className={`p-4 space-y-2 ${isDragging ? "ring-1 ring-primary" : ""}`}>
+                    <Card className={`p-4 space-y-4 ${isDragging ? "ring-1 ring-primary" : ""}`}>
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex items-start gap-2">
                           <Button
@@ -177,29 +247,108 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
                             {i + 1}. {quiz.question}
                           </p>
                         </div>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleDeleteQuiz(quiz.id)}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleStartEdit(quiz)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleDeleteQuiz(quiz.id)}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
                       </div>
 
-                      <ul className="list-disc ml-5 text-sm">
-                        {quiz.options.map((o, idx) => (
-                          <li
-                            key={idx}
-                            className={
-                              idx === quiz.correctAnswer
-                                ? "font-semibold text-primary"
-                                : ""
-                            }
-                          >
-                            {o}
-                          </li>
-                        ))}
-                      </ul>
+                      {editingQuizId === quiz.id ? (
+                        <div className="space-y-4">
+                          <div className="space-y-1">
+                            <Label>Pregunta</Label>
+                            <Input
+                              value={editQuestion}
+                              onChange={(e) => setEditQuestion(e.target.value)}
+                              placeholder="Escribi la pregunta"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Opciones (exactamente 4)</Label>
+                            <RadioGroupQuestion
+                              value={
+                                editCorrectAnswer !== null
+                                  ? editCorrectAnswer.toString()
+                                  : undefined
+                              }
+                              onValueChange={(value) =>
+                                setEditCorrectAnswer(Number(value))
+                              }
+                              className="grid grid-cols-2 gap-3"
+                            >
+                              {editOptions.map((option, idx) => {
+                                const isSelected = editCorrectAnswer === idx;
+
+                                return (
+                                  <OptionCardQuestion key={idx} value={idx.toString()}>
+                                    <div className="flex items-center justify-between gap-2 w-full">
+                                      <Input
+                                        value={option}
+                                        onChange={(e) => {
+                                          const nextOptions = [...editOptions];
+                                          nextOptions[idx] = e.target.value;
+                                          setEditOptions(nextOptions);
+                                        }}
+                                        placeholder={`Opcion ${idx + 1}`}
+                                        className="w-full border-none p-0 text-sm bg-transparent focus-visible:ring-0"
+                                      />
+
+                                      {isSelected && (
+                                        <span className="text-xs font-semibold text-primary">
+                                          Correcta
+                                        </span>
+                                      )}
+                                    </div>
+                                  </OptionCardQuestion>
+                                );
+                              })}
+                            </RadioGroupQuestion>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => handleSaveEdit(quiz.id)}
+                              disabled={savingQuizId === quiz.id}
+                            >
+                              {savingQuizId === quiz.id && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              )}
+                              Guardar cambios
+                            </Button>
+                            <Button variant="outline" onClick={resetEditForm}>
+                              Cancelar
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <ul className="list-disc ml-5 text-sm">
+                          {quiz.options.map((option, idx) => (
+                            <li
+                              key={idx}
+                              className={
+                                idx === quiz.correctAnswer
+                                  ? "font-semibold text-primary"
+                                  : ""
+                              }
+                            >
+                              {option}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </Card>
                   )}
                 </SortableItem>
@@ -213,11 +362,11 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
               <Input
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Escribí la pregunta"
+                placeholder="Escribi la pregunta"
               />
 
               <div className="space-y-2">
-                <Label>Opciones (al finalizar seleccioná la correcta)</Label>
+                <Label>Opciones (exactamente 4, selecciona la correcta)</Label>
 
                 <RadioGroupQuestion
                   value={
@@ -225,23 +374,23 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
                       ? correctAnswer.toString()
                       : undefined
                   }
-                  onValueChange={(v) => setCorrectAnswer(Number(v))}
+                  onValueChange={(value) => setCorrectAnswer(Number(value))}
                   className="grid grid-cols-2 gap-3"
                 >
-                  {options.map((opt, idx) => {
+                  {options.map((option, idx) => {
                     const isSelected = correctAnswer === idx;
 
                     return (
                       <OptionCardQuestion key={idx} value={idx.toString()}>
                         <div className="flex items-center justify-between gap-2 w-full">
                           <Input
-                            value={opt}
+                            value={option}
                             onChange={(e) => {
-                              const copy = [...options];
-                              copy[idx] = e.target.value;
-                              setOptions(copy);
+                              const nextOptions = [...options];
+                              nextOptions[idx] = e.target.value;
+                              setOptions(nextOptions);
                             }}
-                            placeholder={`Opción ${idx + 1}`}
+                            placeholder={`Opcion ${idx + 1}`}
                             className="w-full border-none p-0 text-sm bg-transparent focus-visible:ring-0"
                           />
 
@@ -274,7 +423,7 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
 
           {maxReached && (
             <p className="text-sm text-muted-foreground">
-              Máximo de 5 preguntas alcanzado para este módulo.
+              Maximo de 5 preguntas alcanzado para este modulo.
             </p>
           )}
         </div>
@@ -282,10 +431,3 @@ export const ModuleQuizzes = ({ moduleId }: Props) => {
     </div>
   );
 };
-
-// Intentos: ✔️ sí, con 24 hs
-// Quiz por módulo: ✔️ opcional, 1–5
-// Quiz final: ✔️ obligatorio
-// Respuesta correcta: ✔️ una sola
-// Aprobación: ❌ no 100%, ✔️ 70–80%
-// Reglas: las define la plataforma

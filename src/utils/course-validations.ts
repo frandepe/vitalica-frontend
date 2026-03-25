@@ -1,3 +1,4 @@
+import { COURSE_STRUCTURE_LIMITS } from "@/constants";
 import { ICourse } from "@/types/course.types";
 
 // Este componente ofrece errores o warnings con sus respectivos mensajes si al curso le falta contenido
@@ -6,7 +7,7 @@ export const getValidationIssues = (
   course?: ICourse | null,
   minimumFinalQuizQuestions: number = 5,
 ) => {
-  if (!course) return []; // si es null, no hay issues
+  if (!course) return [];
 
   const issues: {
     type: "error" | "warning";
@@ -14,7 +15,6 @@ export const getValidationIssues = (
     field: string;
   }[] = [];
 
-  // Critical issues
   if (!course.title) {
     issues.push({
       type: "error",
@@ -58,7 +58,6 @@ export const getValidationIssues = (
     });
   }
 
-  // Módulos
   if (!course.modules || course.modules.length === 0) {
     issues.push({
       type: "error",
@@ -66,8 +65,19 @@ export const getValidationIssues = (
       field: "modules",
     });
   } else {
+    if (
+      course.modules.length > COURSE_STRUCTURE_LIMITS.MAX_MODULES_PER_COURSE
+    ) {
+      issues.push({
+        type: "error",
+        message: `El curso supera el máximo de ${COURSE_STRUCTURE_LIMITS.MAX_MODULES_PER_COURSE} módulos (Paso 4)`,
+        field: "modules",
+      });
+    }
+
     course.modules.forEach((module, idx) => {
-      if (!module) return; // proteccion adicional
+      if (!module) return;
+
       if (!module.title) {
         issues.push({
           type: "error",
@@ -75,17 +85,28 @@ export const getValidationIssues = (
           field: `module-${module.id}`,
         });
       }
+
       if (!module.lessons || module.lessons.length === 0) {
         issues.push({
           type: "error",
           message: `El módulo "${module.title || idx + 1}" no tiene lecciones (Paso 4)`,
           field: `module-${module.id}`,
         });
+        return;
+      }
+
+      if (
+        module.lessons.length > COURSE_STRUCTURE_LIMITS.MAX_LESSONS_PER_MODULE
+      ) {
+        issues.push({
+          type: "error",
+          message: `El módulo "${module.title || idx + 1}" supera el máximo de ${COURSE_STRUCTURE_LIMITS.MAX_LESSONS_PER_MODULE} lecciones (Paso 4)`,
+          field: `module-${module.id}`,
+        });
       }
     });
   }
 
-  // Quizzes
   if (!course.quizzes || course.quizzes.length < minimumFinalQuizQuestions) {
     issues.push({
       type: "error",

@@ -34,6 +34,7 @@ const TeachesOnVitalica = lazy(
   () => import("@/pages/public/TeachesOnVitalica"),
 );
 const BlogLandingPage = lazy(() => import("@/pages/public/Blogs/Blogs"));
+const BlogDetailPage = lazy(() => import("@/pages/public/Blogs/BlogDetail"));
 const CourseOverview = lazy(
   () => import("@/pages/public/Courses/CourseOverview"),
 );
@@ -321,6 +322,16 @@ export const router = createBrowserRouter([
       {
         path: "",
         element: <BlogLandingPage />,
+      },
+    ],
+  },
+  {
+    path: "blog/:slug",
+    element: <BlogsLayout />,
+    children: [
+      {
+        path: "",
+        element: <BlogDetailPage />,
       },
     ],
   },

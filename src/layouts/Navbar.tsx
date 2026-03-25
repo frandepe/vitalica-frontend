@@ -27,7 +27,7 @@ export function Navbar() {
       ctaHref: "/buscar?search=&page=1&limit=10",
       items: [
         { title: "Explorar cursos", href: "/buscar?search=&page=1&limit=10" },
-        { title: "Primeros pasos", href: "/primeros-pasos" },
+        { title: "#", href: "#" },
         { title: "Blog y guias", href: "/blogs" },
         { title: "Enseña en Vitalica", href: "/dar-cursos" },
       ],

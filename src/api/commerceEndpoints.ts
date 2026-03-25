@@ -88,6 +88,7 @@ export interface MercadoPagoCheckoutResponse {
     collectorId: number | string;
     marketplace: string | null;
     marketplaceFee: number;
+    installments: 1;
     tokenSource: "seller_oauth";
   };
 }

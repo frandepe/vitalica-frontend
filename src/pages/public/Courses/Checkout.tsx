@@ -629,6 +629,12 @@ const Checkout = () => {
                   </p>
                 </div>
                 <div>
+                  <p className="text-stone-500">Modalidad de pago</p>
+                  <p className="mt-1 font-medium text-stone-950">
+                    Pago único en 1 cuota
+                  </p>
+                </div>
+                <div>
                   <p className="text-stone-500">Acceso</p>
                   <p className="mt-1 font-medium text-stone-950">
                     {studentState === "ALREADY_PURCHASED"

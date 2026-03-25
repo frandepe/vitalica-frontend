@@ -13,6 +13,16 @@ export const LessonTypeLabels = {
   content: "Contenido escrito",
 } as const;
 
+export const COURSE_STRUCTURE_LIMITS = {
+  MAX_MODULES_PER_COURSE: 10,
+  MAX_LESSONS_PER_MODULE: 8,
+} as const;
+
+export const courseStructureLimitMessages = {
+  modules: `Podés crear hasta ${COURSE_STRUCTURE_LIMITS.MAX_MODULES_PER_COURSE} módulos por curso.`,
+  lessons: `Podés crear hasta ${COURSE_STRUCTURE_LIMITS.MAX_LESSONS_PER_MODULE} lecciones por módulo.`,
+} as const;
+
 export const CourseLevelLabels = {
   BASIC: "Básico",
   INTERMEDIATE: "Intermedio",

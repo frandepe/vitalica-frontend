@@ -1,30 +1,60 @@
+import {
+  type BlogAudience,
+  getBlogsByAudience,
+} from "@/content/blogs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { BlogBoxTres } from "./BlogBoxTres";
-import { alumnosBlogs, instructoresBlogs } from "./BlogBoxTresData";
+
+const blogTabs: Array<{
+  value: string;
+  label: string;
+  audience: BlogAudience;
+  title: string;
+}> = [
+  {
+    value: "instructores",
+    label: "Instructores",
+    audience: "INSTRUCTORES",
+    title: "Guías pensadas para instructores",
+  },
+  {
+    value: "alumnos",
+    label: "Alumnos",
+    audience: "ALUMNOS",
+    title: "Guías pensadas para alumnos",
+  },
+  {
+    value: "comunidad",
+    label: "Comunidad",
+    audience: "COMUNIDAD",
+    title: "Contenidos compartidos para toda la comunidad",
+  },
+];
 
 export const BlogTabsRole = () => {
   return (
-    <Tabs defaultValue="tab-1" className="w-full">
+    <Tabs defaultValue={blogTabs[0].value} className="w-full">
       <TabsList className="relative h-auto w-full justify-start gap-1 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-black/50">
-        <TabsTrigger
-          value="tab-1"
-          className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
-        >
-          Instructores
-        </TabsTrigger>
-        <TabsTrigger
-          value="tab-2"
-          className="rounded-b-none border-b-2 border-transparent px-4 py-2  text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
-        >
-          Alumnos
-        </TabsTrigger>
+        {blogTabs.map((tab) => (
+          <TabsTrigger
+            key={tab.value}
+            value={tab.value}
+            className="rounded-b-none border-b-2 border-transparent px-4 py-2 text-muted-foreground transition-colors data-[state=active]:border-foreground data-[state=active]:text-foreground"
+          >
+            {tab.label}
+          </TabsTrigger>
+        ))}
       </TabsList>
-      <TabsContent value="tab-1" className="pt-6 space-y-10">
-        <BlogBoxTres role="instructores" blogs={instructoresBlogs} />
-      </TabsContent>
-      <TabsContent value="tab-2" className="pt-6 space-y-10">
-        <BlogBoxTres role="alumnos" blogs={alumnosBlogs} />
-      </TabsContent>
+
+      {blogTabs.map((tab) => (
+        <TabsContent key={tab.value} value={tab.value} className="space-y-10 pt-6">
+          <BlogBoxTres
+            audience={tab.audience}
+            title={tab.title}
+            blogs={getBlogsByAudience(tab.audience).slice(0, 3)}
+          />
+        </TabsContent>
+      ))}
     </Tabs>
   );
 };

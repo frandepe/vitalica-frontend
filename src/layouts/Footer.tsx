@@ -28,7 +28,7 @@ const footerLinkGroups: FooterLinkGroup[] = [
     label: "Aprender",
     links: [
       { title: "Explorar cursos", href: "/buscar?search=&page=1&limit=10" },
-      { title: "Primeros pasos", href: "/primeros-pasos" },
+      { title: "#", href: "#" },
       { title: "Blog y guias", href: "/blogs" },
       { title: "Mis cursos", href: "/mis-cursos" },
     ],

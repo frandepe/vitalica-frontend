@@ -199,6 +199,12 @@ export interface CreateModuleQuizPayload {
   correctAnswer: number;
 }
 
+export interface UpdateCourseQuizPayload {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+}
+
 export const createModuleQuiz = async (
   payload: CreateModuleQuizPayload,
 ): Promise<ApiResponse<{ id: string }>> => {
@@ -233,6 +239,17 @@ export const deleteModuleQuiz = async (
   return apiRequest({
     url: `${API_ROUTES.COURSE}/module/quiz/${quizId}`,
     method: "DELETE",
+  });
+};
+
+export const updateCourseQuiz = async (
+  quizId: string,
+  payload: UpdateCourseQuizPayload,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/quiz/${quizId}`,
+    method: "PATCH",
+    data: payload,
   });
 };
 
