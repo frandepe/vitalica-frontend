@@ -183,9 +183,9 @@ export default function PracticeRequests() {
                   Solicitudes de practica
                 </h1>
                 <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-[15px]">
-                  Gestiona las practicas asignadas a tu perfil. Desde aqui
-                  puedes revisar el detalle de cada alumno, completar
-                  solicitudes pendientes o cancelarlas.
+                  Gestiona las practicas asignadas a tu perfil. Desde aqui podés
+                  revisar el detalle de cada alumno, completar solicitudes
+                  pendientes o cancelarlas.
                 </p>
               </div>
             </div>

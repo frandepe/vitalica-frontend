@@ -21,7 +21,7 @@ export const faqsApplicationStatus = [
     question:
       "¿Puedo actualizar mis documentos después de enviar la aplicación?",
     answer:
-      "Sí, mientras tu aplicación esté en estado 'Borrador' o 'En revisión', puedes actualizar tus documentos y certificados para mejorar tus posibilidades de aprobación.",
+      "Sí, mientras tu aplicación esté en estado 'Borrador' o 'En revisión', podés actualizar tus documentos y certificados para mejorar tus posibilidades de aprobación.",
     meta: "Documentación",
   },
   {

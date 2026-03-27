@@ -74,7 +74,7 @@ export const Step6 = ({
               <span className="font-semibold block">
                 {errorCount > 0
                   ? "Hay contenido obligatorio pendiente. Por favor, completá los campos marcados en rojo antes de finalizar el curso."
-                  : "Hay contenido opcional pendiente. Puedes finalizar el curso sin completar estos campos, pero se recomienda hacerlo para una mejor experiencia del alumno."}
+                  : "Hay contenido opcional pendiente. Podés finalizar el curso sin completar estos campos, pero se recomienda hacerlo para una mejor experiencia del alumno."}
               </span>
 
               {(errorCount > 0 || warningCount > 0) && (
@@ -449,7 +449,8 @@ export const Step6 = ({
           )}
 
           {/* Final Exam */}
-          {course.quizzes && course.quizzes?.length >= minimumFinalQuizQuestions ? (
+          {course.quizzes &&
+          course.quizzes?.length >= minimumFinalQuizQuestions ? (
             <Card className="p-5">
               <div className="flex items-start gap-3">
                 <div className="p-2 rounded-lg bg-primary/10">

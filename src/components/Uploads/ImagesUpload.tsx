@@ -56,7 +56,7 @@ const ImagesUpload: React.FC<ImageUploadProps> = ({
           preview: url,
           isExisting: true,
           name: `Imagen existente ${i + 1}`,
-        }))
+        })),
       );
     }
   }, [value]);
@@ -66,8 +66,8 @@ const ImagesUpload: React.FC<ImageUploadProps> = ({
     if (file.size > maxSize)
       errs.push(
         `El archivo ${file.name} supera ${(maxSize / 1024 / 1024).toFixed(
-          1
-        )} MB`
+          1,
+        )} MB`,
       );
     if (!file.type.startsWith("image/"))
       errs.push(`El archivo ${file.name} no es una imagen`);
@@ -87,7 +87,7 @@ const ImagesUpload: React.FC<ImageUploadProps> = ({
       isInternalUpdate.current = true;
       onChange({ existing: existingUrls, new: newFiles });
     },
-    [onChange]
+    [onChange],
   );
 
   const processFiles = useCallback(
@@ -118,7 +118,7 @@ const ImagesUpload: React.FC<ImageUploadProps> = ({
 
       const filesToProcess = fileArray.slice(0, remainingSlots);
       if (fileArray.length > remainingSlots) {
-        fileErrors.push(`Solo puedes agregar ${remainingSlots} más.`);
+        fileErrors.push(`Solo podés agregar ${remainingSlots} más.`);
       }
 
       filesToProcess.forEach((file) => {
@@ -138,7 +138,7 @@ const ImagesUpload: React.FC<ImageUploadProps> = ({
       setErrors(fileErrors);
       notifyChanges(updated);
     },
-    [files, maxFiles, notifyChanges, maxSize]
+    [files, maxFiles, notifyChanges, maxSize],
   );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -61,10 +61,13 @@ const PracticeCertificatePage = () => {
             Tu certificado practico
           </h1>
           <p className="text-sm text-gray-400">
-            Puedes descargarlo o imprimirlo
+            Podés descargarlo o imprimirlo
           </p>
         </div>
-        <PracticeCertificateDownloadButton {...data} enrollmentId={enrollmentId!} />
+        <PracticeCertificateDownloadButton
+          {...data}
+          enrollmentId={enrollmentId!}
+        />
       </div>
 
       <iframe

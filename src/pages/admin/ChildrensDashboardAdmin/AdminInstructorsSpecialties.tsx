@@ -36,12 +36,12 @@ const statusBadgeClasses: Record<
 
 export default function AdminInstructorsSpecialties() {
   const { showToast } = useToast();
-  const [instructors, setInstructors] = useState<AdminInstructorSpecialtyProfile[]>(
-    [],
-  );
-  const [selectedInstructorId, setSelectedInstructorId] = useState<string | null>(
-    null,
-  );
+  const [instructors, setInstructors] = useState<
+    AdminInstructorSpecialtyProfile[]
+  >([]);
+  const [selectedInstructorId, setSelectedInstructorId] = useState<
+    string | null
+  >(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSavingInstructorSpecialties, setIsSavingInstructorSpecialties] =
     useState(false);
@@ -50,9 +50,8 @@ export default function AdminInstructorsSpecialties() {
   const [reviewerNotesByRequest, setReviewerNotesByRequest] = useState<
     Record<string, string>
   >({});
-  const [approvedSpecialtiesByRequest, setApprovedSpecialtiesByRequest] = useState<
-    Record<string, ISpecialty[]>
-  >({});
+  const [approvedSpecialtiesByRequest, setApprovedSpecialtiesByRequest] =
+    useState<Record<string, ISpecialty[]>>({});
 
   const specialtiesForm = useForm<InstructorSpecialtiesFormValues>({
     defaultValues: {
@@ -62,8 +61,9 @@ export default function AdminInstructorsSpecialties() {
 
   const selectedInstructor = useMemo(
     () =>
-      instructors.find((instructor) => instructor.id === selectedInstructorId) ||
-      null,
+      instructors.find(
+        (instructor) => instructor.id === selectedInstructorId,
+      ) || null,
     [instructors, selectedInstructorId],
   );
 
@@ -98,49 +98,56 @@ export default function AdminInstructorsSpecialties() {
       specialties: selectedInstructor.specialties || [],
     });
 
-    const initialApprovedByRequest = selectedInstructor.specialtyRequests.reduce(
-      (acc, request) => {
-        acc[request.id] = request.requestedSpecialties || [];
-        return acc;
-      },
-      {} as Record<string, ISpecialty[]>,
-    );
+    const initialApprovedByRequest =
+      selectedInstructor.specialtyRequests.reduce(
+        (acc, request) => {
+          acc[request.id] = request.requestedSpecialties || [];
+          return acc;
+        },
+        {} as Record<string, ISpecialty[]>,
+      );
 
     setApprovedSpecialtiesByRequest(initialApprovedByRequest);
   }, [selectedInstructor, specialtiesForm]);
 
-  const saveInstructorSpecialties = specialtiesForm.handleSubmit(async (data) => {
-    if (!selectedInstructor) return;
+  const saveInstructorSpecialties = specialtiesForm.handleSubmit(
+    async (data) => {
+      if (!selectedInstructor) return;
 
-    setIsSavingInstructorSpecialties(true);
-    try {
-      const response = await updateInstructorSpecialties(
-        selectedInstructor.id,
-        data.specialties,
-      );
+      setIsSavingInstructorSpecialties(true);
+      try {
+        const response = await updateInstructorSpecialties(
+          selectedInstructor.id,
+          data.specialties,
+        );
 
-      if (!response.success) {
+        if (!response.success) {
+          showToast(
+            response.message || "No se pudieron guardar las especialidades",
+            "error",
+          );
+          return;
+        }
+
+        showToast("Especialidades del instructor actualizadas", "success");
+        await loadInstructors();
+      } catch (error: unknown) {
         showToast(
-          response.message || "No se pudieron guardar las especialidades",
+          (axios.isAxiosError(error)
+            ? error.response?.data?.message
+            : undefined) || "Error al guardar especialidades del instructor",
           "error",
         );
-        return;
+      } finally {
+        setIsSavingInstructorSpecialties(false);
       }
+    },
+  );
 
-      showToast("Especialidades del instructor actualizadas", "success");
-      await loadInstructors();
-    } catch (error: unknown) {
-      showToast(
-        (axios.isAxiosError(error) ? error.response?.data?.message : undefined) ||
-          "Error al guardar especialidades del instructor",
-        "error",
-      );
-    } finally {
-      setIsSavingInstructorSpecialties(false);
-    }
-  });
-
-  const toggleApprovedSpecialty = (requestId: string, specialty: ISpecialty) => {
+  const toggleApprovedSpecialty = (
+    requestId: string,
+    specialty: ISpecialty,
+  ) => {
     setApprovedSpecialtiesByRequest((prev) => {
       const current = prev[requestId] || [];
       const exists = current.includes(specialty);
@@ -188,8 +195,9 @@ export default function AdminInstructorsSpecialties() {
       await loadInstructors();
     } catch (error: unknown) {
       showToast(
-        (axios.isAxiosError(error) ? error.response?.data?.message : undefined) ||
-          "Error al resolver la solicitud",
+        (axios.isAxiosError(error)
+          ? error.response?.data?.message
+          : undefined) || "Error al resolver la solicitud",
         "error",
       );
     } finally {
@@ -204,9 +212,11 @@ export default function AdminInstructorsSpecialties() {
   return (
     <div className="py-8 space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold">Gestion de especialidades de instructores</h1>
+        <h1 className="text-2xl font-semibold">
+          Gestion de especialidades de instructores
+        </h1>
         <p className="text-sm text-muted-foreground mt-2">
-          Aqui puedes editar el set operativo de especialidades aprobadas de
+          Acá podés editar el set operativo de especialidades aprobadas de
           instructores existentes y resolver solicitudes posteriores de
           especialidades.
         </p>
@@ -233,9 +243,12 @@ export default function AdminInstructorsSpecialties() {
                 }`}
               >
                 <p className="font-medium text-sm">
-                  {instructor.user.firstName || ""} {instructor.user.lastName || ""}
+                  {instructor.user.firstName || ""}{" "}
+                  {instructor.user.lastName || ""}
                 </p>
-                <p className="text-xs text-muted-foreground">{instructor.user.email}</p>
+                <p className="text-xs text-muted-foreground">
+                  {instructor.user.email}
+                </p>
                 <p className="text-xs mt-1">
                   Especialidades: {instructor.specialties.length}
                 </p>
@@ -259,14 +272,27 @@ export default function AdminInstructorsSpecialties() {
                 </p>
 
                 <p className="text-sm">
-                  Instructor: <strong>{selectedInstructor.user.firstName || ""} {selectedInstructor.user.lastName || ""}</strong>
+                  Instructor:{" "}
+                  <strong>
+                    {selectedInstructor.user.firstName || ""}{" "}
+                    {selectedInstructor.user.lastName || ""}
+                  </strong>
                 </p>
 
                 <Form {...specialtiesForm}>
-                  <form onSubmit={saveInstructorSpecialties} className="space-y-4">
-                    <SpecialtyChecks control={specialtiesForm.control} name="specialties" />
+                  <form
+                    onSubmit={saveInstructorSpecialties}
+                    className="space-y-4"
+                  >
+                    <SpecialtyChecks
+                      control={specialtiesForm.control}
+                      name="specialties"
+                    />
 
-                    <Button type="submit" disabled={isSavingInstructorSpecialties}>
+                    <Button
+                      type="submit"
+                      disabled={isSavingInstructorSpecialties}
+                    >
                       {isSavingInstructorSpecialties
                         ? "Guardando..."
                         : "Guardar set final de especialidades"}
@@ -278,7 +304,9 @@ export default function AdminInstructorsSpecialties() {
               <Separator />
 
               <section className="space-y-4">
-                <h2 className="text-lg font-semibold">Solicitudes posteriores</h2>
+                <h2 className="text-lg font-semibold">
+                  Solicitudes posteriores
+                </h2>
 
                 <div className="max-w-sm">
                   <label className="text-sm font-medium">Revisado por</label>
@@ -296,7 +324,8 @@ export default function AdminInstructorsSpecialties() {
                 ) : (
                   <div className="space-y-4">
                     {selectedInstructor.specialtyRequests.map((request) => {
-                      const selectedApproved = approvedSpecialtiesByRequest[request.id] || [];
+                      const selectedApproved =
+                        approvedSpecialtiesByRequest[request.id] || [];
 
                       return (
                         <article
@@ -306,9 +335,13 @@ export default function AdminInstructorsSpecialties() {
                           <div className="flex items-center justify-between gap-4">
                             <div>
                               <p className="text-xs text-muted-foreground">
-                                {new Date(request.createdAt).toLocaleString("es-AR")}
+                                {new Date(request.createdAt).toLocaleString(
+                                  "es-AR",
+                                )}
                               </p>
-                              <p className="text-sm font-medium">Solicitud {request.id}</p>
+                              <p className="text-sm font-medium">
+                                Solicitud {request.id}
+                              </p>
                             </div>
                             <span
                               className={`text-xs px-2 py-1 rounded-full font-medium ${statusBadgeClasses[request.status]}`}
@@ -335,23 +368,27 @@ export default function AdminInstructorsSpecialties() {
 
                           {request.certificateUrls?.length > 0 && (
                             <div>
-                              <p className="text-sm font-medium mb-2">Certificados adjuntos</p>
+                              <p className="text-sm font-medium mb-2">
+                                Certificados adjuntos
+                              </p>
                               <div className="flex flex-wrap gap-2">
-                                {request.certificateUrls.map((certificateUrl, index) => (
-                                  <a
-                                    key={`${request.id}-certificate-${index}`}
-                                    href={certificateUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="w-20 h-20 rounded-md border overflow-hidden"
-                                  >
-                                    <img
-                                      src={certificateUrl}
-                                      alt={`Certificado ${index + 1}`}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </a>
-                                ))}
+                                {request.certificateUrls.map(
+                                  (certificateUrl, index) => (
+                                    <a
+                                      key={`${request.id}-certificate-${index}`}
+                                      href={certificateUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="w-20 h-20 rounded-md border overflow-hidden"
+                                    >
+                                      <img
+                                        src={certificateUrl}
+                                        alt={`Certificado ${index + 1}`}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </a>
+                                  ),
+                                )}
                               </div>
                             </div>
                           )}
@@ -364,25 +401,31 @@ export default function AdminInstructorsSpecialties() {
                                   Especialidades a aprobar (aprobacion parcial)
                                 </p>
                                 <div className="flex flex-wrap gap-2">
-                                  {request.requestedSpecialties.map((specialty) => {
-                                    const active = selectedApproved.includes(specialty);
-                                    return (
-                                      <button
-                                        key={`${request.id}-approve-${specialty}`}
-                                        type="button"
-                                        onClick={() =>
-                                          toggleApprovedSpecialty(request.id, specialty)
-                                        }
-                                        className={`px-3 py-1 rounded-full text-xs border ${
-                                          active
-                                            ? "bg-secondary text-white border-secondary"
-                                            : "bg-background text-foreground border-border"
-                                        }`}
-                                      >
-                                        {t("courseSpecialty", specialty)}
-                                      </button>
-                                    );
-                                  })}
+                                  {request.requestedSpecialties.map(
+                                    (specialty) => {
+                                      const active =
+                                        selectedApproved.includes(specialty);
+                                      return (
+                                        <button
+                                          key={`${request.id}-approve-${specialty}`}
+                                          type="button"
+                                          onClick={() =>
+                                            toggleApprovedSpecialty(
+                                              request.id,
+                                              specialty,
+                                            )
+                                          }
+                                          className={`px-3 py-1 rounded-full text-xs border ${
+                                            active
+                                              ? "bg-secondary text-white border-secondary"
+                                              : "bg-background text-foreground border-border"
+                                          }`}
+                                        >
+                                          {t("courseSpecialty", specialty)}
+                                        </button>
+                                      );
+                                    },
+                                  )}
                                 </div>
                               </div>
 
@@ -401,7 +444,9 @@ export default function AdminInstructorsSpecialties() {
                                 <Button
                                   type="button"
                                   disabled={isResolvingRequest}
-                                  onClick={() => resolveRequest(request, "APPROVED")}
+                                  onClick={() =>
+                                    resolveRequest(request, "APPROVED")
+                                  }
                                 >
                                   Aprobar seleccionadas
                                 </Button>
@@ -409,7 +454,9 @@ export default function AdminInstructorsSpecialties() {
                                   type="button"
                                   variant="outline"
                                   disabled={isResolvingRequest}
-                                  onClick={() => resolveRequest(request, "REJECTED")}
+                                  onClick={() =>
+                                    resolveRequest(request, "REJECTED")
+                                  }
                                 >
                                   Rechazar solicitud
                                 </Button>

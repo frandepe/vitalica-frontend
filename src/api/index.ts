@@ -6,3 +6,4 @@ export * from "./adminEndpoints";
 export * from "./mpEndpoints";
 export * from "./practiceEndpoints";
 export * from "./commerceEndpoints";
+export * from "./contactEndpoints";
