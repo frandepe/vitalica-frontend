@@ -7,6 +7,11 @@ import {
   InstructorSpecialtyRequest,
 } from "@/types/instructor.types";
 import {
+  GetPublicInstructorsParams,
+  PublicInstructorListItem,
+  PublicInstructorListMeta,
+} from "@/types/public-instructor.types";
+import {
   InstructorReviewItem,
   InstructorReviewType,
   InstructorReviewsMeta,
@@ -138,3 +143,20 @@ export const sendInstructorInvitation = async (data: {
     data,
   });
 };
+
+export const getPublicInstructors = async (params: GetPublicInstructorsParams) =>
+  apiRequest({
+    url: `${API_ROUTES.INSTRUCTOR}/public`,
+    method: "GET",
+    params: {
+      page: params.page,
+      limit: params.limit,
+      search: params.search?.trim() || undefined,
+      specialty:
+        params.specialty && params.specialty !== "ALL"
+          ? params.specialty
+          : undefined,
+    },
+  }) as Promise<
+    ApiResponse<PublicInstructorListItem[]> & { meta?: PublicInstructorListMeta }
+  >;

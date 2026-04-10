@@ -25,24 +25,12 @@ type FooterProps = ComponentProps<"footer">;
 
 const footerLinkGroups: FooterLinkGroup[] = [
   {
-    label: "Aprender",
+    label: "Explorar",
     links: [
       { title: "Explorar cursos", href: "/buscar?search=&page=1&limit=10" },
-      { title: "#", href: "#" },
+      { title: "Red de instructores", href: "/instructores" },
       { title: "Blog y guias", href: "/blogs" },
-      { title: "Mis cursos", href: "/mis-cursos" },
-    ],
-  },
-  {
-    label: "Enseñar",
-    links: [
-      { title: "Enseña en Vitalica", href: "/dar-cursos" },
-      {
-        title: "Postularme como instructor",
-        href: "/solicitar-ser-instructor",
-      },
-      { title: "Perfil profesional", href: "/perfil" },
-      { title: "Panel de instructor", href: "/instructor" },
+      { title: "Ensenar en Vitalica", href: "/dar-cursos" },
     ],
   },
   {
@@ -106,7 +94,7 @@ export function Footer({ className, ...props }: FooterProps) {
             </div>
 
             <h2 className="mt-6 max-w-2xl text-4xl font-semibold tracking-[-0.04em] text-foreground sm:text-5xl">
-              Aprendizaje híbrido
+              Aprendizaje hibrido
             </h2>
 
             <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
@@ -118,15 +106,13 @@ export function Footer({ className, ...props }: FooterProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             <LinkCard
               href="/buscar?search=&page=1&limit=10"
-              eyebrow="Para alumnos"
-              title="Ver cursos"
-              description="Encontra formacion teorica y practica para avanzar a tu ritmo."
+              title="Explorar cursos"
+              description="Formacion teorica y practica para avanzar con un recorrido claro."
             />
             <LinkCard
-              href="/dar-cursos"
-              eyebrow="Para instructores"
-              title="Compartir experiencia"
-              description="Presenta tu propuesta y construí tu espacio de enseñanza."
+              href="/instructores"
+              title="Conocer instructores"
+              description="Una red profesional visible, real y confiable dentro de Vitalica."
             />
           </div>
         </Reveal>
@@ -174,7 +160,7 @@ export function Footer({ className, ...props }: FooterProps) {
 
           <Reveal
             delay={0.08}
-            className="grid gap-10 sm:grid-cols-3 sm:gap-8 lg:pl-8"
+            className="grid gap-10 sm:grid-cols-2 sm:gap-8 lg:pl-8"
           >
             {footerLinkGroups.map((group) => (
               <div key={group.label}>
@@ -231,33 +217,27 @@ export function Footer({ className, ...props }: FooterProps) {
 
 interface LinkCardProps {
   href: string;
-  eyebrow: string;
   title: string;
   description: string;
 }
 
-function LinkCard({ href, eyebrow, title, description }: LinkCardProps) {
+function LinkCard({ href, title, description }: LinkCardProps) {
   return (
     <Link
       to={href}
-      className="group rounded-lg border border-border/70 bg-background/85 p-5 shadow-[0_18px_50px_-32px_rgba(34,80,69,0.28)] transition-all hover:-translate-y-0.5 hover:border-primary/25"
+      className="group flex h-full items-center justify-between gap-4 rounded-2xl border border-border/70 bg-background/85 px-5 py-4 shadow-[0_18px_50px_-32px_rgba(34,80,69,0.28)] transition-all hover:-translate-y-0.5 hover:border-primary/25"
     >
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-        {eyebrow}
-      </p>
-      <div className="mt-3 flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-lg font-semibold tracking-tight text-foreground">
-            {title}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {description}
-          </p>
-        </div>
-        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 text-muted-foreground transition-colors group-hover:border-primary/30 group-hover:text-primary">
-          <ArrowRight className="h-4 w-4" />
-        </span>
+      <div className="min-w-0">
+        <h3 className="text-base font-semibold tracking-tight text-foreground">
+          {title}
+        </h3>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">
+          {description}
+        </p>
       </div>
+      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border/70 text-muted-foreground transition-colors group-hover:border-primary/30 group-hover:text-primary">
+        <ArrowRight className="h-4 w-4" />
+      </span>
     </Link>
   );
 }

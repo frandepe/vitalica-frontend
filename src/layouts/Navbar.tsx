@@ -27,7 +27,7 @@ export function Navbar() {
       ctaHref: "/buscar?search=&page=1&limit=10",
       items: [
         { title: "Explorar cursos", href: "/buscar?search=&page=1&limit=10" },
-        { title: "#", href: "#" },
+        { title: "Red de instructores", href: "/instructores" },
         { title: "Blog y guias", href: "/blogs" },
         { title: "Enseña en Vitalica", href: "/dar-cursos" },
       ],
@@ -40,6 +40,7 @@ export function Navbar() {
       ctaHref: "/contacto",
       items: [
         { title: "Sobre Vitalica", href: "/sobre-nosotros" },
+        { title: "Instructores", href: "/instructores" },
         { title: "Contacto", href: "/contacto" },
         {
           title: "Politicas de privacidad",

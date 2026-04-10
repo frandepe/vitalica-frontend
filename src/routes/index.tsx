@@ -33,6 +33,9 @@ const MyCourses = lazy(() => import("@/pages/protected/MyCourses"));
 const TeachesOnVitalica = lazy(
   () => import("@/pages/public/TeachesOnVitalica"),
 );
+const PublicInstructorsPage = lazy(
+  () => import("@/pages/public/PublicInstructorsPage"),
+);
 const BlogLandingPage = lazy(() => import("@/pages/public/Blogs/Blogs"));
 const BlogDetailPage = lazy(() => import("@/pages/public/Blogs/BlogDetail"));
 const CourseOverview = lazy(
@@ -158,6 +161,10 @@ export const router = createBrowserRouter([
       {
         path: "dar-cursos",
         element: <TeachesOnVitalica />,
+      },
+      {
+        path: "instructores",
+        element: <PublicInstructorsPage />,
       },
       {
         path: "contacto",

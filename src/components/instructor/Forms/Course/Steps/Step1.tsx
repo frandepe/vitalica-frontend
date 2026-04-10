@@ -108,7 +108,7 @@ export const Step1 = ({
         <div className="flex gap-1 items-center">
           <Label>Etiquetas</Label>
           <TooltipIconButton
-            tooltip="Las etiquetas son palabras clave que ayudan a que tu curso sea más fácil de encontrar para los motores de b�squeda."
+            tooltip="Las etiquetas son palabras clave que ayudan a que tu curso sea más fácil de encontrar para los motores de búsqueda."
             side="top"
           >
             <InfoIcon size={15} className="text-secondary" />
