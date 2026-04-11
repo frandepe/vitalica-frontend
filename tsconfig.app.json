@@ -24,9 +24,8 @@
     "noUncheckedSideEffectImports": true,
 
     /* Alias para imports */
-    "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["./src/*"]
     },
     "types": ["vite/client"]
   },
