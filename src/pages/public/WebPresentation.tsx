@@ -134,13 +134,17 @@ export function WebPresentation() {
               className="mt-10 max-w-2xl border-t border-[#cfe1dd] pt-7"
             >
               <p className="text-base font-semibold text-[#10201f]">
-                Recibí novedades del lanzamiento
+                Convertite en uno de los primeros instructores de Vitalica
               </p>
               <p className="mt-2 text-sm leading-6 text-[#5a726e]">
-                Te avisamos cuando abra Vitalica y compartimos información para
-                alumnos, instructores e instituciones.
+                Los primeros en sumarse acceden a mejores condiciones
+                económicas, mayor visibilidad y un rol activo en el crecimiento
+                de la plataforma.
               </p>
-
+              <p className="text-primary text-sm">
+                Acceso anticipado y condiciones preferenciales para quienes
+                formen parte desde el inicio.
+              </p>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <input
                   type="email"
@@ -157,13 +161,16 @@ export function WebPresentation() {
                   variant="default"
                   className="bg-[#123c38] px-6 text-white hover:bg-[#0d302c]"
                 >
-                  {status === "loading" ? "Enviando..." : "Quiero enterarme"}
+                  {status === "loading"
+                    ? "Enviando..."
+                    : "Quiero ser instructor"}
                 </Button>
               </div>
 
               {status === "success" && (
                 <p className="mt-3 text-sm font-medium text-[#087c62]">
-                  Gracias. Te vamos a escribir con novedades del lanzamiento.
+                  Te vamos a escribir con información sobre el acceso anticipado
+                  y cómo formar parte de la red inicial de instructores.
                 </p>
               )}
 
