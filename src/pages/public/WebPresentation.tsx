@@ -19,6 +19,7 @@ export function WebPresentation() {
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
+  const isSubmitting = status === "loading";
 
   useEffect(() => {
     setMounted(true);
@@ -108,7 +109,7 @@ export function WebPresentation() {
             </div>
 
             <h1 className="max-w-3xl text-4xl font-semibold leading-[1.04] tracking-normal text-[#10201f] sm:text-5xl lg:text-6xl">
-              Formación en emergencias que no termina en lo teórico.
+              Formación teórica y práctica en emergencias prehospitalarias.
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-[#37524e] sm:text-xl">
@@ -131,53 +132,118 @@ export function WebPresentation() {
 
             <form
               onSubmit={handleSubmit}
-              className="mt-10 max-w-2xl border-t border-[#cfe1dd] pt-7"
+              className="mt-10 max-w-3xl border-t border-[#cfe1dd] pt-8"
             >
-              <p className="text-base font-semibold text-[#10201f]">
-                Convertite en uno de los primeros instructores de Vitalica
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[#5a726e]">
-                Los primeros en sumarse acceden a mejores condiciones
-                económicas, mayor visibilidad y un rol activo en el crecimiento
-                de la plataforma.
-              </p>
-              <p className="text-primary text-sm">
-                Acceso anticipado y condiciones preferenciales para quienes
-                formen parte desde el inicio.
-              </p>
-              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  placeholder="Tu correo electrónico"
-                  disabled={status === "loading"}
-                  className="h-12 min-w-0 flex-1 rounded-md border border-[#b9d1cc] bg-white px-4 text-sm text-[#10201f] outline-none transition focus:border-[#20ab9f] focus:ring-2 focus:ring-[#20ab9f]/20 disabled:cursor-not-allowed disabled:opacity-70"
-                />
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start lg:gap-8">
+                <div className="max-w-xl">
+                  <span className="inline-flex rounded-full border border-[#b8d8d1] bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#123c38]">
+                    Convocatoria inicial
+                  </span>
+                  <h2 className="mt-4 text-2xl font-semibold leading-tight text-[#10201f] sm:text-3xl">
+                    Convertite en uno de los instructores fundadores de
+                    Vitalica
+                  </h2>
+                  <p className="mt-4 text-base leading-7 text-[#47625d] sm:text-[1.05rem]">
+                    Los primeros en sumarse acceden a condiciones
+                    preferenciales, mayor visibilidad dentro de la plataforma y
+                    un lugar clave en la etapa inicial del proyecto.
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-[#5f7873]">
+                    Queremos construir esta red junto a quienes decidan formar
+                    parte desde el comienzo.
+                  </p>
+                </div>
 
-                <Button
-                  type="submit"
-                  disabled={status === "loading"}
-                  variant="default"
-                  className="bg-[#123c38] px-6 text-white hover:bg-[#0d302c]"
-                >
-                  {status === "loading"
-                    ? "Enviando..."
-                    : "Quiero ser instructor"}
-                </Button>
+                <div className="grid gap-4">
+                  {status === "success" ? (
+                    <div className="border-l-2 border-[#20ab9f] bg-white/75 px-5 py-5 backdrop-blur-sm">
+                      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#0d6b61]">
+                        Postulación recibida
+                      </p>
+                      <p className="mt-3 text-base leading-7 text-[#24423f]">
+                        Gracias por postularte. Te vamos a contactar antes del
+                        lanzamiento para compartir los próximos pasos y contarte
+                        cómo formar parte de la etapa inicial de Vitalica.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <label className="grid gap-2 text-sm font-medium text-[#1f3a37]">
+                          Nombre
+                          <input
+                            type="text"
+                            name="firstName"
+                            autoComplete="given-name"
+                            required
+                            disabled={isSubmitting}
+                            placeholder="Tu nombre"
+                            className="h-12 min-w-0 border border-[#b9d1cc] bg-white/92 px-4 text-sm text-[#10201f] outline-none transition placeholder:text-[#7b918d] focus:border-[#20ab9f] focus:ring-2 focus:ring-[#20ab9f]/20 disabled:cursor-not-allowed disabled:opacity-70"
+                          />
+                        </label>
+
+                        <label className="grid gap-2 text-sm font-medium text-[#1f3a37]">
+                          Apellido
+                          <input
+                            type="text"
+                            name="lastName"
+                            autoComplete="family-name"
+                            required
+                            disabled={isSubmitting}
+                            placeholder="Tu apellido"
+                            className="h-12 min-w-0 border border-[#b9d1cc] bg-white/92 px-4 text-sm text-[#10201f] outline-none transition placeholder:text-[#7b918d] focus:border-[#20ab9f] focus:ring-2 focus:ring-[#20ab9f]/20 disabled:cursor-not-allowed disabled:opacity-70"
+                          />
+                        </label>
+                      </div>
+
+                      <label className="grid gap-2 text-sm font-medium text-[#1f3a37]">
+                        Correo electrónico
+                        <input
+                          type="email"
+                          name="email"
+                          autoComplete="email"
+                          required
+                          disabled={isSubmitting}
+                          placeholder="nombre@ejemplo.com"
+                          className="h-12 min-w-0 border border-[#b9d1cc] bg-white/92 px-4 text-sm text-[#10201f] outline-none transition placeholder:text-[#7b918d] focus:border-[#20ab9f] focus:ring-2 focus:ring-[#20ab9f]/20 disabled:cursor-not-allowed disabled:opacity-70"
+                        />
+                      </label>
+
+                      <input
+                        type="hidden"
+                        name="_subject"
+                        value="Preinscripción instructor fundador - Vitalica"
+                      />
+
+                      <div className="grid gap-4 pt-1">
+                        <div className="border-l-2 border-[#d0e4df] pl-4">
+                          <p className="text-sm leading-6 text-[#5f7873]">
+                            No es una newsletter general. Es una convocatoria
+                            temprana para sumar a quienes quieran construir
+                            Vitalica desde el inicio.
+                          </p>
+                        </div>
+
+                        <Button
+                          type="submit"
+                          disabled={isSubmitting}
+                          variant="default"
+                          className="h-13 w-full bg-[#123c38] px-6 text-sm font-semibold text-white shadow-[0_16px_34px_rgba(18,60,56,0.18)] hover:bg-[#0d302c] sm:w-auto sm:min-w-[320px] sm:self-start"
+                        >
+                          {isSubmitting
+                            ? "Enviando..."
+                            : "Postularme como instructor fundador"}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
-              {status === "success" && (
-                <p className="mt-3 text-sm font-medium text-[#087c62]">
-                  Te vamos a escribir con información sobre el acceso anticipado
-                  y cómo formar parte de la red inicial de instructores.
-                </p>
-              )}
-
               {status === "error" && (
-                <p className="mt-3 text-sm font-medium text-[#b42318]">
-                  No pudimos enviar el formulario. Proba nuevamente o comunicate
-                  por nuestras redes.
+                <p className="mt-4 text-sm font-medium text-[#b42318]">
+                  No pudimos enviar la postulación. Probá nuevamente o
+                  comunicate por nuestras redes.
                 </p>
               )}
             </form>
