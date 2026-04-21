@@ -1,6 +1,6 @@
 import { CirclesImg } from "@/components/Banners/HeaderBanner";
-import { Step1 } from "@/components/Instructor/Forms/Course/Steps/Step1";
-import { Step, Stepper } from "@/components/Instructor/Stepper";
+import { Step1 } from "@/components/instructor/Forms/Course/Steps/Step1";
+import { Step, Stepper } from "@/components/instructor/Stepper";
 import { Form } from "@/components/ui/form";
 import {
   CoursePublishValidation,
@@ -13,11 +13,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import banner1 from "/Banners/banner4.jpg";
 import mask01 from "@/assets/Masks/mask-20.svg";
-import { Step2 } from "@/components/Instructor/Forms/Course/Steps/Step2";
-import { Step3 } from "@/components/Instructor/Forms/Course/Steps/Step3";
-import { Step4 } from "@/components/Instructor/Forms/Course/Steps/Step4";
-import { Step5 } from "@/components/Instructor/Forms/Course/Steps/Step5";
-import { Step6 } from "@/components/Instructor/Forms/Course/Steps/Step6";
+import { Step2 } from "@/components/instructor/Forms/Course/Steps/Step2";
+import { Step3 } from "@/components/instructor/Forms/Course/Steps/Step3";
+import { Step4 } from "@/components/instructor/Forms/Course/Steps/Step4";
+import { Step5 } from "@/components/instructor/Forms/Course/Steps/Step5";
+import { Step6 } from "@/components/instructor/Forms/Course/Steps/Step6";
 import {
   BookOpenCheck,
   ClipboardCheck,
@@ -52,9 +52,9 @@ import { SpecialtyLabels } from "@/constants";
 import axios from "axios";
 
 // TODO: (Posible TODO)
-// click siguiente →
-//   si isDirty → guardar
-//   si no → avanzar
+// click siguiente ->
+//   si isDirty -> guardar
+//   si no -> avanzar
 
 interface LessonTypes {
   [sectionIndex: number]: {
@@ -63,10 +63,10 @@ interface LessonTypes {
 }
 
 type UploadStatus =
-  | "Preparando subida…"
-  | "Subiendo video…"
-  | "Procesando el video, esto puede tardar varios minutos…"
-  | "Guardando video…"
+  | "Preparando subida..."
+  | "Subiendo video..."
+  | "Procesando el video, esto puede tardar varios minutos..."
+  | "Guardando video..."
   | "¡Video guardado!"
   | "Ocurrió un error al subir el video";
 
@@ -76,7 +76,7 @@ export default function EditCourse() {
   const { courseId } = useParams();
   const [courseData, setCourseData] = useState<ICourse | null>(null);
   const [uploadStatus, setUploadStatus] =
-    useState<UploadStatus>("Preparando subida…");
+    useState<UploadStatus>("Preparando subida...");
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [currentStep, setCurrentStep] = useState(1);
   const [publishValidation, setPublishValidation] =
@@ -146,9 +146,9 @@ export default function EditCourse() {
 
   const { fields: modules, remove: removeModule, move: moveModule } =
     useFieldArray({
-    control,
-    name: "modules",
-    keyName: "formId",
+      control,
+      name: "modules",
+      keyName: "formId",
     });
 
   useEffect(() => {
@@ -440,7 +440,7 @@ export default function EditCourse() {
 
     try {
       setUploadProgress(0);
-      setUploadStatus("Preparando subida…");
+      setUploadStatus("Preparando subida...");
 
       const res1 = await createPromoVideoDirectUpload(courseId);
 
@@ -451,7 +451,7 @@ export default function EditCourse() {
 
       const { uploadUrl, uploadId } = res1.data;
 
-      setUploadStatus("Subiendo video…");
+      setUploadStatus("Subiendo video...");
       await uploadFileToMux(
         uploadUrl,
         file,
@@ -459,7 +459,7 @@ export default function EditCourse() {
         abortController.signal,
       );
 
-      setUploadStatus("Procesando el video, esto puede tardar varios minutos…");
+      setUploadStatus("Procesando el video, esto puede tardar varios minutos...");
 
       const { assetId, playbackId } = await waitForMuxAssetReady(
         uploadId,
@@ -467,7 +467,7 @@ export default function EditCourse() {
         { signal: abortController.signal },
       );
 
-      setUploadStatus("Guardando video…");
+      setUploadStatus("Guardando video...");
       const res2 = await savePromoVideoToCourse(courseId, uploadId);
 
       if (!res2.success) {

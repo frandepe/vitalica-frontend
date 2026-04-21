@@ -13,7 +13,7 @@ const principles = [
   {
     title: "Formación híbrida de verdad",
     description:
-      "Vitalica une lo mejor de dos mundos: la flexibilidad de estudiar online y la exigencia de validar habilidades en una instancia práctica presencial. No creemos en una formación que termine solo frente a una pantalla.",
+      "La propuesta une lo mejor de dos mundos: la flexibilidad de estudiar online y la exigencia de validar habilidades en una instancia práctica presencial. No creemos en una formación que termine solo frente a una pantalla.",
     icon: GraduationCap,
   },
   {
@@ -25,21 +25,21 @@ const principles = [
   {
     title: "Instructores con respaldo",
     description:
-      "Los cursos y las prácticas están atravesados por la participación de instructores con formación comprobable. Buscamos que la enseñanza dentro de Vitalica sea clara, responsable y profesional.",
+      "Los cursos y las prácticas están atravesados por la participación de instructores con formación comprobable. Buscamos que la enseñanza sea clara, responsable y profesional.",
     icon: Stethoscope,
   },
   {
     title: "Una red que conecta conocimiento y práctica",
     description:
-      "Vitalica quiere construir una red confiable entre alumnos e instructores, donde la capacitación no quede aislada en teoría sino conectada con experiencias reales de validación y crecimiento.",
+      "El proyecto busca construir una red confiable entre alumnos e instructores, donde la capacitación no quede aislada en teoría sino conectada con experiencias reales de validación y crecimiento.",
     icon: Users,
   },
 ];
 
 const milestones = [
   "Vitalica nace con una convicción simple: la formación en primeros auxilios y emergencias debería ser más accesible, sin perder seriedad ni calidad.",
-  "Por eso proponemos un recorrido híbrido, donde la teoría online permita avanzar con flexibilidad y la práctica presencial aporte validación, criterio y contacto con la realidad.",
-  "Nuestra visión es construir una plataforma donde aprender habilidades que pueden salvar vidas sea más claro, más confiable y más conectado con profesionales capacitados.",
+  "Por eso proponemos un recorrido híbrido, donde la teoría online permite avanzar con flexibilidad y la práctica presencial aporta validación, criterio y contacto con la realidad.",
+  "La visión es construir un espacio donde aprender habilidades que pueden salvar vidas sea más claro, más confiable y más conectado con profesionales capacitados.",
 ];
 
 const trustPillars = [
@@ -84,11 +84,11 @@ const AboutPage = () => {
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-              Vitalica es una plataforma educativa enfocada en primeros auxilios
-              y emergencias prehospitalarias. Su propuesta parte de una idea
-              clara: facilitar el acceso a una formación seria y flexible, sin
-              resignar la práctica, el respaldo profesional ni la validación de
-              habilidades en contextos reales.
+              Vitalica es una plataforma educativa enfocada en primeros
+              auxilios y emergencias prehospitalarias. La propuesta parte de una
+              idea clara: facilitar el acceso a una formación seria y flexible,
+              sin resignar la práctica, el respaldo profesional ni la
+              validación de habilidades en contextos reales.
             </p>
           </div>
 
@@ -120,12 +120,12 @@ const AboutPage = () => {
               La teoría sola no alcanza. La práctica sola tampoco.
             </h2>
             <p className="mt-5 max-w-xl text-base leading-8 text-muted-foreground">
-              En Vitalica creemos que la formación en emergencias necesita un
-              recorrido más completo. La parte online permite estudiar con
-              flexibilidad, ordenar conocimientos y ampliar el acceso. La parte
-              presencial aporta algo igual de importante: validación, contacto
-              con instructores y demostración real de habilidades. El valor está
-              en la unión de ambas.
+              Creemos que la formación en emergencias necesita un recorrido más
+              completo. La parte online permite estudiar con flexibilidad,
+              ordenar conocimientos y ampliar el acceso. La parte presencial
+              aporta algo igual de importante: validación, contacto con
+              instructores y demostración real de habilidades. El valor está en
+              la unión de ambas.
             </p>
           </section>
 
@@ -157,10 +157,10 @@ const AboutPage = () => {
                 de verdad.
               </h2>
               <p className="mt-5 max-w-xl text-base leading-8 text-muted-foreground">
-                El modelo de Vitalica está diseñado para que la experiencia del
-                alumno no termine en el consumo de contenido. La formación se
-                completa cuando el conocimiento teórico se articula con una
-                práctica presencial supervisada.
+                El modelo está diseñado para que la experiencia del alumno no
+                termine en el consumo de contenido. La formación se completa
+                cuando el conocimiento teórico se articula con una práctica
+                presencial supervisada.
               </p>
             </div>
 
@@ -209,8 +209,8 @@ const AboutPage = () => {
               Una experiencia conectada con la realidad
             </p>
             <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              La práctica presencial no es un agregado: es una parte central del
-              valor de Vitalica.
+              La práctica presencial no es un agregado: es una parte central
+              del valor de la propuesta.
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground">
               Después de completar y aprobar la formación teórica, el alumno
@@ -258,8 +258,8 @@ const AboutPage = () => {
 
             <div className="mt-5 space-y-4 text-sm leading-7 text-muted-foreground sm:text-base">
               <p>
-                Vitalica no busca ser solo un catálogo de cursos. Busca ser un
-                entorno de formación más serio, más claro y más útil para
+                El proyecto no busca ser solo un catálogo de cursos. Busca ser
+                un entorno de formación más serio, más claro y más útil para
                 quienes quieren aprender habilidades que importan.
               </p>
               <p>
@@ -268,8 +268,8 @@ const AboutPage = () => {
                 alcance más amplio.
               </p>
               <p>
-                Nuestra apuesta es simple: acercar educación de calidad en
-                primeros auxilios y emergencias, con una lógica híbrida que una
+                La apuesta es simple: acercar educación de calidad en primeros
+                auxilios y emergencias, con una lógica híbrida que una
                 accesibilidad, exigencia y aplicación real.
               </p>
             </div>
@@ -288,9 +288,9 @@ const AboutPage = () => {
             <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground">
               Queremos que más personas puedan acceder a formación en primeros
               auxilios y emergencias sin depender de recorridos cerrados,
-              desordenados o difíciles de sostener. Vitalica propone una
-              experiencia más clara, más humana y mejor conectada con la
-              práctica real.
+              desordenados o difíciles de sostener. La experiencia propone un
+              camino más claro, más humano y mejor conectado con la práctica
+              real.
             </p>
           </div>
 

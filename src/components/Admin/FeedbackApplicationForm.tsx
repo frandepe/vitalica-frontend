@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -5,6 +6,7 @@ import {
   FormItem,
   FormLabel,
   FormControl,
+  FormDescription,
   FormMessage,
 } from "@/components/ui/form";
 import {
@@ -17,11 +19,12 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { giveInstructorApplicationFeedback } from "@/api/adminEndpoints";
 import { StatusInstructorApplication } from "@/types/instructor.types";
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import { useToast } from "../ui/toast";
-import SpecialtyChecks from "@/components/Instructor/Forms/Profile/SpecialtyChecks";
+import SpecialtyChecks from "@/components/instructor/Forms/Profile/SpecialtyChecks";
 import { ISpecialty } from "@/types/course.types";
 
 interface FeedbackApplicationFormProps {
@@ -34,14 +37,18 @@ interface FeedbackFormData {
   reviewerNotes: string;
   reviewedBy: string;
   approvedSpecialties: ISpecialty[];
+  foundingInstructor: boolean;
 }
 
 export const FeedbackApplicationForm = ({
   applicationId,
   requestedSpecialties,
 }: FeedbackApplicationFormProps) => {
-  const { setBackendErrors, getGeneralErrors, clearErrors: clearBackendErrors } =
-    useBackendErrors();
+  const {
+    setBackendErrors,
+    getGeneralErrors,
+    clearErrors: clearBackendErrors,
+  } = useBackendErrors();
   const { showToast } = useToast();
 
   const form = useForm<FeedbackFormData>({
@@ -50,6 +57,7 @@ export const FeedbackApplicationForm = ({
       reviewerNotes: "",
       reviewedBy: "",
       approvedSpecialties: requestedSpecialties || [],
+      foundingInstructor: false,
     },
   });
 
@@ -58,12 +66,22 @@ export const FeedbackApplicationForm = ({
     handleSubmit,
     watch,
     setError,
+    setValue,
     clearErrors,
     formState: { isSubmitting },
     reset,
   } = form;
 
   const currentStatus = watch("status");
+
+  useEffect(() => {
+    if (currentStatus !== "APPROVED") {
+      setValue("foundingInstructor", false, {
+        shouldDirty: true,
+        shouldValidate: false,
+      });
+    }
+  }, [currentStatus, setValue]);
 
   const onSubmit = async (data: FeedbackFormData) => {
     if (data.status === "APPROVED" && data.approvedSpecialties.length === 0) {
@@ -105,7 +123,6 @@ export const FeedbackApplicationForm = ({
       >
         <h2 className="text-lg font-semibold">Enviar feedback al instructor</h2>
 
-        {/* Estado */}
         <FormField
           control={control}
           name="status"
@@ -132,7 +149,6 @@ export const FeedbackApplicationForm = ({
           )}
         />
 
-        {/* Notas del revisor */}
         <FormField
           control={control}
           name="reviewerNotes"
@@ -160,6 +176,37 @@ export const FeedbackApplicationForm = ({
 
         <FormField
           control={control}
+          name="foundingInstructor"
+          render={({ field }) => (
+            <FormItem className="space-y-3 rounded-xl border border-slate-200 p-4">
+              <div className="flex items-start gap-3">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    disabled={currentStatus !== "APPROVED"}
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked === true)
+                    }
+                  />
+                </FormControl>
+                <div className="space-y-1">
+                  <FormLabel className="text-sm font-medium">
+                    Instructor fundador
+                  </FormLabel>
+                  <FormDescription className="text-xs">
+                    Solo se aplica cuando aprobás la solicitud. Si lo marcás, el
+                    perfil del instructor guardará la fecha de esta aprobación
+                    como estatus fundador permanente.
+                  </FormDescription>
+                </div>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
           name="approvedSpecialties"
           rules={{
             validate: (value) =>
@@ -174,17 +221,13 @@ export const FeedbackApplicationForm = ({
                 {currentStatus === "APPROVED" ? " *" : ""}
               </FormLabel>
               <FormControl>
-                <SpecialtyChecks
-                  control={control}
-                  name="approvedSpecialties"
-                />
+                <SpecialtyChecks control={control} name="approvedSpecialties" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Nombre del revisor */}
         <FormField
           control={control}
           name="reviewedBy"

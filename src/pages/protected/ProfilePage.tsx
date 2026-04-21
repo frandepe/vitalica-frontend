@@ -4,7 +4,7 @@ import ProfileBg from "@/components/user/ProfileBg";
 import ShareProfile from "@/components/Share/ShareProfile";
 import { Separator } from "@/components/ui/separator";
 import { PromoteInstructor } from "@/components/Banners/PromoteInstructor";
-import { NotificationConfig } from "@/components/Notifications/NotificationConfig";
+import { NotificationConfig } from "@/components/notifications/NotificationConfig";
 import { BasicInformationForm } from "@/components/user/Forms/BasicInformationForm";
 
 import { Activity, CalendarHeart, RefreshCw, UserCheck } from "lucide-react";
@@ -67,12 +67,10 @@ const ProfilePage = () => {
       <div className="px-6 pb-6 pt-4">
         <div className="space-y-4">
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* Formulario */}
             <div className="flex-1 h-1/2 lg:h-full">
               <BasicInformationForm />
             </div>
 
-            {/* Cards */}
             <div className="flex-1 h-1/2 lg:h-full">
               <FeaturesSectionWithCardGradient grid={grid} />
             </div>
@@ -90,12 +88,10 @@ const ProfilePage = () => {
                 key={idx}
                 className="border border-green-100 rounded-xl p-6 flex flex-col justify-between space-y-3 shadow-sm hover:shadow-md  hover:bg-green-50/40 transition"
               >
-                {/* Icono */}
                 <div className="p-3 rounded-lg bg-green-100 text-primary w-max">
                   <feature.icon size={22} />
                 </div>
 
-                {/* Contenido */}
                 <div className="flex-1 flex flex-col justify-start">
                   <h3 className="text-base font-semibold text-gray-900 truncate">
                     {feature.title}

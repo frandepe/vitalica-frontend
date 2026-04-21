@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
 import ImagesUpload from "@/components/Uploads/ImagesUpload";
-import SpecialtyChecks from "@/components/Instructor/Forms/Profile/SpecialtyChecks";
+import SpecialtyChecks from "@/components/instructor/Forms/Profile/SpecialtyChecks";
 
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import type {
@@ -80,7 +80,7 @@ const ApplyToBeInstructor = () => {
   const { register, control, handleSubmit, watch, reset, formState } = form;
   const { errors } = formState;
 
-  // ✅ Prellenar formulario si ya hay datos
+  // Prellenar formulario si ya hay datos
   useEffect(() => {
     if (applicationData) {
       reset({
@@ -408,9 +408,9 @@ const ApplyToBeInstructor = () => {
             <h2 className="text-xl font-semibold">
               Especialidades solicitadas{" "}
               <span className="text-info-foreground text-sm">
-                Importante: seleccioná solo las especialidades que coincidan con
-                tus certificaciones. Estas determinarán sobre qué temas podrás
-                crear cursos y para qué prácticas presenciales podrán
+                Importante: seleccioná solo las especialidades que coincidan
+                con tus certificaciones. Estas determinarán sobre qué temas
+                podrás crear cursos y para qué prácticas presenciales podrán
                 contactarte.
               </span>
             </h2>

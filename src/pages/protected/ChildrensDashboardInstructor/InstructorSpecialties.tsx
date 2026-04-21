@@ -1,4 +1,4 @@
-﻿import SpecialtyChecks from "@/components/Instructor/Forms/Profile/SpecialtyChecks";
+import SpecialtyChecks from "@/components/instructor/Forms/Profile/SpecialtyChecks";
 import ImagesUpload from "@/components/Uploads/ImagesUpload";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ISpecialty } from "@/types/course.types";
 import { t } from "@/utils/translations";
 import { motion } from "framer-motion";
-import { MapPin, Calendar } from "lucide-react";
+import { BadgeCheck, Calendar, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { NotFound } from "./404Page";
@@ -21,6 +21,7 @@ interface InstructorProfile {
   totalStudents: number;
   totalCourses: number;
   approvedAt: string;
+  isFoundingInstructor: boolean;
   city: string;
   state: string;
 }
@@ -124,9 +125,6 @@ const ProfileBySlug = () => {
   const approvedYear =
     instructorProfile?.approvedAt &&
     new Date(instructorProfile.approvedAt).getFullYear();
-
-  console.log("profileData", profileData);
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* HEADER */}
@@ -148,6 +146,19 @@ const ProfileBySlug = () => {
 
             {role === "INSTRUCTOR" && instructorProfile && (
               <>
+                {instructorProfile.isFoundingInstructor && (
+                  <div className="mt-3 flex justify-center md:justify-start">
+                    <Badge
+                      variant="warning"
+                      size="md"
+                      className="gap-2 rounded-full px-3 py-1"
+                    >
+                      <BadgeCheck size={14} />
+                      Instructor fundador
+                    </Badge>
+                  </div>
+                )}
+
                 <p className="mt-2 text-gray-700">
                   {instructorProfile.headline}
                 </p>
@@ -200,7 +211,7 @@ const ProfileBySlug = () => {
               />
               <StatCard title="Cursos" value={instructorProfile.totalCourses} />
               <StatCard
-                title="Rating"
+                title="Calificación"
                 value={`${instructorProfile.avgTheoreticalRating} ⭐`}
               />
               <StatCard title="Reseñas" value={instructorProfile.ratingCount} />
@@ -213,9 +224,17 @@ const ProfileBySlug = () => {
               transition={{ duration: 0.3, delay: 0.2 }}
             >
               <h2 className="text-2xl font-semibold mb-4">Sobre mí</h2>
-              <p className="text-gray-700 whitespace-pre-line">
-                {instructorProfile.bio}
-              </p>
+              {instructorProfile.bio ? (
+                <>
+                  <p className="text-gray-700 whitespace-pre-line">
+                    {instructorProfile.bio}
+                  </p>
+                </>
+              ) : (
+                <p className="text-gray-500 italic">
+                  El instructor no ha agregado una biografía.
+                </p>
+              )}
 
               {instructorProfile.specialties?.length > 0 && (
                 <div className="mt-6">
@@ -227,27 +246,29 @@ const ProfileBySlug = () => {
                   </div>
                 </div>
               )}
-              <div className="mt-6">
-                <h3 className="font-semibold mb-2">
-                  Todos los cursos del instructor
-                </h3>
-                <div className="flex overflow-x-auto gap-4">
-                  {instructorCourses.map((course, index) => (
-                    <motion.div
-                      key={course.id}
-                      className="group w-[300px] flex-shrink-0"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                    >
-                      <PublicCourseCard
-                        course={course}
-                        href={`/cursos/${course.slug}`}
-                      />
-                    </motion.div>
-                  ))}
+              {instructorCourses.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="font-semibold mb-2">
+                    Todos los cursos del instructor
+                  </h3>
+                  <div className="flex overflow-x-auto gap-4">
+                    {instructorCourses.map((course, index) => (
+                      <motion.div
+                        key={course.id}
+                        className="group w-[300px] flex-shrink-0"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                      >
+                        <PublicCourseCard
+                          course={course}
+                          href={`/cursos/${course.slug}`}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </motion.div>
           </>
         )}

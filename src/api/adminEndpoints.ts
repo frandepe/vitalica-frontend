@@ -20,6 +20,7 @@ interface PropsGiveInstructorApplicationFeedback {
   reviewedBy: string;
   reviewerNotes: string;
   approvedSpecialties?: ISpecialty[];
+  foundingInstructor?: boolean;
 }
 
 export const getInstructorApplications = async () => {

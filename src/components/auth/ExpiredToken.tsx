@@ -44,7 +44,7 @@ export const ExpiredToken = () => {
         showToast(
           "Verificación de email enviada. Revisa tu bandeja de entrada",
           "info",
-          "top-right"
+          "top-right",
         );
         setIsResendDisabled(true);
         setTimer(20);
@@ -52,7 +52,7 @@ export const ExpiredToken = () => {
         showToast(
           "Falló el envío del correo electrónico",
           "error",
-          "top-right"
+          "top-right",
         );
       }
     } catch (error) {
@@ -84,7 +84,7 @@ export const ExpiredToken = () => {
             onClick={handleResendEmail}
             disabled={isResendDisabled || isSending}
             className="mb-2"
-            variant="secondary"
+            variant="outline"
           >
             {isSending ? (
               <div className="flex items-center gap-2">

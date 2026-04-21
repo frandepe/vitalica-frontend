@@ -107,6 +107,7 @@ export interface InstructorProfile {
   country?: string;
 
   approvedAt?: Date;
+  foundingInstructor?: Date | null;
   suspendedAt?: Date;
 
   city?: string;

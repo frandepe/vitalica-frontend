@@ -1,9 +1,9 @@
-﻿import {
+import {
   getInstructorsSpecialtyManagement,
   resolveInstructorSpecialtyRequest,
   updateInstructorSpecialties,
 } from "@/api/adminEndpoints";
-import SpecialtyChecks from "@/components/Instructor/Forms/Profile/SpecialtyChecks";
+import SpecialtyChecks from "@/components/instructor/Forms/Profile/SpecialtyChecks";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";

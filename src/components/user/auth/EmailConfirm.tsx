@@ -51,7 +51,7 @@ export const EmailConfirm = ({
     <div>
       <h2 className="text-2xl font-semibold mb-2">Solo un paso más</h2>
       <div className="flex items-center gap-2 mb-4">
-        <Mail size={20} className="text-secondary" />
+        <Mail size={20} className="text-primary" />
         <h2>Verifica tu dirección de correo electrónico</h2>
       </div>
 
@@ -81,7 +81,7 @@ export const EmailConfirm = ({
           onClick={handleResendEmail}
           disabled={isResendDisabled || isSending}
           className="mb-2"
-          variant="secondary"
+          variant="outline"
         >
           {isSending ? (
             <div className="flex items-center gap-2">

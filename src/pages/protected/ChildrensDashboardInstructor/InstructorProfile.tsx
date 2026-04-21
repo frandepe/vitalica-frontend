@@ -23,7 +23,7 @@ import {
   PayoutMethod,
   PracticeContactMethod,
 } from "@/types/instructor.types";
-import { UbicationSelect } from "@/components/Instructor/Forms/Profile/UbicationSelect";
+import { UbicationSelect } from "@/components/instructor/Forms/Profile/UbicationSelect";
 import { MercadoPagoConnect } from "@/components/Buttons/MercadoPagoConnect";
 import { useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
@@ -85,7 +85,7 @@ export default function InstructorProfile() {
   const cityValue = watch("city");
   const approvedSpecialties = instructor?.specialties || [];
   // ================================
-  // GET — Cargar perfil existente
+  // GET - Cargar perfil existente
   // ================================
   useEffect(() => {
     if (!instructor) return;
@@ -100,7 +100,7 @@ export default function InstructorProfile() {
   }, []);
 
   // ================================
-  // UPSERT — Crear o actualizar
+  // UPSERT - Crear o actualizar
   // ================================
   const onSubmit = async (data: IInstructorProfile) => {
     try {

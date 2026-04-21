@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { GridCards } from "@/components/CardsAnimated/GridCards";
-import { CardInstructorCourse } from "@/components/Instructor/CardInstructorCourse";
+import { CardInstructorCourse } from "@/components/instructor/CardInstructorCourse";
 import { Calendar, Plus, Users } from "lucide-react";
 import { TextPagination } from "@/components/Pagination/TextPagination";
 import { TextImage } from "@/components/TextImage";
@@ -79,7 +79,7 @@ export default function Courses() {
     return <InstructorMyCoursesSkeleton />;
   }
 
-  // TODO: Si el usuario todavia no completo su perfil de instructor, va a salir un error al intentar Crear curso
+  // TODO: Si el usuario todavía no completó su perfil de instructor, va a salir un error al intentar crear curso
   if (!loading && coursesData.length === 0) {
     return (
       <div className="flex xl:flex-row flex-col w-full items-start">
@@ -93,7 +93,7 @@ export default function Courses() {
           }}
           buttonSecondary={{
             label: "Más información",
-            href: "https://shadcnblocks.com", // TODO: cambiar link a pagina de ayuda
+            href: "https://shadcnblocks.com", // TODO: cambiar link a página de ayuda
           }}
         />
 
