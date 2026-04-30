@@ -99,21 +99,6 @@ interface UploadUrlResponse {
   };
 }
 
-export const requestMaterialUploadUrlTest = async (
-  courseId: string,
-  file: File,
-): Promise<ApiResponse<UploadUrlResponse>> => {
-  return apiRequest({
-    url: `${API_ROUTES.COURSE}/upload-test`,
-    method: "POST",
-    data: {
-      courseId,
-      fileType: file.type,
-      originalName: file.name,
-    },
-  });
-};
-
 interface DownloadMaterialResponse {
   url: string;
 }
@@ -351,7 +336,9 @@ export const validateCourseForPublication = async (
 
 export const getFreeLessons = async (
   courseId: string,
-): Promise<ApiResponse<{ modules: Array<{ id: string; lessons: Lesson[] }> }>> => {
+): Promise<
+  ApiResponse<{ modules: Array<{ id: string; lessons: Lesson[] }> }>
+> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/free-lessons/${courseId}`,
     method: "GET",

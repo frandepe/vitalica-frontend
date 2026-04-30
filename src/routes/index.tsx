@@ -9,7 +9,6 @@ import { lazy } from "react";
 import { Illustration, NotFound } from "@/pages/public/404Page";
 import ErrorFallback from "@/components/ErrorFallback";
 import AdminRoute from "@/components/auth/AdminRoute";
-import SubirPageTest from "@/pages/public/upload-test";
 import CourseStatus from "@/pages/protected/CourseStatus";
 import CourseLayout from "@/layouts/course-player.layout";
 import BlogsLayout from "@/layouts/blogs.layout";
@@ -178,11 +177,6 @@ export const router = createBrowserRouter([
         path: "terminos-y-condiciones",
         element: <TermsAndConditionsPage />,
       },
-      {
-        path: "upload-test",
-        element: <SubirPageTest />,
-      },
-
       {
         path: "cursos/:slug",
         element: <CourseOverview />,

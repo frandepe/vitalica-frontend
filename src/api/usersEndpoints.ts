@@ -1,6 +1,7 @@
 import { API_ROUTES } from "@/constants";
 import { apiRequest } from "./configEndpoint";
 import { IOnboarding, User } from "@/types/auth.types";
+import { NotificationsResponseData } from "@/types/notification.types";
 
 export const updateProfile = async (data: Partial<User>) => {
   return apiRequest({
@@ -53,5 +54,16 @@ export const getMyCoursesEnrrolled = async (
       limit,
       search,
     },
+  });
+};
+
+export const getMyNotifications = async (): Promise<{
+  success: boolean;
+  data?: NotificationsResponseData;
+  message?: string;
+}> => {
+  return apiRequest({
+    url: `${API_ROUTES.USERS}/notifications`,
+    method: "GET",
   });
 };

@@ -1,7 +1,16 @@
 import type { FormEventHandler } from "react";
 import type { Control, FieldErrors } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import { MapPin, MessageSquare, UserRound } from "lucide-react";
+import {
+  Globe,
+  Instagram,
+  Linkedin,
+  Mail,
+  MapPin,
+  MessageCircle,
+  MessageSquare,
+  UserRound,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +54,24 @@ interface StudentPracticeRequestModalProps {
   onSelectInstructor: (instructorId: string) => void;
   onSubmit: FormEventHandler<HTMLFormElement>;
 }
+
+const normalizeWhatsappHref = (value: string) => {
+  const normalized = value.replace(/[^\d+]/g, "");
+
+  if (!normalized) return null;
+
+  return `https://wa.me/${normalized.replace(/^\+/, "")}`;
+};
+
+const normalizeExternalHref = (value: string) => {
+  if (!value.trim()) return null;
+
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+
+  return `https://${value}`;
+};
 
 export function StudentPracticeRequestModal({
   open,
@@ -255,6 +282,96 @@ export function StudentPracticeRequestModal({
                     <MessageSquare className="h-4 w-4 text-primary" />
                     {CONTACT_METHOD_LABELS[selectedInstructor.contactMethod]}
                   </p>
+                  {selectedInstructor.contactMethod === "DIRECT_CONTACT" && (
+                    <div className="mt-4 space-y-3">
+                      {selectedInstructor.publicContact?.practiceWhatsapp && (
+                        <a
+                          href={normalizeWhatsappHref(
+                            selectedInstructor.publicContact.practiceWhatsapp,
+                          ) ?? undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-start gap-2 rounded-xl border border-border/70 bg-background/80 px-3 py-2 text-sm text-foreground transition-colors hover:border-primary/40 hover:bg-background"
+                        >
+                          <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          <span>
+                            <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                              WhatsApp
+                            </span>
+                            {selectedInstructor.publicContact.practiceWhatsapp}
+                          </span>
+                        </a>
+                      )}
+                      {selectedInstructor.publicContact?.practiceEmail && (
+                        <a
+                          href={`mailto:${selectedInstructor.publicContact.practiceEmail}`}
+                          className="flex items-start gap-2 rounded-xl border border-border/70 bg-background/80 px-3 py-2 text-sm text-foreground transition-colors hover:border-primary/40 hover:bg-background"
+                        >
+                          <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          <span>
+                            <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                              Email de practicas
+                            </span>
+                            {selectedInstructor.publicContact.practiceEmail}
+                          </span>
+                        </a>
+                      )}
+                      {selectedInstructor.publicContact?.instagramUrl && (
+                        <a
+                          href={normalizeExternalHref(
+                            selectedInstructor.publicContact.instagramUrl,
+                          ) ?? undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-start gap-2 rounded-xl border border-border/70 bg-background/80 px-3 py-2 text-sm text-foreground transition-colors hover:border-primary/40 hover:bg-background"
+                        >
+                          <Instagram className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          <span>
+                            <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                              Instagram
+                            </span>
+                            {selectedInstructor.publicContact.instagramUrl}
+                          </span>
+                        </a>
+                      )}
+                      {selectedInstructor.publicContact?.linkedinUrl && (
+                        <a
+                          href={normalizeExternalHref(
+                            selectedInstructor.publicContact.linkedinUrl,
+                          ) ?? undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-start gap-2 rounded-xl border border-border/70 bg-background/80 px-3 py-2 text-sm text-foreground transition-colors hover:border-primary/40 hover:bg-background"
+                        >
+                          <Linkedin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          <span>
+                            <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                              LinkedIn
+                            </span>
+                            {selectedInstructor.publicContact.linkedinUrl}
+                          </span>
+                        </a>
+                      )}
+                      {selectedInstructor.publicContact?.websiteUrl && (
+                        <a
+                          href={normalizeExternalHref(
+                            selectedInstructor.publicContact.websiteUrl,
+                          ) ?? undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-start gap-2 rounded-xl border border-border/70 bg-background/80 px-3 py-2 text-sm text-foreground transition-colors hover:border-primary/40 hover:bg-background"
+                        >
+                          <Globe className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          <span>
+                            <span className="block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                              Sitio web
+                            </span>
+                            {selectedInstructor.publicContact.websiteUrl}
+                          </span>
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
