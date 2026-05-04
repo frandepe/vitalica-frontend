@@ -1,4 +1,5 @@
 import { getPublicInstructors } from "@/api";
+import { InstructorProfileCard } from "@/components/CardsAnimated/InstructorProfileCard";
 import { TextPagination } from "@/components/Pagination/TextPagination";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -16,24 +17,13 @@ import { specialties } from "@/constants/course";
 import { ISpecialty } from "@/types/course.types";
 import { PublicInstructorListItem } from "@/types/public-instructor.types";
 import { t } from "@/utils/translations";
-import {
-  AlertCircle,
-  ArrowRight,
-  BookOpen,
-  MapPin,
-  Search,
-  ShieldCheck,
-  Star,
-  Users,
-} from "lucide-react";
+import { AlertCircle, BookOpen, Search, ShieldCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 const PAGE_LIMIT = 12;
-const FALLBACK_AVATAR = "/Placeholders/no-image-profile.jpg";
 const SEO_TITLE = "Instructores | Vitalica";
 const SEO_DESCRIPTION =
-  "Explora la red pública de instructores de Vitalica: perfiles verificados, especialidades y trayectoria dentro de la plataforma.";
+  "Explora la red publica de instructores de Vitalica: perfiles verificados, especialidades y trayectoria dentro de la plataforma.";
 
 const formatFullName = (instructor: PublicInstructorListItem) =>
   `${instructor.firstName ?? ""} ${instructor.lastName ?? ""}`.trim() ||
@@ -58,10 +48,10 @@ const formatApprovedYear = (approvedAt: string | null) => {
 
 const formatReviewLabel = (instructor: PublicInstructorListItem) => {
   if (instructor.ratingCount <= 0) {
-    return "Sin reseñas públicas todavía";
+    return "Sin resenas publicas todavia";
   }
 
-  const reviewLabel = instructor.ratingCount === 1 ? "reseña" : "reseñas";
+  const reviewLabel = instructor.ratingCount === 1 ? "resena" : "resenas";
 
   return `${instructor.avgTheoreticalRating.toFixed(1)} de promedio en ${instructor.ratingCount} ${reviewLabel}`;
 };
@@ -127,7 +117,7 @@ const PublicInstructorsPage = () => {
 
       if (!element) {
         element = document.createElement(
-          selector.startsWith('link') ? "link" : "meta",
+          selector.startsWith("link") ? "link" : "meta",
         ) as HTMLMetaElement | HTMLLinkElement;
         document.head.appendChild(element);
       }
@@ -192,7 +182,7 @@ const PublicInstructorsPage = () => {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
       </div>
 
-      <div className="relative mx-auto container px-4 md:px-0 pb-24 pt-16">
+      <div className="relative mx-auto container px-4 pb-24 pt-16 md:px-0">
         <header className="grid gap-10 border-b border-border/60 pb-14 pt-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)] lg:items-end">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
@@ -205,7 +195,7 @@ const PublicInstructorsPage = () => {
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-              Explora perfiles de instructores con experiencia en formación en
+              Explora perfiles de instructores con experiencia en formacion en
               emergencias. Vas a encontrar sus especialidades, trayectoria y
               actividad dentro de la red.
             </p>
@@ -236,7 +226,7 @@ const PublicInstructorsPage = () => {
               <div className="flex items-start gap-3">
                 <Users className="mt-1 h-4 w-4 shrink-0 text-primary" />
                 <span>
-                  Forman parte de una red en crecimiento enfocada en formación
+                  Forman parte de una red en crecimiento enfocada en formacion
                   de calidad en emergencias.
                 </span>
               </div>
@@ -309,7 +299,7 @@ const PublicInstructorsPage = () => {
             </span>
             {appliedSearch ? (
               <Badge variant="outline" size="sm">
-                Búsqueda: {appliedSearch}
+                Busqueda: {appliedSearch}
               </Badge>
             ) : null}
             {selectedSpecialty !== "ALL" ? (
@@ -329,7 +319,7 @@ const PublicInstructorsPage = () => {
             >
               <div className="flex flex-col gap-4">
                 <p>
-                  Ocurrió un problema al consultar la información pública en
+                  Ocurrio un problema al consultar la informacion publica en
                   este momento.
                 </p>
                 <div>
@@ -344,7 +334,7 @@ const PublicInstructorsPage = () => {
               {Array.from({ length: 6 }).map((_, index) => (
                 <div
                   key={index}
-                  className="h-80 animate-pulse rounded-lg border border-border/70 bg-muted/40"
+                  className="h-[29rem] animate-pulse rounded-[28px] border border-border/70 bg-muted/40"
                 />
               ))}
             </div>
@@ -354,12 +344,12 @@ const PublicInstructorsPage = () => {
                 <h2 className="text-2xl font-semibold text-foreground">
                   {hasFilters
                     ? "No encontramos instructores para este criterio."
-                    : "Todavía no hay instructores visibles en la red pública."}
+                    : "Todavia no hay instructores visibles en la red publica."}
                 </h2>
                 <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
                   {hasFilters
-                    ? "Ajusta la búsqueda o elimina el filtro aplicado para explorar mejor la red pública de instructores."
-                    : "Cuando existan perfiles públicos disponibles, los vas a ver publicados en esta sección."}
+                    ? "Ajusta la busqueda o elimina el filtro aplicado para explorar mejor la red publica de instructores."
+                    : "Cuando existan perfiles publicos disponibles, los vas a ver publicados en esta seccion."}
                 </p>
                 {hasFilters ? (
                   <div>
@@ -381,104 +371,37 @@ const PublicInstructorsPage = () => {
                   );
 
                   return (
-                    <Card
+                    <InstructorProfileCard
                       key={instructor.userId}
-                      className="overflow-hidden border-border/70 bg-background/90 shadow-[0_18px_54px_-38px_rgba(34,80,69,0.32)]"
-                    >
-                      <CardContent className="flex h-full flex-col p-6">
-                        <div className="flex items-start gap-4">
-                          <img
-                            src={instructor.avatarUrl || FALLBACK_AVATAR}
-                            alt={fullName}
-                            className="h-16 w-16 rounded-2xl object-cover"
-                            onError={(event) => {
-                              event.currentTarget.src = FALLBACK_AVATAR;
-                            }}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <h2 className="text-xl font-semibold tracking-tight text-foreground">
-                              {fullName}
-                            </h2>
-                            <p className="mt-2 line-clamp-2 min-h-[3rem] text-sm leading-6 text-muted-foreground">
-                              {instructor.headline ||
-                                "Perfil profesional dentro de la red de instructores de Vitalica."}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="mt-5 flex flex-wrap gap-2">
-                          {instructor.specialties
-                            .slice(0, 3)
-                            .map((specialty) => (
-                              <Badge
-                                key={`${instructor.userId}-${specialty}`}
-                                size="sm"
-                              >
-                                {t("courseSpecialty", specialty)}
-                              </Badge>
-                            ))}
-                          {instructor.specialties.length > 3 ? (
-                            <Badge variant="outline" size="sm">
-                              +{instructor.specialties.length - 3} más
-                            </Badge>
-                          ) : null}
-                        </div>
-
-                        <div className="mt-6 grid gap-3 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-primary" />
-                            <span>
-                              {location || "Ubicación no especificada"}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <Star className="h-4 w-4 text-primary" />
-                            <span>{formatReviewLabel(instructor)}</span>
-                          </div>
-                        </div>
-
-                        <div className="mt-6 grid grid-cols-2 gap-3">
-                          <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-                            <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                              Cursos
-                            </p>
-                            <p className="mt-2 text-2xl font-semibold text-foreground">
-                              {instructor.totalCourses}
-                            </p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              {formatCourseLabel(instructor.totalCourses)}
-                            </p>
-                          </div>
-                          <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
-                            <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                              Estudiantes
-                            </p>
-                            <p className="mt-2 text-2xl font-semibold text-foreground">
-                              {instructor.totalStudents}
-                            </p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              {formatStudentLabel(instructor.totalStudents)}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="mt-5 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                          {approvedYear
-                            ? `Parte de Vitalica desde ${approvedYear}`
-                            : "Instructor aprobado en Vitalica"}
-                        </div>
-
-                        <div className="mt-auto pt-6">
-                          <Button asChild className="w-full">
-                            <Link to={`/perfil/${instructor.slug}`}>
-                              Ver perfil público
-                              <ArrowRight className="ml-2 h-4 w-4" />
-                            </Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      name={fullName}
+                      headline={
+                        instructor.headline ||
+                        "Perfil profesional dentro de la red de instructores de Vitalica."
+                      }
+                      avatarUrl={instructor.avatarUrl}
+                      specialties={instructor.specialties
+                        .slice(0, 3)
+                        .map((specialty) => t("courseSpecialty", specialty))}
+                      extraSpecialtiesCount={Math.max(
+                        instructor.specialties.length - 3,
+                        0,
+                      )}
+                      location={location || "Ubicacion no especificada"}
+                      reviewLabel={formatReviewLabel(instructor)}
+                      totalCourses={instructor.totalCourses}
+                      totalStudents={instructor.totalStudents}
+                      courseLabel={formatCourseLabel(instructor.totalCourses)}
+                      studentLabel={formatStudentLabel(
+                        instructor.totalStudents,
+                      )}
+                      approvedLabel={
+                        approvedYear
+                          ? `Parte de Vitalica desde ${approvedYear}`
+                          : "Instructor aprobado en Vitalica"
+                      }
+                      profileHref={`/perfil/${instructor.slug}`}
+                      isFoundingInstructor={instructor.isFoundingInstructor}
+                    />
                   );
                 })}
               </div>

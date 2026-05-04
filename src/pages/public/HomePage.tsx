@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { MainCourseCard } from "@/components/CardsAnimated/MainCourseCard";
 import { DEMO_ITEMS } from "@/components/Carousel/utils/demo-items";
 import { PublicCourseCard } from "@/components/CardsAnimated/PublicCourseCard";
+import MuxPlayer from "@mux/mux-player-react";
 
 type HomeMyCourse = CourseCardProps & {
   completed?: boolean | null;
@@ -133,7 +134,7 @@ const HomePage = () => {
 
   return (
     <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f5fffc_0%,#ffffff_24%,#ffffff_100%)]">
-      <div
+      {/* <div
         aria-hidden
         className="pointer-events-none absolute inset-0 overflow-hidden"
       >
@@ -141,9 +142,10 @@ const HomePage = () => {
         <div className="absolute right-[-7rem] top-14 h-72 w-72 rounded-full bg-secondary/10 blur-3xl" />
         <div className="absolute bottom-[-8rem] left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      </div>
+      </div> */}
+
       <motion.div
-        className="py-10 lg:py-0 lg:mt-10 px-6 lg:px-0"
+        className="relative z-10 py-10 lg:py-0 lg:mt-10 px-6 lg:px-0"
         initial="hidden"
         animate="show"
         variants={{
@@ -239,7 +241,7 @@ const HomePage = () => {
         </motion.div>
       </motion.div>
 
-      <div className="mb-20">
+      <div className="relative z-10 mb-20">
         {loadingMyCoursesCarousel ? (
           <MainCarouselSkeleton />
         ) : coursesMyInProgress.length > 0 ? (
@@ -256,8 +258,7 @@ const HomePage = () => {
           />
         ) : null}
       </div>
-
-      <div className="mb-20">
+      <div className="relative z-10 mb-20">
         {loadingCarousel ? (
           <MainCarouselSkeleton />
         ) : (
@@ -269,24 +270,26 @@ const HomePage = () => {
           />
         )}
       </div>
-      <div className="container mx-auto px-4 lg:px-0 mb-30">
-        <h2 className="text-3xl mb-10">Cómo funciona Vitalica</h2>
+      <div className="relative z-10 container mx-auto px-4 lg:px-0 mb-30">
+        <h2 className="text-3xl mb-10 font-bold">Cómo funciona Vitalica</h2>
         <div className=" aspect-video rounded-xl overflow-hidden">
-          {/* <MuxPlayer
-            playbackId={"demo_playback_id"}
-            className="w-full h-full mux-custom "
+          <MuxPlayer
+            playbackId={"ibXEkY8ztpH83BAXtZtTPZfpKatXZ9JlMoOFCi7VBko"}
+            className="w-full h-full mux-custom"
             metadata={{
-              video_id: "demo_playback_id",
+              video_id: "ibXEkY8ztpH83BAXtZtTPZfpKatXZ9JlMoOFCi7VBko",
               video_title: "Video promocional del curso",
-              viewer_user_id: user?.id?.toString() || "no-user-id",
+
+              // viewer_user_id: user?.id?.toString() || "no-user-id",
             }}
+            thumbnailTime={8}
             accentColor="#20ab9f"
-          /> */}
+          />
         </div>
       </div>
 
-      <div className="container mx-auto px-4 lg:px-0 mb-10">
-        <h2 className="text-3xl mb-4">Guías para</h2>
+      <div className="relative z-10 container mx-auto px-4 lg:px-0 mb-10">
+        <h2 className="text-3xl mb-4 font-bold">Guías para</h2>
         <BlogTabsRole />
       </div>
       {/* All: video de como funciona vitalica */}

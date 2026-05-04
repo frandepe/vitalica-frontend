@@ -72,9 +72,7 @@ export function MainCarousel<T>({
     <section className="w-full py-8">
       <div className="container mx-auto px-4 md:px-0">
         <div className="mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-            {title}
-          </h2>
+          <h2 className="text-2xl md:text-3xl font-bold">{title}</h2>
           <p className="mt-1 text-muted-foreground">{subtitle}</p>
         </div>
 

@@ -1,12 +1,13 @@
 import { getCoursesByInstructor, getProfileBySlug } from "@/api";
 import { PublicCourseCard } from "@/components/CardsAnimated/PublicCourseCard";
+import { FoundingInstructorBadge } from "@/components/FoundingInstructorBadge";
 import { StatCard } from "@/components/CardsAnimated/StatCard";
 import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
 import { Badge } from "@/components/ui/badge";
 import { ISpecialty } from "@/types/course.types";
 import { t } from "@/utils/translations";
 import { motion } from "framer-motion";
-import { BadgeCheck, Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { NotFound } from "./404Page";
@@ -148,14 +149,7 @@ const ProfileBySlug = () => {
               <>
                 {instructorProfile.isFoundingInstructor && (
                   <div className="mt-3 flex justify-center md:justify-start">
-                    <Badge
-                      variant="warning"
-                      size="md"
-                      className="gap-2 rounded-full px-3 py-1"
-                    >
-                      <BadgeCheck size={14} />
-                      Instructor fundador
-                    </Badge>
+                    <FoundingInstructorBadge />
                   </div>
                 )}
 

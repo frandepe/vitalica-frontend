@@ -11,6 +11,7 @@ export interface PublicInstructorListItem {
   city: string | null;
   state: string | null;
   approvedAt: string | null;
+  isFoundingInstructor: boolean;
   totalCourses: number;
   totalStudents: number;
   avgTheoreticalRating: number;
