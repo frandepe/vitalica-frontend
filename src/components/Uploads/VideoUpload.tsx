@@ -354,7 +354,7 @@ export function VideoUploadCard({
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (file && file.type.startsWith("video/")) {
+      if (file) {
         onChange?.(file);
         setIsUploading(true);
 
@@ -426,7 +426,7 @@ export function VideoUploadCard({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="video/*"
+                accept=".mp4,video/mp4"
                 onChange={handleFileSelect}
                 className="sr-only"
               />

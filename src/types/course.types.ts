@@ -240,6 +240,7 @@ export interface ICreateCourse {
 export type LessonUploadState = {
   progress: number;
   status: string;
+  previousPlaybackId?: string | null;
 };
 
 export interface CoursePreview {

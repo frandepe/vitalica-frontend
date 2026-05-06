@@ -4,12 +4,13 @@ import { API_ROUTES } from "@/constants";
 
 // 🔹 1) Obtener URL de subida directa a Mux
 export const createPromoVideoDirectUpload = async (
-  courseId: string
+  courseId: string,
+  file: File
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.VIDEO}/promo/direct-upload`,
     method: "POST",
-    data: { courseId },
+    data: { courseId, fileName: file.name, contentType: file.type },
   });
 };
 
@@ -36,12 +37,13 @@ export const deleteLessonVideo = async (
 
 // 🔹 1) Obtener URL de subida directa a Mux
 export const createLessonDirectUpload = async (
-  lessonId: string
+  lessonId: string,
+  file: File
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.VIDEO}/lesson/direct-upload`,
     method: "POST",
-    data: { lessonId },
+    data: { lessonId, fileName: file.name, contentType: file.type },
   });
 };
 

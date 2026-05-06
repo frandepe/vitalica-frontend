@@ -19,6 +19,15 @@ import {
   titleMinModuleAndLessonsMaxCourseLimit,
 } from "@/constants";
 import {
+  getLocalVideoDurationSeconds,
+  isMp4VideoFile,
+  MAX_VIDEO_DURATION_ERROR_MESSAGE,
+  MAX_VIDEO_DURATION_SECONDS,
+  MAX_VIDEO_SIZE_BYTES,
+  MAX_VIDEO_SIZE_ERROR_MESSAGE,
+  VIDEO_FORMAT_ERROR_MESSAGE,
+} from "@/constants/video";
+import {
   CourseModuleFormValues,
   LessonFormValues,
   LessonUploadState,
@@ -309,23 +318,45 @@ export const Step4 = ({
     lessonIndex: number,
     moduleIndex: number,
   ) => {
+    if (!isMp4VideoFile(file)) {
+      showToast(VIDEO_FORMAT_ERROR_MESSAGE, "warning", "top-right");
+      return;
+    }
+
+    if (file.size > MAX_VIDEO_SIZE_BYTES) {
+      showToast(MAX_VIDEO_SIZE_ERROR_MESSAGE, "warning", "top-right");
+      return;
+    }
+
+    const durationSeconds = await getLocalVideoDurationSeconds(file);
+    if (
+      durationSeconds !== null &&
+      durationSeconds > MAX_VIDEO_DURATION_SECONDS
+    ) {
+      showToast(MAX_VIDEO_DURATION_ERROR_MESSAGE, "warning", "top-right");
+      return;
+    }
+
     lessonUploadAbortRef.current[lessonId]?.abort();
     const abortController = new AbortController();
     lessonUploadAbortRef.current[lessonId] = abortController;
+    const playbackIdField =
+      `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId` as const;
+    const previousPlaybackId = watch(playbackIdField) ?? null;
 
-    setValue(
-      `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
-      null,
-      { shouldDirty: true },
-    );
+    setValue(playbackIdField, null, { shouldDirty: true });
 
     setLessonUploads((prev) => ({
       ...prev,
-      [lessonId]: { progress: 0, status: "Subiendo..." },
+      [lessonId]: {
+        progress: 0,
+        status: "Preparando subida...",
+        previousPlaybackId,
+      },
     }));
 
     try {
-      const res = await createLessonDirectUpload(lessonId);
+      const res = await createLessonDirectUpload(lessonId, file);
 
       if (!res.success) return;
 
@@ -348,6 +379,7 @@ export const Step4 = ({
       setLessonUploads((prev) => ({
         ...prev,
         [lessonId]: {
+          ...prev[lessonId],
           progress: 100,
           status: "Procesando el video, esto puede tardar varios minutos...",
         },
@@ -359,7 +391,24 @@ export const Step4 = ({
         { signal: abortController.signal },
       );
 
-      await saveLessonVideoToCourse(lessonId, uploadId);
+      const saveResponse = await saveLessonVideoToCourse(lessonId, uploadId);
+
+      if (!saveResponse.success) {
+        showToast(
+          saveResponse.message || "Ocurrió un error al validar el video",
+          "warning",
+          "top-right",
+        );
+        setLessonUploads((prev) => ({
+          ...prev,
+          [lessonId]: {
+            ...prev[lessonId],
+            progress: 0,
+            status: "Ocurrió un error al subir el video",
+          },
+        }));
+        return;
+      }
 
       setValue(
         `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
@@ -390,6 +439,33 @@ export const Step4 = ({
         delete lessonUploadAbortRef.current[lessonId];
       }
     }
+  };
+
+  const handleCancelLessonVideoUpload = (
+    lessonId: string,
+    moduleIndex: number,
+    lessonIndex: number,
+  ) => {
+    const previousPlaybackId =
+      lessonUploads[lessonId]?.previousPlaybackId ?? null;
+
+    lessonUploadAbortRef.current[lessonId]?.abort();
+    delete lessonUploadAbortRef.current[lessonId];
+
+    setValue(
+      `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
+      previousPlaybackId,
+      { shouldDirty: true },
+    );
+    setLessonUploads((prev) => ({
+      ...prev,
+      [lessonId]: {
+        progress: 0,
+        status: "",
+        previousPlaybackId,
+      },
+    }));
+    setReplacingLessonId(null);
   };
 
   const handleDeleteLessonVideo = async (
@@ -676,6 +752,13 @@ export const Step4 = ({
                                         `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
                                       );
                                       const upload = lessonUploads[lesson.id];
+                                      const isLessonVideoUploading = Boolean(
+                                        upload?.status &&
+                                          !upload.status.includes(
+                                            "Video guardado",
+                                          ) &&
+                                          !upload.status.includes("error"),
+                                      );
                                       const lessonDragId = getLessonDragId(
                                         lesson,
                                         moduleIndex,
@@ -912,8 +995,7 @@ export const Step4 = ({
                                               {lesson.type === "videoFile" && (
                                                 <div className="space-y-2">
                                                   {/* ===== PROGRESO ===== */}
-                                                  {upload &&
-                                                    upload.progress > 0 && (
+                                                  {isLessonVideoUploading && (
                                                       <div className="space-y-3 max-w-sm w-full mx-auto">
                                                         <div className="flex items-center justify-between">
                                                           <span className="text-sm font-semibold">
@@ -931,6 +1013,48 @@ export const Step4 = ({
                                                           showValue
                                                           size="sm"
                                                         />
+                                                        <AlertDialog>
+                                                          <AlertDialogTrigger
+                                                            asChild
+                                                          >
+                                                            <Button
+                                                              type="button"
+                                                              variant="outline"
+                                                              size="sm"
+                                                            >
+                                                              Cancelar carga
+                                                            </Button>
+                                                          </AlertDialogTrigger>
+                                                          <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                              <AlertDialogTitle>
+                                                                ¿Cancelar la
+                                                                carga del video?
+                                                              </AlertDialogTitle>
+                                                              <AlertDialogDescription>
+                                                                El archivo no se
+                                                                guardará.
+                                                              </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                              <AlertDialogCancel>
+                                                                Volver
+                                                              </AlertDialogCancel>
+                                                              <AlertDialogAction
+                                                                variant="destructive"
+                                                                onClick={() =>
+                                                                  handleCancelLessonVideoUpload(
+                                                                    lesson.id,
+                                                                    moduleIndex,
+                                                                    lessonIndex,
+                                                                  )
+                                                                }
+                                                              >
+                                                                Cancelar carga
+                                                              </AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                          </AlertDialogContent>
+                                                        </AlertDialog>
                                                       </div>
                                                     )}
 
@@ -1050,7 +1174,7 @@ export const Step4 = ({
                                                       <input
                                                         id={`lesson-video-${moduleIndex}-${lessonIndex}`}
                                                         type="file"
-                                                        accept="video/*"
+                                                        accept=".mp4,video/mp4"
                                                         className="hidden"
                                                         onChange={async (e) => {
                                                           const file =

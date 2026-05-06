@@ -6,6 +6,17 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress-bar";
 import { Button } from "@/components/ui/button";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   CircleCheckBig,
   Clapperboard,
   ImagePlus,
@@ -20,6 +31,8 @@ import { TooltipIconButton } from "@/components/TooltipIconButton";
 type Step2Props = {
   onThumbnailReady: (base64: string) => void;
   onPromoVideoUpload: (file: File) => Promise<void>;
+  onCancelPromoVideoUpload: () => void;
+  isPromoVideoUploading: boolean;
   uploadStatus: string;
   uploadProgress: number;
 };
@@ -27,13 +40,14 @@ type Step2Props = {
 export const Step2 = ({
   onThumbnailReady,
   onPromoVideoUpload,
+  onCancelPromoVideoUpload,
+  isPromoVideoUploading,
   uploadStatus,
   uploadProgress,
 }: Step2Props) => {
   const { control, watch } = useFormContext();
   const playbackId = watch("muxPlaybackId");
-  const isProcessingVideo =
-    uploadProgress > 0 && uploadProgress < 100 && !playbackId;
+  const isProcessingVideo = isPromoVideoUploading && !playbackId;
 
   const [isReplacingVideo, setIsReplacingVideo] = useState(false);
   const { user } = useAuth();
@@ -79,7 +93,7 @@ export const Step2 = ({
       </h2>
 
       {/* Progreso */}
-      {uploadProgress > 0 && (
+      {isPromoVideoUploading && (
         <div className="space-y-3 max-w-sm w-full mx-auto mb-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold flex items-center gap-2">
@@ -93,6 +107,32 @@ export const Step2 = ({
             </span>
           </div>
           <Progress value={uploadProgress} showValue size="sm" />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="outline" size="sm">
+                Cancelar carga
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  ¿Cancelar la carga del video?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  El archivo no se guardará.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Volver</AlertDialogCancel>
+                <AlertDialogAction
+                  variant="destructive"
+                  onClick={onCancelPromoVideoUpload}
+                >
+                  Cancelar carga
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
 

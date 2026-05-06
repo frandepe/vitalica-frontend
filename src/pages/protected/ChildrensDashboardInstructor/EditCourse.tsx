@@ -49,6 +49,15 @@ import {
 } from "@/utils/mux-upload";
 import { useAuth } from "@/hooks/useAuth";
 import { SpecialtyLabels } from "@/constants";
+import {
+  getLocalVideoDurationSeconds,
+  isMp4VideoFile,
+  MAX_VIDEO_DURATION_ERROR_MESSAGE,
+  MAX_VIDEO_DURATION_SECONDS,
+  MAX_VIDEO_SIZE_BYTES,
+  MAX_VIDEO_SIZE_ERROR_MESSAGE,
+  VIDEO_FORMAT_ERROR_MESSAGE,
+} from "@/constants/video";
 import axios from "axios";
 
 // TODO: (Posible TODO)
@@ -75,9 +84,11 @@ export default function EditCourse() {
   const [isLoading, setIsLoading] = useState(false);
   const { courseId } = useParams();
   const [courseData, setCourseData] = useState<ICourse | null>(null);
-  const [uploadStatus, setUploadStatus] =
-    useState<UploadStatus>("Preparando subida...");
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>(
+    "Preparando subida...",
+  );
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isPromoVideoUploading, setIsPromoVideoUploading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [publishValidation, setPublishValidation] =
     useState<CoursePublishValidation | null>(null);
@@ -88,7 +99,8 @@ export default function EditCourse() {
   const { showToast } = useToast();
   const { instructor } = useAuth();
   const navigate = useNavigate();
-  const approvedSpecialtyValues = (instructor?.specialties ?? []) as ISpecialty[];
+  const approvedSpecialtyValues = (instructor?.specialties ??
+    []) as ISpecialty[];
   const availableSpecialties = useMemo(
     () =>
       approvedSpecialtyValues.map((value, index) => ({
@@ -144,12 +156,15 @@ export default function EditCourse() {
     reset,
   } = form;
 
-  const { fields: modules, remove: removeModule, move: moveModule } =
-    useFieldArray({
-      control,
-      name: "modules",
-      keyName: "formId",
-    });
+  const {
+    fields: modules,
+    remove: removeModule,
+    move: moveModule,
+  } = useFieldArray({
+    control,
+    name: "modules",
+    keyName: "formId",
+  });
 
   useEffect(() => {
     if (!courseId) return;
@@ -433,16 +448,38 @@ export default function EditCourse() {
 
   const handlePromoVideoUpload = async (file: File) => {
     if (!courseId) return;
+    if (!isMp4VideoFile(file)) {
+      setUploadProgress(0);
+      showToast(VIDEO_FORMAT_ERROR_MESSAGE, "warning", "top-right");
+      return;
+    }
+
+    if (file.size > MAX_VIDEO_SIZE_BYTES) {
+      setUploadProgress(0);
+      showToast(MAX_VIDEO_SIZE_ERROR_MESSAGE, "warning", "top-right");
+      return;
+    }
+
+    const durationSeconds = await getLocalVideoDurationSeconds(file);
+    if (
+      durationSeconds !== null &&
+      durationSeconds > MAX_VIDEO_DURATION_SECONDS
+    ) {
+      setUploadProgress(0);
+      showToast(MAX_VIDEO_DURATION_ERROR_MESSAGE, "warning", "top-right");
+      return;
+    }
 
     promoUploadAbortRef.current?.abort();
     const abortController = new AbortController();
     promoUploadAbortRef.current = abortController;
 
     try {
+      setIsPromoVideoUploading(true);
       setUploadProgress(0);
       setUploadStatus("Preparando subida...");
 
-      const res1 = await createPromoVideoDirectUpload(courseId);
+      const res1 = await createPromoVideoDirectUpload(courseId, file);
 
       if (!res1.success) {
         console.error(res1.message);
@@ -459,7 +496,9 @@ export default function EditCourse() {
         abortController.signal,
       );
 
-      setUploadStatus("Procesando el video, esto puede tardar varios minutos...");
+      setUploadStatus(
+        "Procesando el video, esto puede tardar varios minutos...",
+      );
 
       const { assetId, playbackId } = await waitForMuxAssetReady(
         uploadId,
@@ -471,7 +510,12 @@ export default function EditCourse() {
       const res2 = await savePromoVideoToCourse(courseId, uploadId);
 
       if (!res2.success) {
-        console.error(res2.message);
+        setUploadProgress(0);
+        showToast(
+          res2.message || "Ocurrió un error al validar el video",
+          "warning",
+          "top-right",
+        );
         return;
       }
 
@@ -486,6 +530,8 @@ export default function EditCourse() {
     } catch (err) {
       console.error(err);
       if (isUploadAbortError(err)) {
+        setUploadProgress(0);
+        setUploadStatus("Preparando subida...");
         return;
       }
       setUploadStatus("Ocurrió un error al subir el video");
@@ -493,7 +539,16 @@ export default function EditCourse() {
       if (promoUploadAbortRef.current === abortController) {
         promoUploadAbortRef.current = null;
       }
+      setIsPromoVideoUploading(false);
     }
+  };
+
+  const handleCancelPromoVideoUpload = () => {
+    promoUploadAbortRef.current?.abort();
+    promoUploadAbortRef.current = null;
+    setUploadProgress(0);
+    setUploadStatus("Preparando subida...");
+    setIsPromoVideoUploading(false);
   };
 
   if (isLoading) return <GlobalLoading text="Autoguardado..." />;
@@ -539,6 +594,8 @@ export default function EditCourse() {
             <Step2
               onThumbnailReady={handleThumbnailReady}
               onPromoVideoUpload={handlePromoVideoUpload}
+              onCancelPromoVideoUpload={handleCancelPromoVideoUpload}
+              isPromoVideoUploading={isPromoVideoUploading}
               uploadProgress={uploadProgress}
               uploadStatus={uploadStatus}
             />
