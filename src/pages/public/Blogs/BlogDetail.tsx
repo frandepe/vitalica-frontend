@@ -1,7 +1,13 @@
-import { ArrowLeft } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Square, Volume2 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  getBlogDetailBySlug,
+  type BlogContentBlock,
+  type BlogContentSection,
+} from "@/content/blog-details";
 import { getBlogBySlug, type BlogPost } from "@/content/blogs";
 import { NotFound } from "@/pages/public/404Page";
 
@@ -26,7 +32,66 @@ export default function BlogDetailPage() {
     );
   }
 
-  const sections = buildBlogSections(post);
+  return <BlogDetailArticle post={post} />;
+}
+
+function BlogDetailArticle({ post }: { post: BlogPost }) {
+  const content = getBlogDetailBySlug(post.slug);
+  const sections = useMemo<BlogContentSection[]>(
+    () =>
+      content && content.sections.length > 0
+        ? content.sections
+        : getFallbackSections(post),
+    [content, post],
+  );
+  const articleText = useMemo(
+    () => buildArticleSpeechText(post, sections),
+    [post, sections],
+  );
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const canUseSpeech =
+    typeof window !== "undefined" &&
+    "speechSynthesis" in window &&
+    "SpeechSynthesisUtterance" in window;
+
+  useEffect(() => {
+    return () => {
+      if (canUseSpeech) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [canUseSpeech, post.slug]);
+
+  const handleListenClick = () => {
+    if (!canUseSpeech) {
+      return;
+    }
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      utteranceRef.current = null;
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(articleText);
+    utterance.lang = "es-AR";
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      utteranceRef.current = null;
+    };
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      utteranceRef.current = null;
+    };
+
+    utteranceRef.current = utterance;
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
 
   return (
     <article className="min-h-screen bg-[linear-gradient(180deg,#f5f9fb_0%,#ffffff_14%,#ffffff_100%)] text-slate-900">
@@ -97,8 +162,11 @@ export default function BlogDetailPage() {
                       {section.heading}
                     </h2>
                     <div className="mt-5 space-y-5 text-[1.06rem] leading-8 text-slate-700">
-                      {section.paragraphs.map((paragraph) => (
-                        <p key={paragraph}>{paragraph}</p>
+                      {section.blocks.map((block, blockIndex) => (
+                        <BlogContentBlockRenderer
+                          key={`${section.heading}-${blockIndex}`}
+                          block={block}
+                        />
                       ))}
                     </div>
                   </section>
@@ -132,6 +200,31 @@ export default function BlogDetailPage() {
 
                 <section className="space-y-4 border-t border-slate-200 pt-6">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    Escuchar
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={handleListenClick}
+                    disabled={!canUseSpeech}
+                  >
+                    {isSpeaking ? (
+                      <Square className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Volume2 className="mr-2 h-4 w-4" />
+                    )}
+                    {isSpeaking ? "Detener audio" : "Escuchar blog"}
+                  </Button>
+                  {!canUseSpeech && (
+                    <p className="text-sm leading-6 text-slate-500">
+                      Tu navegador no soporta lectura por voz.
+                    </p>
+                  )}
+                </section>
+
+                <section className="space-y-4 border-t border-slate-200 pt-6">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Seguir explorando
                   </p>
                   <div className="flex flex-col gap-3">
@@ -155,34 +248,69 @@ export default function BlogDetailPage() {
   );
 }
 
-function buildBlogSections(post: BlogPost) {
-  const audienceCopy =
-    post.audience === "ALUMNOS"
-      ? "para quienes están organizando su formación y necesitan decisiones claras"
-      : post.audience === "INSTRUCTORES"
-        ? "para profesionales que quieren transformar experiencia en una propuesta formativa sólida"
-        : "para una comunidad que aprende y enseña con foco en claridad y calidad";
+function BlogContentBlockRenderer({ block }: { block: BlogContentBlock }) {
+  if (block.type === "paragraph") {
+    return <p>{block.text}</p>;
+  }
 
+  if (block.type === "ordered-list") {
+    return (
+      <ol className="list-decimal space-y-2 pl-6">
+        {block.items.map((item, index) => (
+          <li key={`${item}-${index}`}>{item}</li>
+        ))}
+      </ol>
+    );
+  }
+
+  return (
+    <ul className="list-disc space-y-2 pl-6">
+      {block.items.map((item, index) => (
+        <li key={`${item}-${index}`}>{item}</li>
+      ))}
+    </ul>
+  );
+}
+
+function buildArticleSpeechText(
+  post: BlogPost,
+  sections: BlogContentSection[],
+) {
+  const sectionText = sections
+    .map((section) =>
+      [
+        section.heading,
+        ...section.blocks.map((block) => getBlockSpeechText(block)),
+      ]
+        .filter(Boolean)
+        .join(". "),
+    )
+    .join(". ");
+
+  return [post.title, post.excerpt, sectionText].filter(Boolean).join(". ");
+}
+
+function getBlockSpeechText(block: BlogContentBlock) {
+  if (block.type === "paragraph") {
+    return block.text;
+  }
+
+  return block.items.join(". ");
+}
+
+function getFallbackSections(post: BlogPost): BlogContentSection[] {
   return [
     {
-      heading: "Contexto",
-      paragraphs: [
-        `${post.title} aborda un punto frecuente dentro de ${post.topic.toLowerCase()} ${audienceCopy}. En Vitalica, este tipo de contenido busca ordenar decisiones concretas sin sumar complejidad innecesaria.`,
-        `La idea central es simple: cuando el criterio está claro desde el inicio, tanto la experiencia de aprendizaje como la experiencia de enseñanza ganan consistencia, foco y mejores resultados.`,
-      ],
-    },
-    {
-      heading: "Qué conviene priorizar",
-      paragraphs: [
-        `Antes de avanzar, conviene definir qué objetivo real tiene esta publicación dentro del recorrido formativo. No se trata solo de acumular recursos, sino de identificar qué cambio práctico debería producir en la persona que lo lee.`,
-        `Por eso la prioridad está en la claridad operativa: entender el problema, ordenar los pasos y sostener una secuencia que permita pasar de una intención general a una acción concreta.`,
-      ],
-    },
-    {
-      heading: "Cómo aplicarlo en Vitalica",
-      paragraphs: [
-        `En el contexto de Vitalica, este tema se integra mejor cuando se conecta con una experiencia de uso simple: contenidos bien presentados, expectativas claras y una navegación que acompañe el proceso sin distraer.`,
-        `Ese enfoque permite que ${post.topic.toLowerCase()} funcione como una herramienta real y no solo como información aislada. El valor aparece cuando la publicación ayuda a decidir, mejorar o avanzar con más seguridad.`,
+      heading: "Contenido en revision",
+      blocks: [
+        {
+          type: "paragraph",
+          text: `El articulo "${post.title}" todavia no tiene contenido editorial cargado.`,
+        },
+        {
+          type: "paragraph",
+          text: "Mientras tanto, podes volver a la biblioteca editorial para explorar otras publicaciones disponibles.",
+        },
       ],
     },
   ];

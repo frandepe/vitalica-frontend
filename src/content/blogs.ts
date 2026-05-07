@@ -16,7 +16,7 @@ export const blogs: BlogPost[] = [
   {
     id: "inst-001",
     slug: "como-grabarte-bien-primer-curso",
-    title: "Cómo grabarte bien para tu primer curso sin equipo profesional",
+    title: "Cómo grabarte bien para el primer curso sin equipo profesional",
     excerpt:
       "Qué cámara usar, cómo encuadrarte y qué ajustes básicos aplicar para grabar clases claras y confiables desde el inicio.",
     image: "/Blogs/como-filmarte.png",
@@ -58,7 +58,7 @@ export const blogs: BlogPost[] = [
   {
     id: "inst-005",
     slug: "errores-comunes-al-crear-tu-primer-curso",
-    title: "Errores comunes al crear tu primer curso y cómo evitarlos",
+    title: "Errores comunes al crear el primer curso y cómo evitarlos",
     excerpt:
       "Los desvíos más frecuentes al empezar y cómo corregirlos a tiempo para no perder claridad ni ritmo de producción.",
     image: "/Blogs/errores-comunes.png",
@@ -98,7 +98,7 @@ export const blogs: BlogPost[] = [
   {
     id: "alu-001",
     slug: "como-elegir-un-curso-segun-tu-etapa-profesional",
-    title: "Cómo elegir un curso según tu etapa profesional",
+    title: "Cómo elegir un curso según la etapa profesional",
     excerpt:
       "Criterios para decidir qué formación te conviene según experiencia previa, objetivos concretos y tiempo disponible.",
     image: "/Blogs/ideas.png",
@@ -111,7 +111,7 @@ export const blogs: BlogPost[] = [
     slug: "que-tener-en-cuenta-antes-de-inscribirte-online",
     title: "Qué tener en cuenta antes de inscribirte en una formación online",
     excerpt:
-      "Revisá objetivos, modalidad, evaluación y soporte para elegir propuestas serias y alineadas con tu necesidad real.",
+      "Revisá objetivos, modalidad, evaluación y soporte para elegir propuestas serias y alineadas con la necesidad real.",
     image: "/Blogs/tu-primer-curso.png",
     audience: "ALUMNOS",
     topic: "Orientación Académica",
@@ -130,7 +130,7 @@ export const blogs: BlogPost[] = [
   {
     id: "alu-004",
     slug: "como-organizar-tu-tiempo-para-completar-formacion",
-    title: "Cómo organizar tu tiempo para completar una formación profesional",
+    title: "Cómo organizar el tiempo para completar una formación profesional",
     excerpt:
       "Una estrategia realista para estudiar con agenda ocupada sin resignar comprensión ni continuidad.",
     image: "/Blogs/organizacion.png",
@@ -162,7 +162,7 @@ export const blogs: BlogPost[] = [
     slug: "cuando-elegir-formacion-teorica-practica-o-hibrida",
     title: "Cuándo elegir formación teórica, práctica o híbrida",
     excerpt:
-      "Qué aporta cada enfoque y cómo identificar cuál tiene más sentido según tu etapa y tus objetivos.",
+      "Qué aporta cada enfoque y cómo identificar cuál tiene más sentido según la etapa y los objetivos.",
     image: "/Blogs/ideas.png",
     audience: "ALUMNOS",
     topic: "Orientación Académica",
