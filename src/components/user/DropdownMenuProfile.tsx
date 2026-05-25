@@ -13,13 +13,13 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import {
-  CreditCard,
   Crown,
   GraduationCap,
   LogOut,
   Settings,
   Sparkles,
   UserCircle,
+  UserCog,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMedia } from "@/hooks/useMedia";
@@ -76,29 +76,6 @@ export default function ProfileMenu() {
                 Cómo empezar
               </button>
             )}
-            <button
-              onClick={() => navigate("/perfil")}
-              className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
-            >
-              <UserCircle className="h-4 w-4" />
-              Perfil
-            </button>
-
-            <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent">
-              <CreditCard className="h-4 w-4" />
-              Billing
-            </button>
-            <button
-              className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
-              onClick={() => navigate("/mis-cursos")}
-            >
-              <GraduationCap className="h-4 w-4" />
-              Mis cursos
-            </button>
-            <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent">
-              <Settings className="h-4 w-4" />
-              Settings
-            </button>
             {user?.role === "INSTRUCTOR" && (
               <button
                 className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
@@ -117,6 +94,32 @@ export default function ProfileMenu() {
                 Panel de administrador
               </button>
             )}
+            <button
+              onClick={() => navigate("/perfil")}
+              className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
+            >
+              <UserCog className="h-4 w-4" />
+              Editar Perfil
+            </button>
+
+            <button
+              className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
+              onClick={() => navigate(`/perfil/${user.slug}`)}
+            >
+              <UserCircle className="h-4 w-4" />
+              Perfil público
+            </button>
+            <button
+              className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent"
+              onClick={() => navigate("/mis-cursos")}
+            >
+              <GraduationCap className="h-4 w-4" />
+              Mis cursos
+            </button>
+            <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent">
+              <Settings className="h-4 w-4" />
+              Settings
+            </button>
           </div>
 
           {/* Footer fijo */}
@@ -169,18 +172,6 @@ export default function ProfileMenu() {
             Cómo empezar
           </DropdownItem>
         )}
-        <DropdownItem className="gap-2" onClick={() => navigate("/perfil")}>
-          <UserCircle className="h-4 w-4" />
-          Perfil
-        </DropdownItem>
-        <DropdownItem className="gap-2">
-          <CreditCard className="h-4 w-4" />
-          Billing
-        </DropdownItem>
-        <DropdownItem className="gap-2" onClick={() => navigate("/mis-cursos")}>
-          <GraduationCap className="h-4 w-4" />
-          Mis cursos
-        </DropdownItem>
         {user?.role === "INSTRUCTOR" && (
           <DropdownItem
             className="gap-2"
@@ -199,6 +190,22 @@ export default function ProfileMenu() {
             Panel de Administrador
           </DropdownItem>
         )}
+        <DropdownItem className="gap-2" onClick={() => navigate("/perfil")}>
+          <UserCog className="h-4 w-4" />
+          Editar perfil
+        </DropdownItem>
+        <DropdownItem
+          className="gap-2"
+          onClick={() => navigate(`/perfil/${user.slug}`)}
+        >
+          <UserCircle className="h-4 w-4" />
+          Perfil público
+        </DropdownItem>
+        <DropdownItem className="gap-2" onClick={() => navigate("/mis-cursos")}>
+          <GraduationCap className="h-4 w-4" />
+          Mis cursos
+        </DropdownItem>
+
         <DropdownSeparator />
         <DropdownItem className="gap-2" destructive onClick={logout}>
           <LogOut className="h-4 w-4" />

@@ -13,12 +13,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { Variants } from "framer-motion";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useInView,
-} from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import type { MotionProps } from "framer-motion";
 
 export default function ReasonsToTech() {
@@ -77,7 +72,7 @@ export default function ReasonsToTech() {
       ),
       title: "Alumnos que buscan formación seria",
       description:
-        "No competís con cursos genéricos. Tus alumnos llegan buscando teoría sólida, respaldo profesional y formación responsable, no solo aprobar un examen rápido.",
+        "No competís con cursos genéricos. Tus alumnos buscan aprender, practicar y contar con respaldo profesional.",
       position: "left",
     },
     {

@@ -11,26 +11,25 @@ import { StudentPracticeRequestModal } from "@/components/Practice/StudentPracti
 import type { PracticeRequestFormValues } from "@/components/Practice/StudentPracticeRequestModal";
 import { StudentPracticeRequestState } from "@/components/Practice/StudentPracticeRequestState";
 import { useToast } from "@/components/ui/toast";
-import type { ICourseProgressResponse } from "@/types/courseProgress.types";
 import type {
   PracticeInstructor,
+  PracticeProgressInfo,
   PracticeRequestStudentView,
 } from "@/types/practice.types";
 import { useNavigate } from "react-router-dom";
 import { getStatusCopy } from "./student-practice-panel.helpers";
 
 interface StudentPracticePanelProps {
-  course: ICourseProgressResponse;
-  reloadCourse: (options?: { silent?: boolean }) => Promise<void>;
+  practice?: PracticeProgressInfo;
+  reloadPractice: (options?: { silent?: boolean }) => Promise<void>;
   onGoToReviews?: () => void;
 }
 
 export function StudentPracticePanel({
-  course,
-  reloadCourse,
+  practice,
+  reloadPractice,
   onGoToReviews,
 }: StudentPracticePanelProps) {
-  const practice = course.practice;
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [request, setRequest] = useState<PracticeRequestStudentView | null>(
@@ -160,7 +159,7 @@ export function StudentPracticePanel({
     reset();
     setSelectedInstructorId("");
     setRequestModalOpen(false);
-    await reloadCourse({ silent: true });
+    await reloadPractice({ silent: true });
     showToast("Solicitud de practica creada", "success", "top-right");
     setSubmitting(false);
   });
@@ -182,7 +181,7 @@ export function StudentPracticePanel({
     }
 
     setRequest(response.data as PracticeRequestStudentView);
-    await reloadCourse({ silent: true });
+    await reloadPractice({ silent: true });
     showToast("Solicitud cancelada", "success", "top-right");
     setCancelling(false);
   };

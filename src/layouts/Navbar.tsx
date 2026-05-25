@@ -29,13 +29,13 @@ export function Navbar() {
         { title: "Explorar cursos", href: "/buscar?search=&page=1&limit=10" },
         { title: "Red de instructores", href: "/instructores" },
         { title: "Blog y guias", href: "/blogs" },
-        { title: "Enseña en Vitalica", href: "/dar-cursos" },
+        { title: "Enseñá en Vitalica", href: "/dar-cursos" },
       ],
     },
     {
       title: "Ayuda y confianza",
       description:
-        "Todo lo importante para entender la plataforma, resolver dudas y revisar la informacion legal esencial.",
+        "Todo lo importante para entender la plataforma, resolver dudas y encontrar lo que necesitás.",
       ctaLabel: "Contactanos",
       ctaHref: "/contacto",
       items: [
@@ -132,7 +132,7 @@ export function Navbar() {
                 className="hidden md:inline"
                 onClick={() => navigate("/dar-cursos")}
               >
-                Enseña en Vitalica
+                Enseñá en Vitalica
               </Button>
             )}
             <div className="border-r hidden md:inline"></div>
@@ -150,7 +150,7 @@ export function Navbar() {
               className="hidden md:inline"
               onClick={() => navigate("/dar-cursos")}
             >
-              Enseña en Vitalica
+              Enseñá en Vitalica
             </Button>
             <DropdownMenuNotifications />
             <DropdownMenuProfile />

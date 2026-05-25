@@ -13,6 +13,7 @@ import { MainCourseCard } from "@/components/CardsAnimated/MainCourseCard";
 import { DEMO_ITEMS } from "@/components/Carousel/utils/demo-items";
 import { PublicCourseCard } from "@/components/CardsAnimated/PublicCourseCard";
 import MuxPlayer from "@mux/mux-player-react";
+import { useAuth } from "@/hooks/useAuth";
 
 type HomeMyCourse = CourseCardProps & {
   completed?: boolean | null;
@@ -69,6 +70,7 @@ const HomePage = () => {
   const [loadingCarousel, setLoadingCarousel] = useState(false);
   const [loadingMyCoursesCarousel, setLoadingMyCoursesCarousel] =
     useState(false);
+  const { isInstructor } = useAuth();
 
   // EN MODO DESARROLLO: Esto se ejecuta dos veces por el modo estricto de react
   useEffect(() => {
@@ -134,16 +136,6 @@ const HomePage = () => {
 
   return (
     <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f5fffc_0%,#ffffff_24%,#ffffff_100%)]">
-      {/* <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden"
-      >
-        <div className="absolute left-[-8rem] top-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute right-[-7rem] top-14 h-72 w-72 rounded-full bg-secondary/10 blur-3xl" />
-        <div className="absolute bottom-[-8rem] left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      </div> */}
-
       <motion.div
         className="relative z-10 py-10 lg:py-0 lg:mt-10 px-6 lg:px-0"
         initial="hidden"
@@ -209,15 +201,19 @@ const HomePage = () => {
               },
             }}
           >
-            {/* TODO:
-            Depende el onboarding del usuario, mostrar un botón u otro. Si no hizo el onboarding, mostrar "Comenzar primeros pasos" que lo lleve al onboarding.
-            Si ya lo hizo y eligió alumno, mostrar "Ver cursos" que lo lleve al catálogo de cursos.
-            Si ya lo hizo y eligió instructor, mostrar "Enseña en Vitalica".
-            Si ya tiene el Rol de instructor, mostrar "Panel de instructor".
-            */}
-            <Button onClick={() => navigate("/buscar?search=&page=1&limit=10")}>
-              Ver cursos
-            </Button>
+            {isInstructor ? (
+              <Button
+                onClick={() => navigate("/instructor/panel-administrativo")}
+              >
+                Mi espacio de instructor
+              </Button>
+            ) : (
+              <Button
+                onClick={() => navigate("/buscar?search=&page=1&limit=10")}
+              >
+                Ver cursos
+              </Button>
+            )}
           </motion.div>
         </div>
 

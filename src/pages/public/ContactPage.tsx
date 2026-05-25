@@ -235,9 +235,7 @@ const ContactPage = () => {
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-primary">
                 Contacto
               </p>
-              <h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                Un formulario claro para escribirnos.
-              </h2>
+
               <p className="mt-5 max-w-xl text-base leading-8 text-muted-foreground">
                 Podés escribirnos por consultas generales, temas
                 institucionales, alianzas o propuestas para empresas e
@@ -250,8 +248,8 @@ const ContactPage = () => {
                 icon={Mail}
                 title="Mail"
                 description="Si preferís un contacto directo."
-                value="hola@vitalica.com"
-                href="mailto:hola@vitalica.com"
+                value="vitalicaofficial@gmail.com"
+                href="mailto:vitalicaofficial@gmail.com"
               />
               <ContactDetail
                 icon={Phone}
@@ -283,12 +281,6 @@ const ContactPage = () => {
               <>
                 <div className="space-y-3">
                   <p className="text-sm font-semibold uppercase tracking-[0.22em] text-primary">
-                    Formulario
-                  </p>
-                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-                    Escribinos
-                  </h2>
-                  <p className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
                     {contactTypeDescription}
                   </p>
                 </div>

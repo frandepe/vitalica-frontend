@@ -12,7 +12,6 @@ import {
 import { ProgressCard } from "@/components/ui/progress";
 import { TooltipIconButton } from "@/components/TooltipIconButton";
 import { FinalQuizCoursePlayerModule } from "@/components/Quizzes/FinalQuizCoursePlayerModule";
-import { StudentPracticePanel } from "@/components/Practice/StudentPracticePanel";
 import { ICourseProgressResponse } from "@/types/courseProgress.types";
 import { formatDate } from "@/utils/formatDate";
 
@@ -129,6 +128,33 @@ interface ProgressSectionProps {
   children: ReactNode;
 }
 
+function PracticeRedirectCard({ navigate }: { navigate: NavigateFunction }) {
+  return (
+    <Card className="border-dashed bg-muted/10">
+      <CardHeader className="space-y-2">
+        <CardTitle className="text-base font-semibold">
+          Etapa práctica
+        </CardTitle>
+        <CardDescription className="text-sm leading-6">
+          La gestión de la práctica ahora se realiza desde la sección
+          “Práctica” de Mis cursos. Desde ahí podés ver el estado, elegir
+          instructor, seguir tu solicitud o acceder al certificado cuando
+          corresponda.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <Button
+          size="sm"
+          className="w-full sm:w-auto"
+          onClick={() => navigate("/mis-cursos?tab=practico")}
+        >
+          Ir a mis prácticas
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 function ProgressSection({
   eyebrow,
   title,
@@ -140,7 +166,7 @@ function ProgressSection({
   children,
 }: ProgressSectionProps) {
   return (
-    <section className="space-y-5 rounded-3xl border border-gray-400 bg-background/80 p-4 shadow-sm md:p-6">
+    <section className="space-y-5 rounded-3xl border border-border bg-background/80 p-4 shadow-sm md:p-6">
       <div className="flex flex-col gap-4 border-b pb-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -186,8 +212,6 @@ export function CourseProgressTab({
   course,
   navigate,
   setActiveLessonId,
-  reloadCourse,
-  onGoToReviews,
   onContinueToPractice,
 }: CourseProgressTabProps) {
   const theorySection = getTheorySectionSummary(course);
@@ -355,7 +379,7 @@ export function CourseProgressTab({
         </Card>
       </ProgressSection>
 
-      {practiceSection && (
+      {practiceSection && course.practice && (
         <ProgressSection
           eyebrow="Etapa 2"
           title="Progreso práctico"
@@ -365,11 +389,7 @@ export function CourseProgressTab({
           summaryDescription={practiceSection.description}
           nextStep={practiceSection.nextStep}
         >
-          <StudentPracticePanel
-            course={course}
-            reloadCourse={reloadCourse}
-            onGoToReviews={onGoToReviews}
-          />
+          <PracticeRedirectCard navigate={navigate} />
         </ProgressSection>
       )}
     </div>
