@@ -39,7 +39,7 @@ import { getValidationIssues } from "@/utils/course-validations";
 import { Badge } from "@/components/ui/badge";
 import {
   createPromoVideoDirectUpload,
-  getMuxUploadStatus,
+  getPromoMuxUploadStatus,
   savePromoVideoToCourse,
 } from "@/api/videoEndpoints";
 import {
@@ -502,7 +502,8 @@ export default function EditCourse() {
 
       const { assetId, playbackId } = await waitForMuxAssetReady(
         uploadId,
-        getMuxUploadStatus,
+        (currentUploadId) =>
+          getPromoMuxUploadStatus(courseId, currentUploadId),
         { signal: abortController.signal },
       );
 

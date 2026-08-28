@@ -15,11 +15,22 @@ export const createPromoVideoDirectUpload = async (
 };
 
 // 🔹 3) Consultar estado del upload (y obtener playbackId)
-export const getMuxUploadStatus = async (
-  uploadId: string
+export const getPromoMuxUploadStatus = async (
+  courseId: string,
+  uploadId: string,
 ): Promise<PromoUploadStatus> => {
   return apiRequest({
-    url: `${API_ROUTES.VIDEO}/promo/upload-status/${uploadId}`,
+    url: `${API_ROUTES.VIDEO}/promo/${courseId}/upload-status/${uploadId}`,
+    method: "GET",
+  });
+};
+
+export const getLessonMuxUploadStatus = async (
+  lessonId: string,
+  uploadId: string,
+): Promise<PromoUploadStatus> => {
+  return apiRequest({
+    url: `${API_ROUTES.VIDEO}/lesson/${lessonId}/upload-status/${uploadId}`,
     method: "GET",
   });
 };

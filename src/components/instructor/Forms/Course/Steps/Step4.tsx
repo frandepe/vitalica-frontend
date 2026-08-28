@@ -80,7 +80,7 @@ import UploadMaterial from "../UploadMaterial";
 import {
   createLessonDirectUpload,
   deleteLessonVideo,
-  getMuxUploadStatus,
+  getLessonMuxUploadStatus,
   saveLessonVideoToCourse,
 } from "@/api/videoEndpoints";
 import { Textarea } from "@/components/ui/textarea";
@@ -387,7 +387,8 @@ export const Step4 = ({
 
       const { playbackId } = await waitForMuxAssetReady(
         uploadId,
-        getMuxUploadStatus,
+        (currentUploadId) =>
+          getLessonMuxUploadStatus(lessonId, currentUploadId),
         { signal: abortController.signal },
       );
 
