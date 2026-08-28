@@ -96,10 +96,9 @@ export const getStudentCommerceCopy = (state: StudentCommerceState) => {
       };
     case "CHECKOUT_INITIATED":
       return {
-        badge: "Checkout iniciado",
+        badge: "Compra iniciada",
         title: "Tu compra ya fue iniciada",
-        description:
-          "Retomá la orden existente para continuar en Mercado Pago.",
+        description: "Retomá la orden existente para continuar en el pago.",
         actionLabel: "Continuar compra",
       };
     case "PAYMENT_PENDING":

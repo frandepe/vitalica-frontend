@@ -2,7 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Check, Sparkles, Star } from "lucide-react";
 import MuxPlayer from "@mux/mux-player-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCourseBySlug, getCoursePurchaseSellability } from "@/api";
+import {
+  enrollFreeCourse,
+  getCourseBySlug,
+  getCoursePurchaseSellability,
+} from "@/api";
 import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
 import { CourseOverviewTabs } from "@/components/Tabs/CourseOverviewTabs";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +42,7 @@ export default function CourseOverview() {
   const [course, setCourse] = useState<ICourse>();
   const [loading, setLoading] = useState(true);
   const [commerceLoading, setCommerceLoading] = useState(false);
+  const [freeAccessLoading, setFreeAccessLoading] = useState(false);
   const [sellability, setSellability] =
     useState<CoursePurchaseSellabilityResponse | null>(null);
   const [commerceError, setCommerceError] = useState<string | null>(null);
@@ -105,13 +110,45 @@ export default function CourseOverview() {
 
   const isPaidCourse = Number(course.price ?? 0) > 0;
   const commerceTone = commerceBadgeTone[commerceState] ?? "outline";
+  const freeCourseCopy = {
+    badge: "Gratis",
+    title: "Accedé gratis a este curso",
+    description: "Inscribite sin pago y empezá a ver el contenido.",
+    actionLabel: "Acceder gratis",
+  };
+  const panelCopy = isPaidCourse ? commerceCopy : freeCourseCopy;
   const checkoutHref = sellability?.existingOrder
     ? `/cursos/${course.id}/pago?orderId=${sellability.existingOrder.orderId}`
     : `/cursos/${course.id}/pago`;
 
-  const handleCommerceAction = () => {
+  const handleCommerceAction = async () => {
     if (!isPaidCourse) {
-      navigate(`/cursos/${course.id}/pago`);
+      if (!user.id) {
+        navigate("/auth/login");
+        return;
+      }
+
+      setFreeAccessLoading(true);
+      setCommerceError(null);
+
+      try {
+        const response = await enrollFreeCourse(course.id);
+
+        if (!response.success || !response.data) {
+          setCommerceError(
+            response.message || "No pudimos habilitar el acceso gratuito.",
+          );
+          return;
+        }
+
+        navigate(`/mis-cursos/${response.data.courseSlug}`);
+      } catch (error) {
+        console.error("Error habilitando acceso gratuito:", error);
+        setCommerceError("No pudimos habilitar el acceso gratuito.");
+      } finally {
+        setFreeAccessLoading(false);
+      }
+
       return;
     }
 
@@ -127,7 +164,7 @@ export default function CourseOverview() {
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
         <Badge variant={commerceTone} size="sm">
-          {commerceCopy.badge}
+          {panelCopy.badge}
         </Badge>
         {sellability?.existingOrder ? (
           <span className="text-xs font-medium text-neutral-500">
@@ -138,10 +175,10 @@ export default function CourseOverview() {
 
       <div className="space-y-2">
         <h3 className="text-lg font-semibold text-neutral-950">
-          {commerceCopy.title}
+          {panelCopy.title}
         </h3>
         <p className="text-sm leading-6 text-neutral-600">
-          {commerceCopy.description}
+          {panelCopy.description}
         </p>
       </div>
 
@@ -181,15 +218,18 @@ export default function CourseOverview() {
         onClick={handleCommerceAction}
         size="lg"
         className="w-full text-base"
-        disabled={commerceState === "MANUAL_REVIEW"}
+        disabled={
+          freeAccessLoading ||
+          commerceLoading ||
+          (isPaidCourse && commerceState === "MANUAL_REVIEW")
+        }
       >
-        {commerceCopy.actionLabel}
+        {freeAccessLoading ? "Habilitando acceso..." : panelCopy.actionLabel}
       </Button>
 
       {isPaidCourse ? (
         <p className="text-center text-xs text-neutral-500">
-          El acceso se habilita recién cuando Mercado Pago confirma el pago por
-          webhook.
+          El acceso se habilita cuando se confirma el pago.
         </p>
       ) : null}
     </div>
@@ -255,7 +295,18 @@ export default function CourseOverview() {
                     />
                   </div>
                 </div>
-              ) : null}
+              ) : (
+                <div className="relative aspect-video overflow-hidden rounded-3xl bg-neutral-900 shadow-2xl ring-1 ring-white/10 xl:max-w-3xl">
+                  <img
+                    src={
+                      course.thumbnailUrl ||
+                      "/Placeholders/no-image-course-generic.jpg"
+                    }
+                    alt={`Portada del curso ${course.title}`}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
 
               <div className="lg:hidden rounded-3xl border border-neutral-200 bg-white p-6 text-neutral-900 shadow-xl">
                 <div className="mb-6 flex items-start justify-between gap-4">

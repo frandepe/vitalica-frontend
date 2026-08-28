@@ -27,12 +27,10 @@ export default function Step5() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 space-y-8 text-center">
-      <h1 className="text-4xl font-bold text-zinc-900">
-        ¡Bienvenido a Vitalica!
-      </h1>
+      <h1 className="text-4xl font-bold text-zinc-900">¡Ya podés empezar!</h1>
       <p className="text-lg text-zinc-600 max-w-xl">
-        Ahora podemos personalizar tu experiencia según tus intereses. Explora
-        cursos en emergencias prehospitalarias y empieza a aprender desde hoy.
+        Explorá los cursos disponibles, elegí qué querés aprender y avanzá a tu
+        ritmo.
       </p>
 
       <div className="flex gap-2">

@@ -7,9 +7,10 @@ import { ILessonWithProgress } from "@/types/courseProgress.types";
 interface LessonItemProps {
   lesson: ILessonWithProgress;
   index: number;
+  basePath?: string;
 }
 
-export function LessonItemCoursePlayer({ lesson, index }: LessonItemProps) {
+export function LessonItemCoursePlayer({ lesson, index, basePath = "/mis-cursos" }: LessonItemProps) {
   const { title, type, lessonMaterial, muxPlaybackId, completed } = lesson;
   const navigate = useNavigate();
   const { slug } = useParams();
@@ -27,7 +28,7 @@ export function LessonItemCoursePlayer({ lesson, index }: LessonItemProps) {
     >
       <Card
         className="relative cursor-pointer transition-all hover:shadow-md"
-        onClick={() => navigate(`/mis-cursos/${slug}/${lesson.id}`)}
+        onClick={() => navigate(`${basePath}/${slug}/${lesson.id}`)}
       >
         <CardContent className="p-3">
           <div className="flex gap-3">

@@ -34,6 +34,9 @@ const statusBadgeClasses: Record<
   REJECTED: "bg-red-100 text-red-800",
 };
 
+const formatDate = (value: string | null) =>
+  value ? new Date(value).toLocaleDateString("es-AR") : null;
+
 export default function AdminInstructorsSpecialties() {
   const { showToast } = useToast();
   const [instructors, setInstructors] = useState<
@@ -166,9 +169,13 @@ export default function AdminInstructorsSpecialties() {
   ) => {
     const approvedSpecialties = approvedSpecialtiesByRequest[request.id] || [];
 
-    if (status === "APPROVED" && approvedSpecialties.length === 0) {
+    if (
+      status === "APPROVED" &&
+      approvedSpecialties.length === 0 &&
+      !request.credentialType
+    ) {
       showToast(
-        "Para aprobar debes seleccionar al menos una especialidad",
+        "Para aprobar una solicitud sin credencial debes seleccionar al menos una especialidad",
         "warning",
       );
       return;
@@ -213,12 +220,12 @@ export default function AdminInstructorsSpecialties() {
     <div className="py-8 space-y-8">
       <div>
         <h1 className="text-2xl font-semibold">
-          Gestion de especialidades de instructores
+          Gestion de credenciales y especialidades
         </h1>
         <p className="text-sm text-muted-foreground mt-2">
           Acá podés editar el set operativo de especialidades aprobadas de
           instructores existentes y resolver solicitudes posteriores de
-          especialidades.
+          credenciales con especialidades asociadas.
         </p>
       </div>
 
@@ -350,26 +357,125 @@ export default function AdminInstructorsSpecialties() {
                             </span>
                           </div>
 
+                          {request.credentialType && (
+                            <div className="rounded-md border bg-muted/20 p-3 space-y-2">
+                              <p className="text-sm font-medium">
+                                Credencial enviada
+                              </p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                                <p>
+                                  <span className="text-muted-foreground">
+                                    Tipo:{" "}
+                                  </span>
+                                  {t("credentialType", request.credentialType)}
+                                </p>
+                                {request.credentialTitle && (
+                                  <p>
+                                    <span className="text-muted-foreground">
+                                      Nombre:{" "}
+                                    </span>
+                                    {request.credentialTitle}
+                                  </p>
+                                )}
+                                {request.credentialOrg && (
+                                  <p>
+                                    <span className="text-muted-foreground">
+                                      Institucion:{" "}
+                                    </span>
+                                    {request.credentialOrg}
+                                  </p>
+                                )}
+                                {request.credentialNumber && (
+                                  <p>
+                                    <span className="text-muted-foreground">
+                                      Numero/ID:{" "}
+                                    </span>
+                                    {request.credentialNumber}
+                                  </p>
+                                )}
+                                {request.credentialJurisdiction && (
+                                  <p>
+                                    <span className="text-muted-foreground">
+                                      Jurisdiccion:{" "}
+                                    </span>
+                                    {request.credentialJurisdiction}
+                                  </p>
+                                )}
+                                {request.credentialRoleOrArea && (
+                                  <p>
+                                    <span className="text-muted-foreground">
+                                      Funcion/area:{" "}
+                                    </span>
+                                    {request.credentialRoleOrArea}
+                                  </p>
+                                )}
+                                {(request.credentialIssuedAt ||
+                                  request.credentialExpiresAt) && (
+                                  <p>
+                                    <span className="text-muted-foreground">
+                                      Vigencia:{" "}
+                                    </span>
+                                    {formatDate(request.credentialIssuedAt) ||
+                                      "Sin emision"}{" "}
+                                    -{" "}
+                                    {formatDate(request.credentialExpiresAt) ||
+                                      "Sin vencimiento"}
+                                  </p>
+                                )}
+                                {(request.credentialStartDate ||
+                                  request.credentialEndDate ||
+                                  request.credentialCurrentlyActive) && (
+                                  <p>
+                                    <span className="text-muted-foreground">
+                                      Periodo:{" "}
+                                    </span>
+                                    {formatDate(request.credentialStartDate) ||
+                                      "Sin inicio"}{" "}
+                                    -{" "}
+                                    {request.credentialCurrentlyActive
+                                      ? "Actualidad"
+                                      : formatDate(request.credentialEndDate) ||
+                                        "Sin fin"}
+                                  </p>
+                                )}
+                              </div>
+                              {request.credentialDescription && (
+                                <p className="text-sm text-muted-foreground">
+                                  {request.credentialDescription}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
                           <div>
                             <p className="text-sm font-medium mb-2">
                               Especialidades solicitadas
                             </p>
-                            <div className="flex flex-wrap gap-2">
-                              {request.requestedSpecialties.map((specialty) => (
-                                <span
-                                  key={`${request.id}-${specialty}`}
-                                  className="px-2 py-1 text-xs rounded-full bg-slate-200 text-slate-700"
-                                >
-                                  {t("courseSpecialty", specialty)}
-                                </span>
-                              ))}
-                            </div>
+                            {request.requestedSpecialties.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {request.requestedSpecialties.map(
+                                  (specialty) => (
+                                    <span
+                                      key={`${request.id}-${specialty}`}
+                                      className="px-2 py-1 text-xs rounded-full bg-slate-200 text-slate-700"
+                                    >
+                                      {t("courseSpecialty", specialty)}
+                                    </span>
+                                  ),
+                                )}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground">
+                                No solicito especialidades nuevas con esta
+                                credencial.
+                              </p>
+                            )}
                           </div>
 
                           {request.certificateUrls?.length > 0 && (
                             <div>
                               <p className="text-sm font-medium mb-2">
-                                Certificados adjuntos
+                                Documentacion respaldatoria
                               </p>
                               <div className="flex flex-wrap gap-2">
                                 {request.certificateUrls.map(
@@ -380,12 +486,12 @@ export default function AdminInstructorsSpecialties() {
                                       target="_blank"
                                       rel="noreferrer"
                                       className="w-20 h-20 rounded-md border overflow-hidden"
-                                    >
-                                      <img
-                                        src={certificateUrl}
-                                        alt={`Certificado ${index + 1}`}
-                                        className="w-full h-full object-cover"
-                                      />
+                                      >
+                                        <img
+                                          src={certificateUrl}
+                                          alt={`Documentacion ${index + 1}`}
+                                          className="w-full h-full object-cover"
+                                        />
                                     </a>
                                   ),
                                 )}
@@ -400,33 +506,40 @@ export default function AdminInstructorsSpecialties() {
                                 <p className="text-sm font-medium mb-2">
                                   Especialidades a aprobar (aprobacion parcial)
                                 </p>
-                                <div className="flex flex-wrap gap-2">
-                                  {request.requestedSpecialties.map(
-                                    (specialty) => {
-                                      const active =
-                                        selectedApproved.includes(specialty);
-                                      return (
-                                        <button
-                                          key={`${request.id}-approve-${specialty}`}
-                                          type="button"
-                                          onClick={() =>
-                                            toggleApprovedSpecialty(
-                                              request.id,
-                                              specialty,
-                                            )
-                                          }
-                                          className={`px-3 py-1 rounded-full text-xs border ${
-                                            active
-                                              ? "bg-secondary text-white border-secondary"
-                                              : "bg-background text-foreground border-border"
-                                          }`}
-                                        >
-                                          {t("courseSpecialty", specialty)}
-                                        </button>
-                                      );
-                                    },
-                                  )}
-                                </div>
+                                {request.requestedSpecialties.length > 0 ? (
+                                  <div className="flex flex-wrap gap-2">
+                                    {request.requestedSpecialties.map(
+                                      (specialty) => {
+                                        const active =
+                                          selectedApproved.includes(specialty);
+                                        return (
+                                          <button
+                                            key={`${request.id}-approve-${specialty}`}
+                                            type="button"
+                                            onClick={() =>
+                                              toggleApprovedSpecialty(
+                                                request.id,
+                                                specialty,
+                                              )
+                                            }
+                                            className={`px-3 py-1 rounded-full text-xs border ${
+                                              active
+                                                ? "bg-secondary text-white border-secondary"
+                                                : "bg-background text-foreground border-border"
+                                            }`}
+                                          >
+                                            {t("courseSpecialty", specialty)}
+                                          </button>
+                                        );
+                                      },
+                                    )}
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-muted-foreground">
+                                    Esta revision solo aprueba o rechaza la
+                                    credencial.
+                                  </p>
+                                )}
                               </div>
 
                               <Textarea
@@ -448,7 +561,9 @@ export default function AdminInstructorsSpecialties() {
                                     resolveRequest(request, "APPROVED")
                                   }
                                 >
-                                  Aprobar seleccionadas
+                                  {request.requestedSpecialties.length > 0
+                                    ? "Aprobar seleccionadas"
+                                    : "Aprobar credencial"}
                                 </Button>
                                 <Button
                                   type="button"

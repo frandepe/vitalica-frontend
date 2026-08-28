@@ -25,7 +25,8 @@ interface Step3Props {
   register: UseFormRegister<NewCourseFormValues>;
   priceDB: string | undefined;
 }
-export const Step3 = ({ register, priceDB }: Step3Props) => {
+export const Step3 = ({ register }: Step3Props) => {
+  // export const Step3 = ({ register, priceDB }: Step3Props) => {
   const {
     watch,
     setValue,
@@ -34,16 +35,25 @@ export const Step3 = ({ register, priceDB }: Step3Props) => {
   } = useFormContext();
 
   const duration = watch("duration");
-  const price = watch("price");
+  // const price = watch("price");
 
   // estado derivado SOLO para UI
-  const isFree = price === 0;
+  const isFree = true;
+  // const isFree = price === 0;
+
+  // TODO: BETA
+  // useEffect(() => {
+  //   if (priceDB === "0") {
+  //     setValue("price", 0);
+  //   }
+  // }, [priceDB, setValue]);
 
   useEffect(() => {
-    if (priceDB === "0") {
-      setValue("price", 0);
-    }
-  }, [priceDB, setValue]);
+    setValue("price", 0, {
+      shouldValidate: true,
+      shouldDirty: false,
+    });
+  }, [setValue]);
 
   return (
     <div className="space-y-4">
@@ -79,17 +89,25 @@ export const Step3 = ({ register, priceDB }: Step3Props) => {
       <Card className="p-4">
         {/* SWITCH CURSO GRATUITO */}
         <div className="flex items-center space-x-2">
-          <Switch
+          <Switch checked disabled />
+          {/* <Switch
             checked={isFree}
             onCheckedChange={(checked) => {
               if (checked) {
                 setValue("price", 0, { shouldValidate: true });
               } else {
-                setValue("price", undefined as any);
+                setValue("price", undefined);
               }
             }}
-          />
-          <Label>Curso gratuito</Label>
+          /> */}
+          <Label>
+            Curso gratuito{" "}
+            <span className="bg-yellow-100 text-black-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
+              Todos los cursos se publian como gratuitos en la versión beta de
+              la plataforma. En la versión final, podrás elegir entre cursos
+              gratuitos y pagos.
+            </span>
+          </Label>
         </div>
 
         {/* PRECIO */}
@@ -100,7 +118,8 @@ export const Step3 = ({ register, priceDB }: Step3Props) => {
           </span>
 
           <Input
-            disabled={isFree}
+            disabled
+            // disabled={isFree} //TODO:BETA
             className={cn(
               "-me-px z-10 rounded-e-none ps-6 shadow-none",
               isFree && "opacity-60 cursor-not-allowed",

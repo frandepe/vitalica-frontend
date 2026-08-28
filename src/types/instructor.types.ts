@@ -4,14 +4,83 @@ import { ISpecialty } from "./course.types";
 export interface IApplyInstructor {
   dniNumber: string;
   dniCountry: string;
-  certificateType: string;
-  issuedBy: string;
-  enrollmentNumber: string;
+  credentials: InstructorCredentialForm[];
   requestedSpecialties?: ISpecialty[];
   urlDni: string | null;
-  urlCertificate: string[];
-  issueDate?: string;
-  expiryDate?: string;
+}
+
+export type InstructorCredentialType =
+  | "PROFESSIONAL_DEGREE"
+  | "PROFESSIONAL_LICENSE"
+  | "INSTRUCTOR_CERTIFICATION"
+  | "COMPLEMENTARY_TRAINING"
+  | "PROFESSIONAL_EXPERIENCE"
+  | "TEACHING_EXPERIENCE";
+
+export type InstructorCredentialStatus = "PENDING" | "APPROVED";
+
+export interface InstructorCredentialForm {
+  id?: string;
+  type: InstructorCredentialType;
+  title: string;
+  organization: string;
+  credentialNumber: string;
+  jurisdiction: string;
+  issuedAt: string | null;
+  expiresAt: string | null;
+  noExpiration: boolean;
+  roleOrArea: string;
+  startDate: string | null;
+  endDate: string | null;
+  currentlyActive: boolean;
+  description: string;
+  images: string[];
+}
+
+export interface InstructorCertificationForm {
+  id?: string;
+  certificationType: string;
+  issuer: string;
+  credentialNumber: string;
+  issuedAt: string;
+  expiresAt: string | null;
+  noExpiration: boolean;
+  images: string[];
+}
+
+export interface IApplyInstructorPayload {
+  dniNumber: string;
+  dniCountry: string;
+  credentials: InstructorCredentialPayload[];
+  requestedSpecialties?: ISpecialty[];
+  urlDni: string | null;
+}
+
+export interface InstructorCredentialPayload {
+  id?: string;
+  type: InstructorCredentialType;
+  title?: string | null;
+  organization?: string | null;
+  credentialNumber?: string | null;
+  jurisdiction?: string | null;
+  issuedAt?: string | null;
+  expiresAt?: string | null;
+  roleOrArea?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  currentlyActive?: boolean;
+  description?: string | null;
+  images: string[];
+}
+
+export interface InstructorCertificationPayload {
+  id?: string;
+  certificationType: string;
+  issuer: string;
+  credentialNumber: string;
+  issuedAt: string;
+  expiresAt: string | null;
+  images: string[];
 }
 
 export type StatusInstructorApplication =
@@ -40,6 +109,9 @@ export interface InstructorApplication {
   createdAt: string;
   updatedAt: string;
   documents: ApplicationDocument[];
+  certifications: InstructorCertification[];
+  credentials: InstructorCredential[];
+  specialtyRequests: InstructorSpecialtyRequest[];
   user: User;
 }
 
@@ -54,6 +126,43 @@ export interface ApplicationDocument {
   urlCertificate: string[];
 }
 
+export interface InstructorCertification {
+  id: string;
+  applicationId: string;
+  certificationType: string;
+  issuer: string;
+  credentialNumber: string | null;
+  issuedAt: string;
+  expiresAt: string | null;
+  imageUrls: string[];
+  imageUrlIds: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InstructorCredential {
+  id: string;
+  applicationId: string;
+  type: InstructorCredentialType;
+  status: InstructorCredentialStatus;
+  approvedAt: string | null;
+  title: string | null;
+  organization: string | null;
+  credentialNumber: string | null;
+  jurisdiction: string | null;
+  issuedAt: string | null;
+  expiresAt: string | null;
+  roleOrArea: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  currentlyActive: boolean;
+  description: string | null;
+  imageUrls: string[];
+  imageUrlIds: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type InstructorSpecialtyRequestStatus =
   | "SUBMITTED"
   | "UNDER_REVIEW"
@@ -65,6 +174,20 @@ export interface InstructorSpecialtyRequest {
   instructorProfileId: string;
   status: InstructorSpecialtyRequestStatus;
   requestedSpecialties: ISpecialty[];
+  credentialId: string | null;
+  credential: InstructorCredential | null;
+  credentialType: InstructorCredentialType | null;
+  credentialTitle: string | null;
+  credentialOrg: string | null;
+  credentialNumber: string | null;
+  credentialJurisdiction: string | null;
+  credentialIssuedAt: string | null;
+  credentialExpiresAt: string | null;
+  credentialRoleOrArea: string | null;
+  credentialStartDate: string | null;
+  credentialEndDate: string | null;
+  credentialCurrentlyActive: boolean;
+  credentialDescription: string | null;
   certificateUrls: string[];
   certificateUrlIds: string[];
   reviewedAt: string | null;

@@ -1,5 +1,10 @@
 import { getCoursesByInstructor, getProfileBySlug } from "@/api";
+import {
+  InstructorCredentialCard,
+  PublicInstructorCredential,
+} from "@/components/CardsAnimated/InstructorCredentialCard";
 import { PublicCourseCard } from "@/components/CardsAnimated/PublicCourseCard";
+import { MainCarousel } from "@/components/Carousel/MainCarousel";
 import { FoundingInstructorBadge } from "@/components/FoundingInstructorBadge";
 import { StatCard } from "@/components/CardsAnimated/StatCard";
 import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
@@ -11,6 +16,8 @@ import { Calendar, MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { NotFound } from "./404Page";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface InstructorProfile {
   id: string;
@@ -25,6 +32,7 @@ interface InstructorProfile {
   isFoundingInstructor: boolean;
   city: string;
   state: string;
+  credentials: PublicInstructorCredential[];
 }
 
 interface Course {
@@ -51,8 +59,9 @@ interface Profile {
   firstName: string;
   lastName: string;
   avatarUrl: string;
-  role: "INSTRUCTOR" | "USER";
+  role: "INSTRUCTOR" | "USER" | "ADMIN";
   enrollments: Enrollment[];
+  discoveryCourses: Course[];
   instructorProfile: InstructorProfile | null;
 }
 
@@ -123,9 +132,11 @@ const ProfileBySlug = () => {
     instructorProfile,
   } = profileData;
 
-  const approvedYear =
+  const approvedDate =
     instructorProfile?.approvedAt &&
-    new Date(instructorProfile.approvedAt).getFullYear();
+    format(new Date(instructorProfile.approvedAt), "d 'de' MMMM 'de' yyyy", {
+      locale: es,
+    });
   return (
     <div className="min-h-screen bg-gray-50">
       {/* HEADER */}
@@ -138,7 +149,11 @@ const ProfileBySlug = () => {
             transition={{ duration: 0.3 }}
           >
             <p className="text-sm uppercase text-gray-600 mb-2">
-              {role === "INSTRUCTOR" ? "Instructor" : "Alumno"}
+              {role === "INSTRUCTOR"
+                ? "Instructor"
+                : role === "USER"
+                  ? "Alumno"
+                  : "Administrador"}
             </p>
 
             <h1 className="text-3xl md:text-4xl font-bold">
@@ -167,7 +182,7 @@ const ProfileBySlug = () => {
 
                   <div className="flex items-center justify-center md:justify-start gap-2">
                     <Calendar size={16} />
-                    Instructor desde {approvedYear}
+                    Instructor desde el {approvedDate}
                   </div>
                 </div>
               </>
@@ -192,7 +207,7 @@ const ProfileBySlug = () => {
         {/* ================= INSTRUCTOR ================= */}
         {role === "INSTRUCTOR" && instructorProfile && (
           <>
-            <motion.div
+            <motion.section
               initial="hidden"
               animate="visible"
               variants={fadeUp}
@@ -209,9 +224,9 @@ const ProfileBySlug = () => {
                 value={`${instructorProfile.avgTheoreticalRating} ⭐`}
               />
               <StatCard title="Reseñas" value={instructorProfile.ratingCount} />
-            </motion.div>
+            </motion.section>
 
-            <motion.div
+            <motion.section
               initial="hidden"
               animate="visible"
               variants={fadeUp}
@@ -229,7 +244,37 @@ const ProfileBySlug = () => {
                   El instructor no ha agregado una biografía.
                 </p>
               )}
+            </motion.section>
 
+            {instructorProfile.credentials?.length > 0 && (
+              <motion.section
+                initial="hidden"
+                animate="visible"
+                variants={fadeUp}
+                transition={{ duration: 0.3, delay: 0.25 }}
+                className="mt-10"
+              >
+                <h2 className="text-2xl font-semibold mb-4">
+                  Credenciales y experiencia
+                </h2>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {instructorProfile.credentials.map((credential) => (
+                    <InstructorCredentialCard
+                      key={credential.id}
+                      credential={credential}
+                    />
+                  ))}
+                </div>
+              </motion.section>
+            )}
+
+            <motion.section
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              transition={{ duration: 0.3, delay: 0.3 }}
+              className="mt-10"
+            >
               {instructorProfile.specialties?.length > 0 && (
                 <div className="mt-6">
                   <h3 className="font-semibold mb-2">Especialidades</h3>
@@ -240,6 +285,14 @@ const ProfileBySlug = () => {
                   </div>
                 </div>
               )}
+            </motion.section>
+
+            <motion.section
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              transition={{ duration: 0.3, delay: 0.35 }}
+            >
               {instructorCourses.length > 0 && (
                 <div className="mt-6">
                   <h3 className="font-semibold mb-2">
@@ -263,7 +316,7 @@ const ProfileBySlug = () => {
                   </div>
                 </div>
               )}
-            </motion.div>
+            </motion.section>
           </>
         )}
 
@@ -275,30 +328,49 @@ const ProfileBySlug = () => {
             variants={fadeUp}
             transition={{ duration: 0.3 }}
           >
-            <h2 className="text-2xl font-semibold mb-6">
-              Cursos en los que está inscripto
-            </h2>
-
-            {enrollments.length === 0 ? (
-              <p>No está inscripto en ningún curso.</p>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {enrollments.map((enrollment, index) => (
-                  <motion.div
-                    key={enrollment.course.id}
-                    className="group w-[300px] flex-shrink-0"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                  >
-                    <PublicCourseCard
-                      course={enrollment.course}
-                      href={`/cursos/${enrollment.course.slug}`}
-                    />
-                  </motion.div>
-                ))}
-              </div>
+            {enrollments.length > 0 && (
+              <>
+                <h2 className="text-2xl font-semibold mb-6">
+                  Formación en Vitalica
+                </h2>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {enrollments.map((enrollment, index) => (
+                    <motion.div
+                      key={enrollment.course.id}
+                      className="group w-[300px] flex-shrink-0"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <PublicCourseCard
+                        course={enrollment.course}
+                        href={`/cursos/${enrollment.course.slug}`}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              </>
             )}
+
+            <MainCarousel
+              title={
+                enrollments.length > 0
+                  ? "Continuá aprendiendo"
+                  : "Empezá tu formación"
+              }
+              subtitle={
+                enrollments.length > 0
+                  ? "Explorá otros cursos disponibles en Vitalica."
+                  : "Explorá los últimos cursos disponibles y elegí por dónde comenzar."
+              }
+              items={profileData.discoveryCourses}
+              renderItem={(course) => (
+                <PublicCourseCard
+                  course={course}
+                  href={`/cursos/${course.slug}`}
+                />
+              )}
+            />
           </motion.div>
         )}
       </div>

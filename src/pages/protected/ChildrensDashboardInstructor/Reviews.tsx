@@ -23,6 +23,7 @@ import {
 import { formatDate } from "@/utils/formatDate";
 import { BookOpen, Filter, MessageSquare, RefreshCw, Star } from "lucide-react";
 import { ReviewsLoadingState } from "@/components/Skeletons/Reviews";
+import TitleAdminPages from "@/components/Texts/TitleAdminPages";
 
 const REVIEWS_PER_PAGE = 12;
 const ALL_COURSES_VALUE = "ALL_COURSES";
@@ -45,17 +46,17 @@ function SummaryStrip({ summary }: { summary: InstructorReviewsSummary }) {
     {
       label: "Total de reseñas",
       value: summary.total,
-      hint: "Vision general de la página actual consultada",
+      hint: "Todas las opiniones recibidas",
     },
     {
       label: "Teóricas",
       value: summary.theoretical,
-      hint: "Feedback sobre contenido y cursada",
+      hint: "Opiniones sobre tus cursos",
     },
     {
       label: "Prácticas",
       value: summary.practical,
-      hint: "Feedback sobre experiencia presencial",
+      hint: "Opiniones sobre tus prácticas",
     },
   ];
 
@@ -415,15 +416,10 @@ export default function Reviews() {
     return (
       <div className="space-y-8 py-8">
         <header className="space-y-3">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-slate-500">
-            Area instructor
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
-            reseñas de tus cursos
-          </h1>
+          <TitleAdminPages title="Reseñas de tus cursos" />
           <p className="max-w-3xl text-sm leading-6 text-slate-600">
-            Revisa el feedback teorico y practico que dejan tus alumnos para
-            entender mejor la experiencia de cursada.
+            Conocé qué opinan tus alumnos y usá sus comentarios para seguir
+            mejorando tu propuesta de formación.
           </p>
         </header>
 
@@ -457,15 +453,10 @@ export default function Reviews() {
     return (
       <div className="space-y-8 py-8">
         <header className="space-y-3">
-          <p className="text-xs font-medium uppercase tracking-[0.24em] text-slate-500">
-            Area instructor
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
-            reseñas de tus cursos
-          </h1>
+          <TitleAdminPages title="Reseñas de tus cursos" />
           <p className="max-w-3xl text-sm leading-6 text-slate-600">
-            Revisa el feedback teorico y practico que dejan tus alumnos para
-            entender mejor la experiencia de cursada.
+            Conocé qué opinan tus alumnos y usá sus comentarios para seguir
+            mejorando tu propuesta de formación.
           </p>
         </header>
 
@@ -495,17 +486,11 @@ export default function Reviews() {
       <header className="space-y-4">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
           <div className="space-y-3">
-            <p className="text-xs font-medium uppercase tracking-[0.24em] text-slate-500">
-              Area instructor
-            </p>
             <div className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-950">
-                reseñas de tus cursos
-              </h1>
+              <TitleAdminPages title="Reseñas de tus cursos" />
               <p className="max-w-3xl text-sm leading-6 text-slate-600">
-                Lee en un solo lugar las reseñas teoricas y prácticas de tus
-                alumnos, agrupadas por curso para detectar mejor fortalezas y
-                puntos de mejora.
+                Conocé qué opinan tus alumnos y usá sus comentarios para seguir
+                mejorando tu propuesta de formación.
               </p>
             </div>
           </div>

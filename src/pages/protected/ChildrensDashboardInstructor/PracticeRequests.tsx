@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
+  CircleCheck,
   Clock3,
   Mail,
   MapPin,
@@ -39,6 +40,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
 import { PracticeRequestInstructorView } from "@/types/practice.types";
 import { formatDate } from "@/utils/formatDate";
+import TitleAdminPages from "@/components/Texts/TitleAdminPages";
 
 type StatusFilter = "ALL" | "PENDING" | "COMPLETED" | "CANCELLED";
 
@@ -175,17 +177,17 @@ export default function PracticeRequests() {
         <CardContent className="px-6 py-6 sm:px-8 sm:py-7">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl space-y-3">
-              <Badge variant="outline" size="sm" className="w-fit">
-                Panel de gestion
-              </Badge>
               <div className="space-y-2">
-                <h1 className="text-3xl font-semibold tracking-tight">
-                  Solicitudes de practica
-                </h1>
+                <TitleAdminPages title="Solicitudes de práctica" />
                 <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-[15px]">
-                  Gestiona las practicas asignadas a tu perfil. Desde aqui podés
-                  revisar el detalle de cada alumno, completar solicitudes
-                  pendientes o cancelarlas.
+                  Los alumnos que completen la formación teórica pueden
+                  solicitar una práctica presencial con vos. No necesitan haber
+                  realizado tu curso: pueden elegirte como instructor para
+                  completar su formación práctica.
+                </p>
+                <p className="flex max-w-2xl items-center gap-2 text-sm leading-6 text-muted-foreground sm:text-[15px]">
+                  <CircleCheck className="h-4 w-4 shrink-0 text-success" />
+                  Vos decidís qué solicitudes aceptar según tu disponibilidad.
                 </p>
               </div>
             </div>
@@ -294,7 +296,7 @@ export default function PracticeRequests() {
                   Solicitudes
                 </CardTitle>
                 <CardDescription>
-                  Selecciona una tarjeta para ver el detalle completo.
+                  Seleccioná una tarjeta para ver el detalle completo.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 p-3">
@@ -410,12 +412,12 @@ export default function PracticeRequests() {
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>
-                                Confirmas que la practica del alumno fue
+                                ¿Confirmás que la práctica del alumno fue
                                 realizada?
                               </AlertDialogTitle>
                               <AlertDialogDescription>
                                 Al confirmarla, la solicitud se cerrara y el
-                                certificado practico quedara habilitado para el
+                                certificado practico quedar habilitado para el
                                 alumno.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
@@ -502,22 +504,15 @@ export default function PracticeRequests() {
                             : "Pendiente"}
                       </p>
                     </div>
+
                     <div className="rounded-2xl border border-border/70 bg-background px-4 py-4">
                       <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
-                        Slug del curso
-                      </p>
-                      <p className="mt-2 break-all text-sm font-semibold text-foreground">
-                        {selectedRequest.course.slug}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-border/70 bg-background px-4 py-4">
-                      <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
-                        Review
+                        Reseña
                       </p>
                       <p className="mt-2 text-sm font-semibold text-foreground">
                         {selectedRequest.review
                           ? `${selectedRequest.review.rating}/5`
-                          : "Sin review"}
+                          : "Sin reseña"}
                       </p>
                     </div>
                   </div>
@@ -528,7 +523,7 @@ export default function PracticeRequests() {
                         Alumno
                       </h2>
                       <p className="text-sm text-muted-foreground">
-                        Informacion de contacto y mensaje asociado a la
+                        Información de contacto y mensaje asociado a la
                         solicitud.
                       </p>
                     </div>
@@ -547,7 +542,7 @@ export default function PracticeRequests() {
                               )}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              ID: {selectedRequest.student.id}
+                              ID del alumno: {selectedRequest.student.id}
                             </p>
                           </div>
                         </div>

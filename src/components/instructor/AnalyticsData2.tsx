@@ -62,7 +62,7 @@ export const MarketingDashboard = React.forwardRef<
 >(
   (
     {
-      title = "Marketing Activities",
+      title = "Actividad de tus cursos",
       teamActivities,
       team,
       cta,
@@ -109,7 +109,7 @@ export const MarketingDashboard = React.forwardRef<
             variant="ghost"
             size="icon"
             onClick={onFilterClick}
-            aria-label="Filter activities"
+            aria-label="Filtrar actividad"
           >
             <Filter className="w-5 h-5" />
           </Button>
@@ -123,7 +123,7 @@ export const MarketingDashboard = React.forwardRef<
               <CardContent className="p-2">
                 <div className="flex items-center justify-between mb-4">
                   <p className="font-medium text-muted-foreground">
-                    Team Activities
+                    Horas vistas
                   </p>
                   <Clock className="w-5 h-5 text-muted-foreground" />
                 </div>
@@ -131,7 +131,7 @@ export const MarketingDashboard = React.forwardRef<
                   <span className="text-4xl font-bold">
                     <AnimatedNumber value={teamActivities.totalHours} />
                   </span>
-                  <span className="ml-1 text-muted-foreground">hours</span>
+                  <span className="ml-1 text-muted-foreground">horas</span>
                 </div>
                 {/* Progress Bar */}
                 <div className="w-full h-2 mb-2 overflow-hidden rounded-full bg-muted flex">
@@ -166,7 +166,7 @@ export const MarketingDashboard = React.forwardRef<
               <CardContent className="p-2">
                 <div className="flex items-center justify-between mb-4">
                   <p className="font-medium text-lime-900 dark:text-lime-200">
-                    Team
+                    Alumnos
                   </p>
                   <Users className="w-5 h-5 text-lime-900 dark:text-lime-200" />
                 </div>
@@ -175,7 +175,7 @@ export const MarketingDashboard = React.forwardRef<
                     <AnimatedNumber value={team.memberCount} />
                   </span>
                   <span className="ml-1 text-lime-800 dark:text-lime-300">
-                    members
+                    alumnos
                   </span>
                 </div>
                 {/* Avatar Stack */}
@@ -194,6 +194,11 @@ export const MarketingDashboard = React.forwardRef<
                       </Avatar>
                     </motion.div>
                   ))}
+                  {team.members.length === 0 && (
+                    <p className="text-sm text-lime-800 dark:text-lime-300">
+                      Sin alumnos todavía
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

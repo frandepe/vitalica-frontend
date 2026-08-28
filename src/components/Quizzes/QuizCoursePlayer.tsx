@@ -99,12 +99,12 @@ export function QuizCoursePlayer({
     if (finalScore === null) return "";
     const percentage = (finalScore / quizzes.length) * 100;
     if (percentage >= 80)
-      return "Excelente desempeno. Dominas los conceptos clave.";
+      return "Excelente desempeño. Dominás los conceptos clave.";
     if (percentage >= 60)
       return "Muy buen resultado. Vas por el camino correcto.";
     if (percentage >= 40)
       return "Buen intento. Te recomendamos repasar algunos contenidos.";
-    return "Es importante reforzar los conceptos. Repasa las clases y vuelve a intentarlo.";
+    return "Es importante reforzar los conceptos. Repasá las clases y volvé a intentarlo.";
   };
 
   if (quizzes.length === 0) {
@@ -133,7 +133,9 @@ export function QuizCoursePlayer({
                 : "text-foreground/70",
             )}
           >
-            {finalResult?.data?.passed ? "Examen aprobado" : "Examen no aprobado"}
+            {finalResult?.data?.passed
+              ? "Examen aprobado"
+              : "Examen no aprobado"}
           </h1>
           {moduleTitle && (
             <p className="text-lg text-slate-600 dark:text-slate-300">
@@ -262,7 +264,8 @@ export function QuizCoursePlayer({
               className="h-3 rounded-full bg-gradient-to-r from-primary to-secondary shadow-sm transition-all duration-700 ease-out dark:from-secondary dark:to-secondary-light"
               style={{
                 width: `${
-                  ((currentQuestion + (showFeedback ? 1 : 0)) / quizzes.length) *
+                  ((currentQuestion + (showFeedback ? 1 : 0)) /
+                    quizzes.length) *
                   100
                 }%`,
               }}

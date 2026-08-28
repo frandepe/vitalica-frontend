@@ -3,74 +3,55 @@ import { MarketingDashboard } from "@/components/instructor/AnalyticsData2";
 
 export default function Analytics() {
   const sampleCta = {
-    text: "Manage your activities and team members",
-    buttonText: "See All",
-    onButtonClick: () => alert("'See All' button clicked!"),
+    text: "Cuando tus cursos tengan actividad, vas a ver el detalle completo acá.",
+    buttonText: "Ver cursos",
+    onButtonClick: () => alert("Todavía no hay cursos con actividad."),
   };
 
   const sampleTeamActivities = {
-    totalHours: 16.5,
+    totalHours: 0,
     stats: [
-      { label: "Productive", value: 45, color: "bg-green-400" },
-      { label: "Middle", value: 25, color: "bg-lime-300" },
-      { label: "Break", value: 15, color: "bg-yellow-300" },
-      { label: "Idle", value: 15, color: "bg-slate-800 dark:bg-slate-700" },
+      { label: "Clases", value: 0, color: "bg-green-400" },
+      { label: "Prácticas", value: 0, color: "bg-lime-300" },
+      { label: "Evaluaciones", value: 0, color: "bg-yellow-300" },
+      { label: "Pendiente", value: 0, color: "bg-slate-800 dark:bg-slate-700" },
     ],
   };
 
   const sampleTeam = {
-    memberCount: 235,
-    members: [
-      {
-        id: "1",
-        name: "Olivia Martin",
-        avatarUrl: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-      },
-      {
-        id: "2",
-        name: "Jackson Lee",
-        avatarUrl: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-      },
-      {
-        id: "3",
-        name: "Isabella Nguyen",
-        avatarUrl: "https://i.pravatar.cc/150?u=a04258114e29026302d",
-      },
-      {
-        id: "4",
-        name: "William Kim",
-        avatarUrl: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-      },
-    ],
+    memberCount: 0,
+    members: [],
   };
   return (
     <div>
       <div className="flex flex-col xl:flex-row justify-between">
         <AnalyticsData />
         <MarketingDashboard
+          title="Actividad de tus cursos"
           teamActivities={sampleTeamActivities}
           team={sampleTeam}
           cta={sampleCta}
-          onFilterClick={() => alert("Filter clicked!")}
+          onFilterClick={() => alert("Todavía no hay datos para filtrar.")}
         />
       </div>
       <section>
         <div className="py-24">
           <div className="mx-auto max-w-5xl px-6">
-            <h2 className="sr-only">Tailark in stats</h2>
+            <h2 className="sr-only">Resumen de analíticas del instructor</h2>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               <div className="space-y-0.5 md:text-center">
-                <div className="text-primary text-4xl font-bold">90+</div>
-                <p className="text-muted-foreground">Integrations</p>
+                <div className="text-primary text-4xl font-bold">0</div>
+                <p className="text-muted-foreground">Cursos publicados</p>
               </div>
               <div className="space-y-0.5 md:text-center">
-                <div className="text-primary text-4xl font-bold">56%</div>
-                <p className="text-muted-foreground">Productivity Boost</p>
+                <div className="text-primary text-4xl font-bold">0%</div>
+                <p className="text-muted-foreground">Finalización promedio</p>
               </div>
               <div className="col-span-2 border-t pt-4 md:border-l md:border-t-0 md:pl-12 md:pt-0">
                 <p className="text-muted-foreground text-balance text-lg">
-                  Our platform continues to grow with developers and businesses
-                  using productivity.
+                  Este panel va a mostrar el rendimiento de tus cursos cuando
+                  empieces a recibir alumnos, avances y valoraciones dentro de
+                  Vitalica.
                 </p>
               </div>
             </div>

@@ -4,6 +4,7 @@ import {
   SellabilityExistingOrderAccessStatusLabels,
   SellabilityExistingOrderStatusLabels,
   SellabilityOrderResolutionLabels,
+  InstructorCredentialTypeLabels,
   SpecialtyLabels,
   StatusPracticeRequestLabels,
   translateInstructorApplicationStatus,
@@ -19,6 +20,7 @@ const dict = {
   statusCourse: translateStatusCourse,
   courseStatusDescription: courseStatusDescription,
   courseSpecialty: SpecialtyLabels,
+  credentialType: InstructorCredentialTypeLabels,
   courseLevel: CourseLevelLabels,
   statusPracticeRequest: StatusPracticeRequestLabels,
   practiceContactMethod: {

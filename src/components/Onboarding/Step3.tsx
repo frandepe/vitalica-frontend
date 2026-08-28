@@ -22,10 +22,11 @@ export default function Step3({
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 space-y-6 text-center">
       <h2 className="text-2xl font-semibold">
-        ¿Qué estás buscando en Vitalica?
+        ¿Cuál es tu principal objetivo al aprender?
       </h2>
+
       <p className="text-sm text-muted-foreground max-w-xs">
-        Selecciona la opción que mejor refleje tu objetivo.
+        Elegí la opción que mejor represente lo que buscás.
       </p>
 
       <RadioGroup
@@ -37,31 +38,35 @@ export default function Step3({
           value="learn"
           emoji={<BookOpen className="w-6 h-6" />}
           title="Aprender desde cero"
-          description="No tengo formación previa."
+          description="Quiero empezar por los conocimientos fundamentales."
         />
+
         <RadioCard
           value="update"
           emoji={<RefreshCcw className="w-6 h-6" />}
-          title="Actualizar / reforzar conocimientos"
-          description="Ya tengo base y quiero mantenerme al día."
+          title="Actualizar mis conocimientos"
+          description="Ya tengo experiencia y quiero reforzar lo que sé."
         />
+
         <RadioCard
           value="practice"
           emoji={<Zap className="w-6 h-6" />}
           title="Prepararme para situaciones reales"
-          description="Enfoque práctico, escenarios y toma de decisiones."
+          description="Quiero aprender a aplicar lo que sé en la práctica."
         />
+
         <RadioCard
           value="certify"
           emoji={<ShieldCheck className="w-6 h-6" />}
-          title="Certificar mis conocimientos"
-          description="Me importa el respaldo y la validación."
+          title="Obtener una certificación"
+          description="Busco una formación que pueda acreditar."
         />
+
         <RadioCard
           value="explore"
           emoji={<Globe className="w-6 h-6" />}
           title="Explorar distintas especialidades"
-          description="Aún no lo tengo claro."
+          description="Quiero conocer opciones antes de decidir."
         />
       </RadioGroup>
     </div>

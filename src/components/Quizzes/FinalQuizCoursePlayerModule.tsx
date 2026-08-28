@@ -89,7 +89,7 @@ export const FinalQuizCoursePlayerModule = ({
       animate={{ opacity: 1 }}
       title={
         percentage < 100
-          ? "Completa el curso para desbloquear el examen final"
+          ? "Completá el curso para desbloquear el examen final"
           : "Examen final del curso"
       }
     >

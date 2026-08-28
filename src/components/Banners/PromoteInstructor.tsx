@@ -21,10 +21,10 @@ interface Hero7Props {
 
 const PromoteInstructor = ({
   heading = "Llevá tu perfil al siguiente nivel",
-  description = "Completa tu registro como instructor y empieza a crear cursos que inspiren a otros profesionales. Tu conocimiento merece ser compartido",
+  description = "Completá tu registro como instructor y empiezá a crear cursos que inspiren a otros profesionales. Tu conocimiento merece ser compartido",
   button = {
     text: "¡Empezar ahora!",
-    url: "https://www.shadcnblocks.com",
+    url: "/dar-cursos",
   },
   instructors = {
     count: 20,

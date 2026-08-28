@@ -114,7 +114,7 @@ export default function ProfileMenu() {
               onClick={() => navigate("/mis-cursos")}
             >
               <GraduationCap className="h-4 w-4" />
-              Mis cursos
+              Mi aprendizaje
             </button>
             <button className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-accent">
               <Settings className="h-4 w-4" />
@@ -203,7 +203,7 @@ export default function ProfileMenu() {
         </DropdownItem>
         <DropdownItem className="gap-2" onClick={() => navigate("/mis-cursos")}>
           <GraduationCap className="h-4 w-4" />
-          Mis cursos
+          Mi aprendizaje
         </DropdownItem>
 
         <DropdownSeparator />

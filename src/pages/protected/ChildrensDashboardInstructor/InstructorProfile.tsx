@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 
-import { ChartPie, FileQuestion, Loader, Settings } from "lucide-react";
+import { ChartPie, FileQuestion, Loader } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 
 import { Separator } from "@/components/ui/separator";
@@ -36,6 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { t } from "@/utils/translations";
+import TitleAdminPages from "@/components/Texts/TitleAdminPages";
 
 export default function InstructorProfile() {
   const [searchParams] = useSearchParams();
@@ -160,13 +161,10 @@ export default function InstructorProfile() {
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-6"
+        className="space-y-6 mt-6"
         id="instructor-information-form"
       >
-        <h3 className="text-2xl mt-6 flex gap-2 align-center">
-          <Settings className="text-gray-700" /> Configura tu perfil de
-          Instructor
-        </h3>
+        <TitleAdminPages title="Configura tu perfil de Instructor" />
         <div className="flex gap-8 flex-col lg:flex-row">
           <div className="xl:w-[450px]">
             {/* Headline */}

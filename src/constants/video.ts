@@ -8,6 +8,7 @@ export const ALLOWED_VIDEO_EXTENSION = ".mp4";
 export const ALLOWED_VIDEO_MIME_TYPE = "video/mp4";
 export const VIDEO_FORMAT_ERROR_MESSAGE =
   "Solo se permiten videos en formato .mp4.";
+export const BETA_EXPLAINER_MUX_PLAYBACK_ID = "";
 
 export const isMp4VideoFile = (file: File): boolean => {
   const hasMp4Extension = file.name.toLowerCase().endsWith(ALLOWED_VIDEO_EXTENSION);

@@ -16,8 +16,10 @@ import type { ModuleQuiz, QuizAnswerMap } from "@/types/quiz.types";
 
 export function ModulesAccordionCoursePlayer({
   modules,
+  basePath = "/mis-cursos",
 }: {
   modules: ICourseModuleWithProgress[];
+  basePath?: string;
 }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -183,6 +185,7 @@ export function ModulesAccordionCoursePlayer({
                             key={lesson.id}
                             lesson={lesson}
                             index={idx}
+                            basePath={basePath}
                           />
                         ))
                       ) : (

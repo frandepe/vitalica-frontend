@@ -40,6 +40,7 @@ export function Navbar() {
       ctaHref: "/contacto",
       items: [
         { title: "Sobre Vitalica", href: "/sobre-nosotros" },
+        { title: "Preguntas frecuentes", href: "/preguntas-frecuentes" },
         { title: "Instructores", href: "/instructores" },
         { title: "Contacto", href: "/contacto" },
         {
@@ -114,7 +115,7 @@ export function Navbar() {
         {/* LOGO */}
         <div className="flex lg:justify-center ml-4 md:ml-0">
           <img
-            src="/Logo/logoVitalica.png"
+            src="/Logo/logoVitalica_beta.png"
             alt="Logotipo de Vitalica con la letra V en forma de pulso de actividad, completando el nombre de la marca"
             width={120}
             height={80}

@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import GoogleLoginButton from "@/components/Buttons/GoogleLoginButton";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { getUserOnboarding, loginUser } from "@/api";
+import { loginUser } from "@/api";
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import { DataValidationEmail } from "@/types/auth.types";
 import { EmailConfirm } from "@/components/user/auth/EmailConfirm";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface LoginFormValues {
   email: string;
@@ -20,7 +20,7 @@ interface LoginFormValues {
 const LoginPage = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { setUser } = useAuth(); // guarda usuario globalmente
+  const hydrateAuth = useAuthStore((state) => state.hydrateAuth);
   const { setBackendErrorMessage, getGeneralErrors, clearErrors } =
     useBackendErrors();
   const navigate = useNavigate();
@@ -47,9 +47,9 @@ const LoginPage = () => {
 
       if (result.success) {
         localStorage.setItem("token", result.data.token);
-        setUser(result.data.user); // guardamos usuario global
-        const res = await getUserOnboarding();
-        const onboardingStatus = res?.data?.onboarding?.hasCompletedOnboarding;
+        await hydrateAuth();
+        const onboardingStatus =
+          useAuthStore.getState().user?.onboarding?.hasCompletedOnboarding;
 
         if (!onboardingStatus) navigate("/primeros-pasos");
         else navigate("/");

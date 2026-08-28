@@ -75,10 +75,10 @@ const navigationItems: NavigationItem[] = [
     href: "/admin/moderacion",
   },
   {
-    id: "soporte",
-    name: "Soporte",
+    id: "soportes",
+    name: "Soportes",
     icon: LifeBuoy,
-    href: "/admin/soporte",
+    href: "/admin/soportes",
   },
 ];
 
@@ -98,7 +98,7 @@ export default function DashboardAdmin() {
       "/admin/metricas": "metricas",
       "/admin/instructores": "instructores",
       "/admin/moderacion": "moderacion",
-      "/admin/soporte": "soporte",
+      "/admin/soportes": "soportes",
     };
 
     const id = pathToIdMap[location.pathname];
@@ -132,7 +132,7 @@ export default function DashboardAdmin() {
     navigate(href);
   };
 
-  const navbarHeight = 60.8; // px
+  const navbarHeight = 100.8; // px
   const top = useStickyTop(navbarHeight);
   const sidebarHeight = `calc(100vh - ${top}px)`;
   return (

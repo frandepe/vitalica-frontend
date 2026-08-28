@@ -20,7 +20,14 @@ import { getMyNotifications } from "@/api";
 import { useMedia } from "@/hooks/useMedia";
 import { useAuth } from "@/hooks/useAuth";
 import type { NotificationItem } from "@/types/notification.types";
-import { Bell, CheckCircle, ClipboardCheck, Info, XCircle } from "lucide-react";
+import {
+  Bell,
+  CheckCircle,
+  ClipboardCheck,
+  Info,
+  MessageCircle,
+  XCircle,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +41,8 @@ const getNotificationIcon = (kind: NotificationItem["kind"]) => {
       return <CheckCircle className="h-5 w-5 text-green-600" />;
     case "INSTRUCTOR_PRACTICE_REQUEST_ACTION_REQUIRED":
       return <ClipboardCheck className="h-5 w-5 text-amber-600" />;
+    case "SUPPORT_RESPONSE":
+      return <MessageCircle className="h-5 w-5 text-blue-600" />;
     case "COURSE_PAYMENT_FAILED":
       return <XCircle className="h-5 w-5 text-red-600" />;
     default:

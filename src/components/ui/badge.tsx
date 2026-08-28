@@ -4,13 +4,15 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/utils/cn";
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLSpanElement>,
+  extends
+    React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badgeVariants> {
   disabled?: boolean;
 }
 
 export interface BadgeButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof badgeButtonVariants> {}
 
 export type BadgeDotProps = React.HTMLAttributes<HTMLSpanElement>;
@@ -26,7 +28,7 @@ const badgeVariants = cva(
           "bg-[var(--color-success-accent,var(--color-green-500))] text-[var(--color-success-foreground,var(--color-white))]",
         warning:
           "bg-[var(--color-warning-accent,var(--color-yellow-500))] text-[var(--color-warning-foreground,var(--color-white))]",
-        info: "bg-[var(--color-info-accent,var(--color-yellow-200))] text-[var(--color-info-foreground,var(--color-black))]",
+        info: "bg-[var(--color-info-accent,var(--color-yellow-100))] text-[var(--color-info-foreground,var(--color-black))]",
         outline: "bg-transparent border border-border text-black",
         destructive: "bg-destructive text-destructive-foreground",
       },
@@ -55,7 +57,7 @@ const badgeVariants = cva(
       appearance: "default",
       size: "md",
     },
-  }
+  },
 );
 
 const badgeButtonVariants = cva(
@@ -69,7 +71,7 @@ const badgeButtonVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 function Badge({
@@ -85,7 +87,7 @@ function Badge({
     <span
       className={cn(
         badgeVariants({ variant, size, appearance, shape, disabled }),
-        className
+        className,
       )}
       {...props}
     />
@@ -106,11 +108,11 @@ function BadgeDot({ className, ...props }: BadgeDotProps) {
     <span
       className={cn(
         "size-1.5 rounded-full bg-[currentColor] opacity-75",
-        className
+        className,
       )}
       {...props}
     />
   );
 }
 
-export { Badge, BadgeButton, BadgeDot, badgeVariants };
+export { Badge, BadgeButton, BadgeDot };

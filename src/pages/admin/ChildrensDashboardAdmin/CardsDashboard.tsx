@@ -70,10 +70,10 @@ const features = [
     icon: <ShieldCheck />,
   },
   {
-    title: "Soporte",
-    href: "/admin/soporte",
+    title: "Soportes",
+    href: "/admin/soportes",
     description:
-      "Gestiona consultas y problemas de usuarios e instructores para mantener la plataforma funcionando correctamente.",
+      "Gestiona consultas y problemas enviados por instructores para mantener la plataforma funcionando correctamente.",
     icon: <LifeBuoy />,
   },
 ];

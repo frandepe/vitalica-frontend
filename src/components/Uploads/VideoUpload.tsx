@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { Upload, X, Play, Pause } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { Button } from "../ui/button";
+import { Link } from "react-router-dom";
 
 interface VideoUploadCardProps {
   className?: string;
@@ -38,7 +38,7 @@ const truncateFilename = (filename: string, maxLength: number = 30) => {
   const nameWithoutExt = filename.replace(`.${extension}`, "");
   const truncatedName = nameWithoutExt.substring(
     0,
-    maxLength - 3 - extension!.length
+    maxLength - 3 - extension!.length,
   );
   return `${truncatedName}...${extension}`;
 };
@@ -249,9 +249,9 @@ const UploadCardBase = ({
           isUploading
             ? "bg-primary/20"
             : isDragOver
-            ? "bg-accent/40 shadow-inner"
-            : "bg-card",
-          className
+              ? "bg-accent/40 shadow-inner"
+              : "bg-card",
+          className,
         )}
       >
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -260,7 +260,7 @@ const UploadCardBase = ({
             className={cn(
               "transition-colors duration-200",
               isDragOver ? "text-primary" : "text-muted",
-              isUploading && "text-primary"
+              isUploading && "text-primary",
             )}
           />
         </div>
@@ -272,8 +272,8 @@ const UploadCardBase = ({
           isUploading
             ? "border-primary/60"
             : isDragOver
-            ? "border-accent/80"
-            : "border-border"
+              ? "border-accent/80"
+              : "border-border",
         )}
       />
     </div>
@@ -348,7 +348,7 @@ export function VideoUploadCard({
         }, 200);
       }
     },
-    [onChange]
+    [onChange],
   );
 
   const handleFileSelect = useCallback(
@@ -364,7 +364,7 @@ export function VideoUploadCard({
         }, 200);
       }
     },
-    [onChange]
+    [onChange],
   );
 
   const handleRemoveFile = useCallback(() => {
@@ -385,7 +385,7 @@ export function VideoUploadCard({
     <motion.div
       className={cn(
         "relative w-full max-w-lg mx-auto overflow-visible",
-        className
+        className,
       )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -393,7 +393,7 @@ export function VideoUploadCard({
     >
       <div
         className={cn(
-          "relative overflow-hidden rounded-xl border border-border/50 bg-card text-center"
+          "relative overflow-hidden rounded-xl border border-border/50 bg-card text-center",
         )}
       >
         <div
@@ -439,9 +439,13 @@ export function VideoUploadCard({
               {description}
             </p>
             {/* TODO: Esto debe redirigir a un blog _blank */}
-            <Button size="sm" variant="link" className="p-0">
+            <Link
+              to="/blog/como-grabarte-bien-primer-curso"
+              target="_blank"
+              className="p-0 text-sm text-primary hover:underline hover:text-primary/80 transition-colors duration-200 mt-2"
+            >
               ¿Cómo hago un buen video promocional?
-            </Button>
+            </Link>
           </div>
         </div>
       </div>

@@ -15,11 +15,13 @@ import { ICourseProgressResponse } from "@/types/courseProgress.types";
 interface CoursePlayerSidebarProps {
   course: ICourseProgressResponse;
   isMobile: boolean;
+  basePath?: string;
 }
 
 export function CoursePlayerSidebar({
   course,
   isMobile,
+  basePath = "/mis-cursos",
 }: CoursePlayerSidebarProps) {
   if (isMobile) {
     return (
@@ -33,7 +35,7 @@ export function CoursePlayerSidebar({
           </DrawerHeader>
           <ScrollArea className="flex-1">
             <div className="p-4 space-y-3">
-              <ModulesAccordionCoursePlayer modules={course.modules!} />
+              <ModulesAccordionCoursePlayer modules={course.modules!} basePath={basePath} />
             </div>
           </ScrollArea>
         </DrawerContent>
@@ -56,7 +58,7 @@ export function CoursePlayerSidebar({
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-3">
-          <ModulesAccordionCoursePlayer modules={course.modules!} />
+          <ModulesAccordionCoursePlayer modules={course.modules!} basePath={basePath} />
         </div>
       </ScrollArea>
     </div>

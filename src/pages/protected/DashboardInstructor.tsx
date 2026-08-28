@@ -12,7 +12,6 @@ import {
   ArrowLeftFromLine,
   MessageCircle,
   ClipboardCheck,
-  Wallet,
   LifeBuoy,
 } from "lucide-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -83,12 +82,6 @@ const navigationItems: NavigationItem[] = [
     href: INSTRUCTOR_ROUTES.MESSAGES,
   },
   {
-    id: "ingresos",
-    name: "Ingresos",
-    icon: Wallet,
-    href: INSTRUCTOR_ROUTES.INCOME,
-  },
-  {
     id: "soporte",
     name: "Soporte",
     icon: LifeBuoy,
@@ -115,7 +108,6 @@ export default function DashboardInstructor() {
       [INSTRUCTOR_ROUTES.REVIEWS]: "resenas",
       [INSTRUCTOR_ROUTES.PRACTICES]: "practicas",
       [INSTRUCTOR_ROUTES.MESSAGES]: "mensajes",
-      [INSTRUCTOR_ROUTES.INCOME]: "ingresos",
       [INSTRUCTOR_ROUTES.SUPPORT]: "soporte",
     };
 
@@ -185,7 +177,7 @@ export default function DashboardInstructor() {
     [dashboardCounts],
   );
 
-  const navbarHeight = 60.8; // px
+  const navbarHeight = 100.8; // px
   const top = useStickyTop(navbarHeight);
   const sidebarHeight = `calc(100vh - ${top}px)`;
 
@@ -403,7 +395,9 @@ export default function DashboardInstructor() {
                 <ArrowLeftFromLine className="h-4.5 w-4.5 flex-shrink-0" />
               </div>
 
-              {!isCollapsed && <span className="text-sm">Panel de usuario</span>}
+              {!isCollapsed && (
+                <span className="text-sm">Panel de usuario</span>
+              )}
 
               {isCollapsed && (
                 <div className="invisible absolute left-full z-50 ml-2 whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">

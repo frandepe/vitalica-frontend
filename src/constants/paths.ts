@@ -1,6 +1,7 @@
 export const API_ROUTES = {
   AUTH: "/api/auth",
   CONTACT: "/api/contact",
+  BETA_FEEDBACK: "/api/beta-feedback",
   USERS: "/api/users",
   HEALTH: "/api/health",
   INSTRUCTOR: "/api/instructor",

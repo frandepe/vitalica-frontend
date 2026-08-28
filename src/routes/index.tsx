@@ -22,6 +22,8 @@ const PrivacyPolicyPage = lazy(
 );
 const Search = lazy(() => import("@/pages/public/Courses/Search"));
 const ContactPage = lazy(() => import("@/pages/public/ContactPage"));
+const BetaPage = lazy(() => import("@/pages/public/BetaPage"));
+const BetaFeedbackPage = lazy(() => import("@/pages/public/BetaFeedbackPage"));
 const TermsAndConditionsPage = lazy(
   () => import("@/pages/public/TermsAndConditionsPage"),
 );
@@ -34,6 +36,9 @@ const TeachesOnVitalica = lazy(
 );
 const PublicInstructorsPage = lazy(
   () => import("@/pages/public/PublicInstructorsPage"),
+);
+const FrequentlyAskedQuestionsPage = lazy(
+  () => import("@/pages/public/FrequentlyAskedQuestionsPage"),
 );
 const BlogLandingPage = lazy(() => import("@/pages/public/Blogs/Blogs"));
 const BlogDetailPage = lazy(() => import("@/pages/public/Blogs/BlogDetail"));
@@ -58,6 +63,9 @@ const VerifyEmailPage = lazy(() => import("@/pages/auth/VerifyEmailPage"));
 const ProfilePage = lazy(() => import("@/pages/protected/ProfilePage"));
 const CoursePlayer = lazy(
   () => import("@/pages/protected/Courses/CoursePlayer"),
+);
+const CoursePreviewPlayer = lazy(
+  () => import("@/pages/protected/Courses/CoursePreviewPlayer"),
 );
 const ApplicationStatus = lazy(
   () => import("@/pages/protected/ApplicationStatus"),
@@ -88,8 +96,14 @@ const PracticeRequests = lazy(
   () =>
     import("@/pages/protected/ChildrensDashboardInstructor/PracticeRequests"),
 );
+const Messages = lazy(
+  () => import("@/pages/protected/ChildrensDashboardInstructor/Messages"),
+);
 const Reviews = lazy(
   () => import("@/pages/protected/ChildrensDashboardInstructor/Reviews"),
+);
+const Support = lazy(
+  () => import("@/pages/protected/ChildrensDashboardInstructor/Support"),
 );
 const EditCourse = lazy(
   () => import("@/pages/protected/ChildrensDashboardInstructor/EditCourse"),
@@ -105,6 +119,9 @@ const AdminCourses = lazy(
 );
 const AdminPayments = lazy(
   () => import("@/pages/admin/ChildrensDashboardAdmin/AdminPayments"),
+);
+const AdminSupports = lazy(
+  () => import("@/pages/admin/ChildrensDashboardAdmin/AdminSupports"),
 );
 const CardsDashboardAdmin = lazy(
   () => import("@/pages/admin/ChildrensDashboardAdmin/CardsDashboard"),
@@ -168,6 +185,18 @@ export const router = createBrowserRouter([
       {
         path: "contacto",
         element: <ContactPage />,
+      },
+      {
+        path: "preguntas-frecuentes",
+        element: <FrequentlyAskedQuestionsPage />,
+      },
+      {
+        path: "beta",
+        element: <BetaPage />,
+      },
+      {
+        path: "beta/feedback",
+        element: <BetaFeedbackPage />,
       },
       {
         path: "politicas-de-privacidad",
@@ -246,8 +275,10 @@ export const router = createBrowserRouter([
           { path: "analiticas", element: <Analytics /> },
           { path: "cursos", element: <Courses /> },
           { path: "practicas", element: <PracticeRequests /> },
+          { path: "mensajes", element: <Messages /> },
           { path: "editar-curso/:courseId", element: <EditCourse /> },
           { path: "resenas", element: <Reviews /> },
+          { path: "soporte", element: <Support /> },
         ],
       },
     ],
@@ -293,6 +324,7 @@ export const router = createBrowserRouter([
           { path: "instructores", element: <AdminInstructorsSpecialties /> },
           { path: "cursos", element: <AdminCourses /> },
           { path: "pagos", element: <AdminPayments /> },
+          { path: "soportes", element: <AdminSupports /> },
           { path: "aplicaciones", element: <InstructorsApplications /> },
           { path: "aplicacion/:id", element: <InstructorApplication /> },
           { path: "curso/:id", element: <AdminCourse /> },
@@ -312,6 +344,20 @@ export const router = createBrowserRouter([
       {
         path: ":lessonId?",
         element: <CoursePlayer />,
+      },
+    ],
+  },
+  {
+    path: "vista-previa/:slug",
+    element: (
+      <ProtectedRoute>
+        <CourseLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        path: ":lessonId?",
+        element: <CoursePreviewPlayer />,
       },
     ],
   },

@@ -1,7 +1,8 @@
 import { ApiResponse } from "@/types/endpoints.types";
 import { apiRequest } from "./configEndpoint";
 import {
-  IApplyInstructor,
+  IApplyInstructorPayload,
+  InstructorCredentialPayload,
   InstructorDashboardCounts,
   InstructorProfile,
   InstructorSpecialtyRequest,
@@ -17,10 +18,15 @@ import {
   InstructorReviewsMeta,
   InstructorReviewsSummary,
 } from "@/types/instructor-reviews.types";
+import {
+  InstructorSupportPayload,
+  InstructorSupportResponse,
+  InstructorSupportTicket,
+} from "@/types/instructor-support.types";
 import { API_ROUTES } from "@/constants";
 
 export const upsertInstructorApplication = async (
-  data: IApplyInstructor,
+  data: IApplyInstructorPayload,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.INSTRUCTOR}/upsert-application`,
@@ -62,14 +68,14 @@ export const getInstructorProfile = async () => {
 
 export const createInstructorSpecialtyRequest = async (
   requestedSpecialties: string[],
-  certificateImages: string[],
+  credential: InstructorCredentialPayload,
 ): Promise<ApiResponse<InstructorSpecialtyRequest>> => {
   return apiRequest({
     url: `${API_ROUTES.INSTRUCTOR}/specialty-requests`,
     method: "POST",
     data: {
       requestedSpecialties,
-      certificateImages,
+      credential,
     },
   });
 };
@@ -160,3 +166,22 @@ export const getPublicInstructors = async (params: GetPublicInstructorsParams) =
   }) as Promise<
     ApiResponse<PublicInstructorListItem[]> & { meta?: PublicInstructorListMeta }
   >;
+
+export const sendInstructorSupportRequest = async (
+  data: InstructorSupportPayload,
+): Promise<InstructorSupportResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.INSTRUCTOR}/support`,
+    method: "POST",
+    data,
+  });
+};
+
+export const getInstructorSupportRequests = async (): Promise<
+  ApiResponse<InstructorSupportTicket[]>
+> => {
+  return apiRequest({
+    url: `${API_ROUTES.INSTRUCTOR}/support`,
+    method: "GET",
+  });
+};

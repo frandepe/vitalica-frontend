@@ -463,7 +463,7 @@ const Checkout = () => {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <div className="mx-auto container px-6 py-12">
       <div className="grid gap-6 lg:grid-cols-[1.45fr_0.85fr]">
         <div className="space-y-6">
           <Card className="overflow-hidden rounded-[32px] border-stone-200 bg-white shadow-sm">
@@ -482,8 +482,8 @@ const Checkout = () => {
                       Finalizá tu compra
                     </h1>
                     <p className="max-w-2xl text-sm leading-6 text-white/72">
-                      Acá vas a ver qué está pasando con tu compra y qué podés
-                      hacer ahora.
+                      Revisá los detalles de tu compra y completá el pago para
+                      acceder al curso.
                     </p>
                   </div>
                 </div>

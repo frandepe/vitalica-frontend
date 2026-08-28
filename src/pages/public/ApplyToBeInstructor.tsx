@@ -4,51 +4,58 @@ import {
   upsertInstructorApplication,
 } from "@/api";
 import BannerTop from "@/components/Banners/BannerTop";
-import { DotsCard } from "@/components/CardsAnimated/DotsCard";
+import {
+  credentialRequiresImage,
+  emptyToNull,
+  mapCertificationToCredentialForm,
+  mapCredentialToForm,
+} from "@/components/instructor/Credentials/credential-utils";
+import type { ImageState } from "@/components/instructor/Credentials/types";
 import { Button } from "@/components/ui/button";
-import DateTimePicker from "@/components/ui/date-picker";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/toast";
-import ImagesUpload from "@/components/Uploads/ImagesUpload";
-import SpecialtyChecks from "@/components/instructor/Forms/Profile/SpecialtyChecks";
-
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import type {
   IApplyInstructor,
   InstructorApplication,
 } from "@/types/instructor.types";
 import { filesToBase64Array, fileToBase64 } from "@/utils/file-utils";
-import { t } from "@/utils/translations";
-import { Star } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import CredentialsSection from "./ApplyToBeInstructor/CredentialsSection";
+import IdentificationSection from "./ApplyToBeInstructor/IdentificationSection";
+import SpecialtiesSection from "./ApplyToBeInstructor/SpecialtiesSection";
+
+const INSTRUCTOR_CREDENTIALS_ROUTE = "/instructor/especialidades";
 
 const ApplyToBeInstructor = () => {
   const { showToast } = useToast();
   const { setBackendErrors, getGeneralErrors, clearErrors } =
     useBackendErrors();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingApplication, setIsLoadingApplication] = useState(true);
   const [applicationData, setApplicationData] =
     useState<InstructorApplication | null>(null);
   const navigate = useNavigate();
-  const [dniImages, setDniImages] = useState<{
-    existing: string[];
-    new: File[];
-  }>({
+  const [dniImages, setDniImages] = useState<ImageState>({
     existing: [],
     new: [],
   });
-  const [certificateImages, setCertificateImages] = useState<{
-    existing: string[];
-    new: File[];
-  }>({
-    existing: [],
-    new: [],
-  });
+  const [credentialImages, setCredentialImages] = useState<ImageState[]>([]);
 
-  const getApplication = async () => {
+  const form = useForm<IApplyInstructor>({
+    defaultValues: {
+      dniNumber: "",
+      dniCountry: "AR",
+      credentials: [],
+      requestedSpecialties: [],
+      urlDni: null,
+    },
+  });
+  const { handleSubmit, reset } = form;
+
+  const getApplication = useCallback(async () => {
     try {
       const response = await getInstructorApplication();
       if (response.success && response.data) {
@@ -56,101 +63,143 @@ const ApplyToBeInstructor = () => {
       }
     } catch (error) {
       console.error("Error fetching instructor application:", error);
+    } finally {
+      setIsLoadingApplication(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     getApplication();
-  }, []);
+  }, [getApplication]);
 
-  const defaultValues: IApplyInstructor = {
-    dniNumber: "",
-    dniCountry: "",
-    certificateType: "",
-    enrollmentNumber: "",
-    requestedSpecialties: [],
-    issuedBy: "",
-    issueDate: "",
-    expiryDate: "",
-    urlDni: null,
-    urlCertificate: [],
-  };
-
-  const form = useForm<IApplyInstructor>({ defaultValues });
-  const { register, control, handleSubmit, watch, reset, formState } = form;
-  const { errors } = formState;
-
-  // Prellenar formulario si ya hay datos
   useEffect(() => {
-    if (applicationData) {
-      reset({
-        dniNumber: applicationData.dniNumber || "",
-        dniCountry: applicationData.dniCountry || "",
-        certificateType: applicationData.certificateType || "",
-        enrollmentNumber: applicationData.enrollmentNumber || "",
-        requestedSpecialties: applicationData.requestedSpecialties || [],
-        issuedBy: applicationData.issuedBy || "",
-        issueDate: applicationData.issueDate
-          ? new Date(applicationData.issueDate).toISOString()
-          : "",
-        expiryDate: applicationData.expiryDate
-          ? new Date(applicationData.expiryDate).toISOString()
-          : "",
-        urlDni: null,
-        urlCertificate: [],
-      });
+    if (!applicationData) return;
 
-      setDniImages({
-        existing: applicationData.documents?.[0]?.urlDni
-          ? [applicationData.documents[0].urlDni]
+    const credentials =
+      applicationData.credentials?.length > 0
+        ? applicationData.credentials.map(mapCredentialToForm)
+        : applicationData.certifications?.length > 0
+          ? applicationData.certifications.map(mapCertificationToCredentialForm)
+          : [];
+
+    reset({
+      dniNumber: applicationData.dniNumber || "",
+      dniCountry: applicationData.dniCountry || "AR",
+      credentials,
+      requestedSpecialties: applicationData.requestedSpecialties || [],
+      urlDni: null,
+    });
+
+    setDniImages({
+      existing: applicationData.documents?.[0]?.urlDni
+        ? [applicationData.documents[0].urlDni]
+        : [],
+      new: [],
+    });
+
+    setCredentialImages(
+      applicationData.credentials?.length > 0
+        ? applicationData.credentials.map((credential) => ({
+            existing: credential.imageUrls || [],
+            new: [],
+          }))
+        : applicationData.certifications?.length > 0
+          ? applicationData.certifications.map((certification) => ({
+              existing: certification.imageUrls || [],
+              new: [],
+            }))
           : [],
-        new: [],
-      });
-
-      setCertificateImages({
-        existing: applicationData.documents?.[0]?.urlCertificate || [],
-        new: [],
-      });
-    }
+    );
   }, [applicationData, reset]);
 
   const onSubmit = async (data: IApplyInstructor) => {
     try {
       setIsLoading(true);
 
+      if (data.credentials.length === 0) {
+        throw new Error("Debes agregar al menos una credencial");
+      }
+
       let finalDniUrl = "";
       if (dniImages.existing.length > 0) {
-        // Si hay una imagen existente y no hay nuevas, mantener la existente
         finalDniUrl = dniImages.existing[0];
       } else if (dniImages.new.length > 0) {
-        // Si hay una imagen nueva, convertirla a base64
         finalDniUrl = await fileToBase64(dniImages.new[0]);
       }
 
-      // Para certificados, combinar existentes y nuevos
-      const existingCertificates = certificateImages.existing;
-      const newCertificatesBase64 = await filesToBase64Array(
-        certificateImages.new,
-      );
-      const finalCertificates = [
-        ...existingCertificates,
-        ...newCertificatesBase64,
-      ];
+      if (!finalDniUrl) {
+        throw new Error("Debe subir una foto del DNI");
+      }
 
-      const instructorData: IApplyInstructor = {
+      const credentials = await Promise.all(
+        data.credentials.map(async (credential, index) => {
+          const images = credentialImages[index] || { existing: [], new: [] };
+          const newImagesBase64 = await filesToBase64Array(images.new);
+          const finalImages = [...images.existing, ...newImagesBase64];
+
+          if (
+            credentialRequiresImage(credential.type) &&
+            finalImages.length === 0
+          ) {
+            throw new Error(
+              `La credencial ${index + 1} debe tener una imagen respaldatoria`,
+            );
+          }
+
+          if (
+            credential.expiresAt &&
+            credential.issuedAt &&
+            new Date(credential.expiresAt) < new Date(credential.issuedAt)
+          ) {
+            throw new Error(
+              `La fecha de vencimiento de la credencial ${
+                index + 1
+              } no puede ser anterior a la fecha de emision`,
+            );
+          }
+
+          if (
+            credential.endDate &&
+            credential.startDate &&
+            new Date(credential.endDate) < new Date(credential.startDate)
+          ) {
+            throw new Error(
+              `La fecha de fin de la credencial ${
+                index + 1
+              } no puede ser anterior a la fecha de inicio`,
+            );
+          }
+
+          return {
+            id: credential.id,
+            type: credential.type,
+            title: emptyToNull(credential.title),
+            organization: emptyToNull(credential.organization),
+            credentialNumber: emptyToNull(credential.credentialNumber),
+            jurisdiction: emptyToNull(credential.jurisdiction),
+            issuedAt: credential.issuedAt || null,
+            expiresAt: credential.noExpiration
+              ? null
+              : credential.expiresAt || null,
+            roleOrArea: emptyToNull(credential.roleOrArea),
+            startDate: credential.startDate || null,
+            endDate: credential.currentlyActive
+              ? null
+              : credential.endDate || null,
+            currentlyActive: credential.currentlyActive,
+            description: emptyToNull(credential.description),
+            images: finalImages,
+          };
+        }),
+      );
+
+      const upsertResponse = await upsertInstructorApplication({
         dniNumber: data.dniNumber,
         dniCountry: "AR",
-        certificateType: data.certificateType,
-        enrollmentNumber: data.enrollmentNumber,
+        credentials,
         requestedSpecialties: data.requestedSpecialties || [],
-        issuedBy: data.issuedBy,
-        issueDate: data.issueDate,
-        expiryDate: data.expiryDate,
         urlDni: finalDniUrl,
-        urlCertificate: finalCertificates,
-      };
-
-      const upsertResponse = await upsertInstructorApplication(instructorData);
+      });
 
       if (upsertResponse.errors && upsertResponse.errors.length > 0) {
         setBackendErrors(upsertResponse.errors);
@@ -195,260 +244,118 @@ const ApplyToBeInstructor = () => {
       navigate("/estado-aplicacion");
       void getApplication();
     } catch (error) {
-      console.error("[v0] Error submitting form:", error);
-      alert("Error al enviar la solicitud");
+      showToast(
+        error instanceof Error ? error.message : "Error al enviar la solicitud",
+        "error",
+        "top-right",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const dniNumber = watch("dniNumber");
-  const certificateType = watch("certificateType");
-  const issuedBy = watch("issuedBy");
-  const issueDate = watch("issueDate");
-  const expiryDate = watch("expiryDate");
+  const isApprovedApplication = applicationData?.status === "APPROVED";
+
+  if (isLoadingApplication) {
+    return (
+      <div className="py-8">
+        <div className="container mx-auto">
+          <BannerTop />
+          <div className="mt-8 rounded-lg border border-border bg-background p-6">
+            <p className="text-sm text-muted-foreground">
+              Cargando solicitud...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isApprovedApplication) {
+    return (
+      <div className="py-8">
+        <div className="container mx-auto">
+          <BannerTop />
+
+          <section className="mt-8 rounded-lg border border-border bg-background p-6">
+            <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+              <div className="flex gap-4">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-green-100 text-green-700">
+                  <CheckCircle2 className="h-6 w-6" />
+                </span>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-green-700">
+                    Solicitud aprobada
+                  </p>
+                  <h1 className="text-2xl font-semibold text-foreground">
+                    Tu solicitud para ser instructor ya fue aprobada
+                  </h1>
+                  <p className="max-w-2xl text-sm text-muted-foreground">
+                    Ya tenes acceso como instructor. Esta solicitud inicial esta
+                    cerrada y no puede modificarse ni reenviarse desde este
+                    formulario.
+                  </p>
+                  <p className="max-w-2xl text-sm text-muted-foreground">
+                    Para agregar nuevas credenciales o ampliar tus
+                    especialidades, usa el apartado de credenciales dentro de tu
+                    panel de instructor.
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                className="w-full md:w-auto"
+                onClick={() => navigate(INSTRUCTOR_CREDENTIALS_ROUTE)}
+              >
+                Gestionar credenciales
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </section>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-8">
       <div className="container mx-auto">
         <BannerTop />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 mt-8">
-          {/* ======= DNI ======= */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">
-              Información de Identificación{" "}
-              {applicationData && (
-                <span className="text-sm font-bold text-primary">
-                  Estado: {t("application", applicationData.status)}
-                </span>
-              )}
-              {applicationData && (
-                <p className="text-sm mt-2 text-foreground/70 bg-primary/50 p-2 rounded">
-                  Haz{" "}
-                  <span
-                    className="underline cursor-pointer text-secondary hover:text-secondary/80"
-                    onClick={() => navigate("/estado-aplicacion")}
-                  >
-                    click aquí
-                  </span>{" "}
-                  para obtener más información sobre el seguimiento de tu
-                  solicitud
-                </p>
-              )}
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="dni-number">
-                  Número de DNI <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="dni-number"
-                  placeholder="Ej: 25000222"
-                  {...register("dniNumber", {
-                    required: "Este campo es obligatorio",
-                    pattern: {
-                      value: /^\d{7,8}$/,
-                      message:
-                        "Debe ser un número de DNI válido (7 u 8 dígitos)",
-                    },
-                  })}
-                />
-                {errors.dniNumber && (
-                  <p className="text-destructive text-sm">
-                    {errors.dniNumber.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>
-                Imagen del DNI <span className="text-destructive">*</span>
-              </Label>
-              <ImagesUpload
-                value={dniImages.existing}
-                onChange={(data) => setDniImages(data)}
-                multiple={false}
-                maxFiles={1}
-              />
-            </div>
-          </div>
-
-          {/* ======= CERTIFICADOS ======= */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Certificaciones</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Inputs */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="certificate-type">
-                    Tipo de Certificado *
-                  </Label>
-                  <Input
-                    id="certificate-type"
-                    {...register("certificateType", {
-                      required: "Este campo es obligatorio",
-                    })}
-                    placeholder="Soporte Vital Básico, Instructor Avanzado, etc"
-                  />
-                  {errors.certificateType && (
-                    <p className="text-destructive text-sm">
-                      {errors.certificateType.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="issued-by">Emitido por *</Label>
-                  <Input
-                    id="issued-by"
-                    {...register("issuedBy", {
-                      required: "Este campo es obligatorio",
-                    })}
-                    placeholder="ACES, AIDER, Cruz Roja, FAC, etc"
-                  />
-                  {errors.issuedBy && (
-                    <p className="text-destructive text-sm">
-                      {errors.issuedBy.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="enrollment-number">
-                    ID de instructor / Número de credencial
-                  </Label>
-                  <Input
-                    id="enrollment-number"
-                    {...register("enrollmentNumber")}
-                    placeholder="ABC-123"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="issue-date">Fecha de emisión *</Label>
-                  <Controller
-                    name="issueDate"
-                    control={control}
-                    render={({ field }) => (
-                      <DateTimePicker
-                        showTime={false}
-                        value={field.value ? new Date(field.value) : null}
-                        onChange={(val) => field.onChange(val?.toISOString())}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="expiry-date">Fecha de vencimiento *</Label>
-                  <Controller
-                    name="expiryDate"
-                    control={control}
-                    render={({ field }) => (
-                      <DateTimePicker
-                        showTime={false}
-                        value={field.value ? new Date(field.value) : null}
-                        onChange={(val) => field.onChange(val?.toISOString())}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-
-              {/* DotsCard */}
-              <DotsCard
-                title={certificateType || "Tipo de Certificado"}
-                description={`Emitido por ${issuedBy || "-"}`}
-                metricValue={
-                  dniNumber
-                    ? new Intl.NumberFormat("es-AR").format(Number(dniNumber))
-                    : "35.123.456"
-                }
-                metricLabel={`Emitido el ${
-                  issueDate
-                    ? new Date(issueDate).toLocaleDateString("es-AR")
-                    : "-/-/-"
-                } Vence el ${
-                  expiryDate
-                    ? new Date(expiryDate).toLocaleDateString("es-AR")
-                    : "-/-/-"
-                }`}
-                buttonText="Borrar campos"
-                onButtonClick={() =>
-                  reset({
-                    certificateType: "",
-                    enrollmentNumber: "",
-                    issuedBy: "",
-                    issueDate: "",
-                    expiryDate: "",
-                    dniNumber: "",
-                    requestedSpecialties: watch("requestedSpecialties") || [],
-                  })
-                }
-                icon={<Star className="h-6 w-6" fill="currentColor" />}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Imágenes del Certificado *</Label>
-              <ImagesUpload
-                value={certificateImages.existing}
-                onChange={(data) => setCertificateImages(data)}
-                multiple={true}
-                maxFiles={10}
-              />
-            </div>
-          </div>
-          {/* ======= ESPECIALIDADES SOLICITADAS ======= */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">
-              Especialidades solicitadas{" "}
-              <span className="text-info-foreground text-sm">
-                Importante: seleccioná solo las especialidades que coincidan
-                con tus certificaciones. Estas determinarán sobre qué temas
-                podrás crear cursos y para qué prácticas presenciales podrán
-                contactarte.
-              </span>
-            </h2>
-
-            <SpecialtyChecks
-              control={control}
-              name="requestedSpecialties"
-              rules={{
-                validate: (value) =>
-                  Array.isArray(value) && value.length > 0
-                    ? true
-                    : "Debes elegir al menos una especialidad",
-              }}
+        <FormProvider {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 mt-8">
+            <IdentificationSection
+              applicationData={applicationData}
+              dniImages={dniImages}
+              onDniImagesChange={setDniImages}
+              onStatusClick={() => navigate("/estado-aplicacion")}
             />
 
-            {errors.requestedSpecialties && (
-              <p className="text-destructive text-sm">
-                {errors.requestedSpecialties.message as string}
-              </p>
-            )}
-          </div>
+            <CredentialsSection
+              credentialImages={credentialImages}
+              setCredentialImages={setCredentialImages}
+            />
 
-          {getGeneralErrors().map((msg, i) => (
-            <p key={i} className="text-red-600 text-sm mb-2">
-              {msg}
-            </p>
-          ))}
-          {/* ======= SUBMIT ======= */}
-          <div className="flex gap-3 pt-4">
-            <Button type="submit" className="flex-1" disabled={isLoading}>
-              {isLoading
-                ? "Guardando..."
-                : applicationData
-                  ? "Actualizar Solicitud"
-                  : "Enviar Solicitud"}
-            </Button>
-          </div>
-        </form>
+            <SpecialtiesSection />
+
+            {getGeneralErrors().map((msg, i) => (
+              <p key={i} className="text-red-600 text-sm mb-2">
+                {msg}
+              </p>
+            ))}
+
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" className="flex-1" disabled={isLoading}>
+                {isLoading
+                  ? "Guardando..."
+                  : applicationData
+                    ? "Actualizar Solicitud"
+                    : "Enviar Solicitud"}
+              </Button>
+            </div>
+          </form>
+        </FormProvider>
       </div>
     </div>
   );

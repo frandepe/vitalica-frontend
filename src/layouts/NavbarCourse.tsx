@@ -15,7 +15,7 @@ export function NavbarCourse() {
       <div className="container mx-auto h-16 flex justify-between items-center">
         {/* LOGO */}
         <img
-          src="/Logo/logoVitalica.png"
+          src="/Logo/logoVitalica_beta.png"
           alt="Logotipo de Vitalica"
           width={120}
           height={80}

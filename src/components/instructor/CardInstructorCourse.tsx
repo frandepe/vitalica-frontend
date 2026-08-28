@@ -21,6 +21,7 @@ import { INSTRUCTOR_ROUTES } from "@/constants";
 
 export const CardInstructorCourse: React.FC<ICourse> = ({
   id,
+  slug,
   title,
   thumbnailUrl,
   specialty,
@@ -133,8 +134,8 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
 
                   <DropdownContent align="end" className="bg-background">
                     {isPublished && (
-                      <DropdownItem onClick={() => navigate(`/curso/${id}`)}>
-                        Ver curso
+                      <DropdownItem onClick={() => navigate(`/vista-previa/${slug}`)}>
+                        Vista previa como alumno
                       </DropdownItem>
                     )}
 
@@ -231,9 +232,9 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
             {isPublished && (
               <Button
                 variant="outline"
-                onClick={() => navigate(`/curso/${id}`)}
+                onClick={() => navigate(`/vista-previa/${slug}`)}
               >
-                Ver curso
+                Vista previa como alumno
               </Button>
             )}
           </div>

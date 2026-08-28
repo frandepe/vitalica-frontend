@@ -1,23 +1,28 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
+import TitleAdminPages from "../Texts/TitleAdminPages";
 
 export const AnalyticsData = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const [progress] = useState(75);
+  const [progress] = useState(0);
+
+  const tabs = [
+    { id: "overview", label: "Resumen" },
+    { id: "analytics", label: "Actividad" },
+    { id: "reports", label: "Reportes" },
+  ];
 
   const circumference = 2 * Math.PI * 20;
   const strokeDashoffset = circumference - (circumference * progress) / 100;
-  //   avgTheoreticalRating
-  //   totalStudents
-  //   totalCourses
-  // approvedAt
 
   return (
     <div className="mt-8 md:w-[600px]">
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-semibold mb-1">Analíticas</h2>
-          <p className="text-sm">Performance metrics at a glance</p>
+          <TitleAdminPages title="Analíticas" />
+          <p className="text-sm text-muted-foreground">
+            Una vista general del rendimiento de tus cursos.
+          </p>
         </div>
         <div className="flex items-center gap-4">
           {/* Progress Ring */}
@@ -73,17 +78,17 @@ export const AnalyticsData = () => {
       {/* Tabs */}
       <div className="mb-6">
         <div className="flex space-x-1 relative border-b border-gray-200">
-          {["overview", "analytics", "reports"].map((tab) => (
+          {tabs.map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 text-sm font-medium capitalize transition-colors relative z-10 ${
-                activeTab === tab
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 text-sm font-medium transition-colors relative z-10 ${
+                activeTab === tab.id
                   ? "text-blue-600"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
           <div
@@ -107,12 +112,12 @@ export const AnalyticsData = () => {
           <>
             <div className="rounded-lg p-4 border bg-gray-50 border-gray-100">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">Monthly Revenue</span>
+                <span className="text-sm text-gray-600">Ingresos del mes</span>
                 <span className="text-xs px-2 py-1 rounded-full text-primary bg-green-50">
-                  +12.5%
+                  Beta
                 </span>
               </div>
-              <p className="text-2xl font-semibold text-gray-900">$24,780</p>
+              <p className="text-2xl font-semibold text-gray-900">$0</p>
               <div className="mt-3 h-1.5 rounded-full overflow-hidden bg-gray-200">
                 <div className="h-full bg-gradient-to-r from-secondary to-primary-light rounded-full transition-all duration-500" />
               </div>
@@ -120,9 +125,9 @@ export const AnalyticsData = () => {
 
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: "Users", value: "1,428" },
-                { label: "Sessions", value: "3,942" },
-                { label: "Conversion", value: "4.2%" },
+                { label: "Alumnos", value: "0" },
+                { label: "Cursos", value: "0" },
+                { label: "Valoración", value: "0,0" },
               ].map((metric) => (
                 <div
                   key={metric.label}
@@ -141,17 +146,17 @@ export const AnalyticsData = () => {
         {activeTab === "analytics" && (
           <div className="space-y-3">
             {[
-              { color: "bg-secondary", label: "Page Views", value: "45,293" },
+              { color: "bg-secondary", label: "Clases vistas", value: "0" },
               {
                 color: "bg-primary",
-                label: "Unique Visitors",
-                value: "12,847",
+                label: "Alumnos activos",
+                value: "0",
               },
-              { color: "bg-green-500", label: "Bounce Rate", value: "32.4%" },
+              { color: "bg-green-500", label: "Cursos iniciados", value: "0" },
               {
                 color: "bg-amber-500",
-                label: "Avg. Session",
-                value: "3m 42s",
+                label: "Tiempo promedio",
+                value: "0 min",
               },
             ].map((item, index) => (
               <div
@@ -176,22 +181,23 @@ export const AnalyticsData = () => {
           <div className="space-y-3">
             <div className="rounded-lg p-4 border bg-gradient-to-r from-blue-50 to-purple-50 border-gray-100">
               <h3 className="text-sm font-medium mb-2 text-gray-900">
-                Weekly Summary
+                Resumen semanal
               </h3>
               <p className="text-xs leading-relaxed text-gray-600">
-                Performance increased by 23% compared to last week. User
-                engagement metrics show positive trends across all channels.
+                Todavía no hay actividad registrada. Cuando tus cursos tengan
+                alumnos, acá vas a ver un resumen claro de avances, ingresos y
+                participación.
               </p>
             </div>
             <div className="rounded-lg p-4 border bg-gray-50 border-gray-100">
               <h3 className="text-sm font-medium mb-2 text-gray-900">
-                Key Insights
+                Datos destacados
               </h3>
               <ul className="space-y-2">
                 {[
-                  "Mobile traffic up 18%",
-                  "Peak hours: 2-4 PM EST",
-                  "Top source: Organic search",
+                  "Sin alumnos inscriptos por ahora",
+                  "Sin clases reproducidas todavía",
+                  "Sin ingresos registrados durante la Beta",
                 ].map((insight) => (
                   <li key={insight} className="flex items-start space-x-2">
                     <span className="text-xs mt-0.5 text-gray-400">•</span>
@@ -206,8 +212,8 @@ export const AnalyticsData = () => {
 
       {/* Buttons */}
       <div className="mt-8 flex gap-3">
-        <Button>View Details</Button>
-        <Button variant="outline">Export</Button>
+        <Button>Ver detalle</Button>
+        <Button variant="outline">Exportar</Button>
       </div>
     </div>
   );

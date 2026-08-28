@@ -104,6 +104,15 @@ export const SpecialtyLabels = {
   TRANSPORTATION_EVACUATION: "Transporte y evacuación",
 } as const;
 
+export const InstructorCredentialTypeLabels = {
+  PROFESSIONAL_DEGREE: "Titulo profesional",
+  PROFESSIONAL_LICENSE: "Matricula profesional",
+  INSTRUCTOR_CERTIFICATION: "Certificacion como instructor",
+  COMPLEMENTARY_TRAINING: "Formacion complementaria",
+  PROFESSIONAL_EXPERIENCE: "Experiencia profesional",
+  TEACHING_EXPERIENCE: "Experiencia docente",
+} as const;
+
 export const specialties = Object.keys(SpecialtyLabels)
   .filter((key) => isNaN(Number(key)))
   .map((key, index) => ({

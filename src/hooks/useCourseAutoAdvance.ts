@@ -14,6 +14,7 @@ interface AutoAdvanceTargetLesson {
 interface UseCourseAutoAdvanceParams {
   slug?: string;
   activeLessonId?: string;
+  basePath?: string;
 }
 
 interface UseCourseAutoAdvanceResult {
@@ -33,6 +34,7 @@ interface UseCourseAutoAdvanceResult {
 export function useCourseAutoAdvance({
   slug,
   activeLessonId,
+  basePath = "/mis-cursos",
 }: UseCourseAutoAdvanceParams): UseCourseAutoAdvanceResult {
   const [isAutoAdvanceVisible, setIsAutoAdvanceVisible] = useState(false);
   const [autoAdvanceRemainingMs, setAutoAdvanceRemainingMs] = useState(
@@ -82,9 +84,9 @@ export function useCourseAutoAdvance({
       setAutoAdvanceRemainingMs(AUTO_ADVANCE_COUNTDOWN_SECONDS * 1000);
       autoAdvanceStartedForLessonRef.current = null;
 
-      navigate(`/mis-cursos/${slug}/${targetLessonId}`);
+      navigate(`${basePath}/${slug}/${targetLessonId}`);
     },
-    [clearAutoAdvanceTimers, navigate, slug],
+    [basePath, clearAutoAdvanceTimers, navigate, slug],
   );
 
   const startAutoAdvance = useCallback(

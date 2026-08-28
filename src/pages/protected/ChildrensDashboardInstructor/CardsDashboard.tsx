@@ -12,7 +12,6 @@ import {
   MessageCircle,
   Star,
   UserRoundPen,
-  Wallet,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -72,13 +71,6 @@ const features = [
     description:
       "Mantente en contacto con tus estudiantes: responde consultas y envia notificaciones importantes.",
     icon: <MessageCircle />,
-  },
-  {
-    title: "Ingresos",
-    href: INSTRUCTOR_ROUTES.INCOME,
-    description:
-      "Visualiza tus ganancias, historial de pagos y administra tus finanzas como instructor.",
-    icon: <Wallet />,
   },
   {
     title: "Soporte",

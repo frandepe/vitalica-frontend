@@ -119,7 +119,7 @@ export const FeedbackApplicationForm = ({
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-6 bg-white shadow-md rounded-2xl p-6 max-w-lg"
+        className="space-y-6 bg-white shadow-md rounded-2xl p-6"
       >
         <h2 className="text-lg font-semibold">Enviar feedback al instructor</h2>
 

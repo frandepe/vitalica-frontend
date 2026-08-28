@@ -35,7 +35,7 @@ export const BasicInformationForm = () => {
   const { timer, isResendDisabled, setIsResendDisabled, setTimer } =
     useIntervalClick();
 
-  const form = useForm({
+  const form = useForm<UpdateProfileProps>({
     mode: "onChange",
     reValidateMode: "onChange",
     defaultValues: {
@@ -46,7 +46,7 @@ export const BasicInformationForm = () => {
     },
   });
 
-  const { trigger } = form;
+  const { setValue, trigger } = form;
 
   const {
     register,
@@ -59,6 +59,27 @@ export const BasicInformationForm = () => {
   const phoneNumber = watch("phoneNumber");
   const phoneCountryCode = watch("phoneCountryCode");
 
+  const phoneNumberRegister = register("phoneNumber", {
+    pattern: {
+      value: /^\d{8,15}$/,
+      message: "El número de teléfono debe tener entre 8 y 15 dígitos",
+    },
+    validate: (value) => {
+      if (value && !phoneCountryCode)
+        return "Debes seleccionar un código de país si ingresas un número";
+      return true;
+    },
+  });
+
+  const syncPhoneNumber = (value: string) => {
+    setValue("phoneNumber", value, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    void trigger("phoneCountryCode");
+  };
+
   const onSubmit = async (data: UpdateProfileProps) => {
     try {
       await updateUser(data);
@@ -69,7 +90,7 @@ export const BasicInformationForm = () => {
       );
       setIsResendDisabled(true);
       setTimer(20);
-    } catch (error) {
+    } catch {
       showToast(
         "Error al actualizar datos. Vuelva a intentarlo más tarde",
         "error",
@@ -81,7 +102,6 @@ export const BasicInformationForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        {/* Nombre */}
         <div className="space-y-2">
           <Label>
             Nombre <span className="text-red-700">*</span>
@@ -110,7 +130,6 @@ export const BasicInformationForm = () => {
           )}
         </div>
 
-        {/* Apellido */}
         <div className="space-y-2">
           <Label>
             Apellido <span className="text-red-700">*</span>
@@ -139,7 +158,6 @@ export const BasicInformationForm = () => {
           )}
         </div>
 
-        {/* Código de país + Teléfono */}
         <div>
           <Label className="flex items-center">
             Teléfono
@@ -152,7 +170,6 @@ export const BasicInformationForm = () => {
           </Label>
 
           <div className="flex gap-2">
-            {/* Select país */}
             <div className="w-1/3">
               <FormFieldAlias
                 control={control}
@@ -170,7 +187,7 @@ export const BasicInformationForm = () => {
                       value={String(field.value)}
                       onValueChange={(value) => {
                         field.onChange(value);
-                        trigger("phoneNumber");
+                        void trigger("phoneNumber");
                       }}
                     >
                       <FormControlAlias>
@@ -194,29 +211,23 @@ export const BasicInformationForm = () => {
               />
             </div>
 
-            {/* Input teléfono */}
             <div className="w-2/3">
               <Input
                 placeholder="1123456789"
                 type="text"
-                {...register("phoneNumber", {
-                  pattern: {
-                    value: /^\d{8,15}$/,
-                    message:
-                      "El número de teléfono debe tener entre 8 y 15 dígitos",
-                  },
-                  validate: (value) => {
-                    if (value && !phoneCountryCode)
-                      return "Debes seleccionar un código de país si ingresas un número";
-                    return true;
-                  },
-                  onChange: () => trigger("phoneCountryCode"),
-                })}
+                autoComplete="tel-national"
+                name={phoneNumberRegister.name}
+                onBlur={phoneNumberRegister.onBlur}
+                onChange={(event) => {
+                  void phoneNumberRegister.onChange(event);
+                  void trigger("phoneCountryCode");
+                }}
+                onInput={(event) => syncPhoneNumber(event.currentTarget.value)}
+                ref={phoneNumberRegister.ref}
               />
             </div>
           </div>
 
-          {/* Mensajes de error */}
           {(errors.phoneNumber || errors.phoneCountryCode) && (
             <p className="text-red-600 text-sm mt-1">
               {errors.phoneNumber?.message || errors.phoneCountryCode?.message}
@@ -224,7 +235,6 @@ export const BasicInformationForm = () => {
           )}
         </div>
 
-        {/* Botón */}
         <div className="space-y-2">
           <Button
             type="submit"

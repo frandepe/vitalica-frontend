@@ -20,10 +20,15 @@ import { useCourseAutoAdvance } from "@/hooks/useCourseAutoAdvance";
 import { useCourseLessonNavigation } from "@/hooks/useCourseLessonNavigation";
 import { useCoursePlayerData } from "@/hooks/useCoursePlayerData";
 import { useMedia } from "@/hooks/useMedia";
-import { completeLesson } from "@/api/courseProgressEndpoints";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress-bar";
 import { useCoursePlayerStore } from "@/store/coursePlayer.store";
+import {
+  CourseExperienceProvider,
+} from "@/experiences/CourseExperienceContext";
+import { useCourseExperience } from "@/experiences/useCourseExperience";
+import { PreviewProgressPanel } from "@/components/CoursePlayer/PreviewProgressPanel";
+import type { CourseExperienceAdapter } from "@/types/courseExperience.types";
 
 const COURSE_PLAYER_TAB_PARAM = "tab";
 const COURSE_PLAYER_TABS = {
@@ -49,14 +54,19 @@ function isCoursePlayerTab(value: string | null): value is CoursePlayerTab {
   );
 }
 
-export default function CoursePlayer() {
+function CoursePlayerContent() {
   const { slug, lessonId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const setActiveLessonId = useCoursePlayerStore((s) => s.setActiveLessonId);
+  const markLessonCompleted = useCoursePlayerStore(
+    (s) => s.markLessonCompleted,
+  );
+  const resetPlayer = useCoursePlayerStore((s) => s.resetSimulation);
   const { loading, course, reloadCourse } = useCoursePlayerData({
     slug,
     lessonId,
   });
+  const experience = useCourseExperience();
   const activeLesson = useActiveLesson();
   const { user } = useAuth();
   const isMobile = useMedia();
@@ -77,6 +87,7 @@ export default function CoursePlayer() {
   } = useCourseAutoAdvance({
     slug,
     activeLessonId: activeLesson?.id,
+    basePath: experience.basePath,
   });
 
   useEffect(() => {
@@ -85,11 +96,13 @@ export default function CoursePlayer() {
     if (activeLesson.completed) return;
 
     const timer = setTimeout(() => {
-      completeLesson(activeLesson.id);
+      experience.completeLesson(activeLesson.id).then(() => {
+        if (experience.mode === "preview") markLessonCompleted(activeLesson.id);
+      });
     }, 15000);
 
     return () => clearTimeout(timer);
-  }, [activeLesson]);
+  }, [activeLesson, experience, markLessonCompleted]);
 
   const materials =
     activeLesson?.lessonMaterial?.map((m) => ({
@@ -108,7 +121,8 @@ export default function CoursePlayer() {
       : DEFAULT_COURSE_PLAYER_TAB;
 
   const completeLessonBtn = async (lessonId: string) => {
-    const res = await completeLesson(lessonId);
+    const res = await experience.completeLesson(lessonId);
+    if (experience.mode === "preview") markLessonCompleted(lessonId);
     console.log("rescomplet", { res, lessonId });
   };
 
@@ -136,7 +150,11 @@ export default function CoursePlayer() {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      <CoursePlayerSidebar course={course} isMobile={isMobile} />
+      <CoursePlayerSidebar
+        course={course}
+        isMobile={isMobile}
+        basePath={experience.basePath}
+      />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <ScrollArea className="flex-1">
@@ -145,11 +163,14 @@ export default function CoursePlayer() {
               <div className="rounded-lg overflow-hidden">
                 <MuxPlayer
                   playbackId={activeLesson?.muxPlaybackId}
+                  disableTracking={experience.mode === "preview"}
                   className="w-full 2xl:h-[80vh] mux-custom"
                   metadata={{
                     video_id: activeLesson?.muxPlaybackId,
                     video_title: course.title,
-                    viewer_user_id: user.id.toString(),
+                    ...(experience.mode === "student"
+                      ? { viewer_user_id: user.id.toString() }
+                      : {}),
                   }}
                   onEnded={() => {
                     completeLessonBtn(activeLesson.id);
@@ -294,34 +315,77 @@ export default function CoursePlayer() {
                 value={COURSE_PLAYER_TABS.progress}
                 className="pt-6 space-y-10"
               >
-                <CourseProgressTab
-                  course={course}
-                  navigate={navigate}
-                  setActiveLessonId={setActiveLessonId}
-                  reloadCourse={reloadCourse}
-                  onGoToReviews={() => {
-                    setCoursePlayerTab(COURSE_PLAYER_TABS.reviews, {
-                      replace: true,
-                    });
-                  }}
-                  onContinueToPractice={async () => {
-                    setCoursePlayerTab(COURSE_PLAYER_TABS.progress, {
-                      replace: true,
-                    });
-                    await reloadCourse({ silent: true });
-                  }}
-                />
+                {experience.mode === "preview" ? (
+                  <PreviewProgressPanel course={course} />
+                ) : (
+                  <>
+                  {false && <Card className="border-dashed p-6">
+                    <p className="text-sm font-medium text-foreground">
+                      Progreso simulado: {course?.progress.percentage}%
+                    </p>
+                    <Button
+                      className="mt-4"
+                      variant="outline"
+                      onClick={resetPlayer}
+                    >
+                      Reiniciar simulación
+                    </Button>
+                    <p className="text-sm text-muted-foreground">
+                      Las transiciones de progreso y examen se habilitarán en
+                      la simulación de Preview.
+                    </p>
+                  </Card>}
+                  <CourseProgressTab
+                    course={course}
+                    navigate={navigate}
+                    setActiveLessonId={setActiveLessonId}
+                    reloadCourse={reloadCourse}
+                    onGoToReviews={() => {
+                      setCoursePlayerTab(COURSE_PLAYER_TABS.reviews, {
+                        replace: true,
+                      });
+                    }}
+                    onContinueToPractice={async () => {
+                      setCoursePlayerTab(COURSE_PLAYER_TABS.progress, {
+                        replace: true,
+                      });
+                      await reloadCourse({ silent: true });
+                    }}
+                  />
+                  </>
+                )}
               </TabsContent>
               <TabsContent
                 value={COURSE_PLAYER_TABS.reviews}
                 className="pt-6 space-y-10"
               >
-                <CourseReviewTab course={course} />
+                {experience.mode === "preview" ? (
+                  <Card className="border-dashed p-6">
+                    <p className="text-sm text-muted-foreground">
+                      La reseña se mostrará como una simulación local en
+                      Preview y nunca se publicará.
+                    </p>
+                  </Card>
+                ) : (
+                  <CourseReviewTab course={course} />
+                )}
               </TabsContent>
             </Tabs>
           </div>
         </ScrollArea>
       </div>
     </div>
+  );
+}
+
+export default function CoursePlayer({
+  adapter,
+}: {
+  adapter?: CourseExperienceAdapter;
+}) {
+  return (
+    <CourseExperienceProvider adapter={adapter}>
+      <CoursePlayerContent />
+    </CourseExperienceProvider>
   );
 }

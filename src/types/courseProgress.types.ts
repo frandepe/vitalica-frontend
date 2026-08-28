@@ -1,5 +1,6 @@
 import { CourseLevel, ISpecialty, LessonMaterial } from "./course.types";
 import { PracticeProgressInfo } from "./practice.types";
+import type { FinalQuizQuestion } from "./quiz.types";
 
 export interface ICourseProgressResponse {
   id: string;
@@ -32,6 +33,7 @@ export interface ICourseProgressResponse {
     lastExamAttemptAt: Date | null;
     enrollmentId: string;
   };
+  previewFinalQuiz?: FinalQuizQuestion[];
   practice?: PracticeProgressInfo;
   instructor: {
     id: string;

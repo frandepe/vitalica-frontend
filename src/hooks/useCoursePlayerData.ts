@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { getCourseWithProgress } from "@/api/courseProgressEndpoints";
 import { useCoursePlayerStore } from "@/store/coursePlayer.store";
+import { useCourseExperience } from "@/experiences/useCourseExperience";
 
 interface UseCoursePlayerDataParams {
   slug?: string;
@@ -23,6 +23,8 @@ export function useCoursePlayerData({
     (state) => state.setActiveLessonId,
   );
   const course = useCoursePlayerStore((state) => state.course);
+  const reset = useCoursePlayerStore((state) => state.reset);
+  const experience = useCourseExperience();
   const reloadCourse = useCallback(
     async (options?: { silent?: boolean }) => {
       if (!slug) return;
@@ -31,13 +33,13 @@ export function useCoursePlayerData({
         setLoading(true);
       }
 
-      const res = await getCourseWithProgress(slug);
-      setCourse(res.data);
+      const data = await experience.loadCourse(slug);
+      setCourse(data);
       if (!options?.silent) {
         setLoading(false);
       }
     },
-    [setCourse, slug],
+    [experience, setCourse, slug],
   );
 
   useEffect(() => {
@@ -46,12 +48,12 @@ export function useCoursePlayerData({
     const loadCourse = async () => {
       setLoading(true);
 
-      const res = await getCourseWithProgress(slug!);
+      const res = await experience.loadCourse(slug!);
       console.log("res getCourseWithProgress", res);
       if (cancelled) return;
       // TODO: Si res.message === "No estás inscrito en este curso" redirigir a la vista de compra del curso
 
-      setCourse(res.data);
+      setCourse(res);
       setLoading(false);
     };
 
@@ -60,7 +62,12 @@ export function useCoursePlayerData({
     return () => {
       cancelled = true;
     };
-  }, [slug, setCourse]);
+  }, [experience, slug, setCourse]);
+
+  useEffect(() => {
+    reset();
+    return () => reset();
+  }, [experience.mode, reset, slug]);
 
   useEffect(() => {
     if (!course) return;

@@ -27,13 +27,11 @@ export default function Step6Instructor() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 space-y-8 text-center">
-      <h1 className="text-4xl font-bold text-zinc-900">
-        ¡Bienvenido a Vitalica!
-      </h1>
+      <h1 className="text-4xl font-bold text-zinc-900">¡Ya podés empezar!</h1>
       <p className="text-lg text-zinc-600 max-w-xl">
-        ¡Ya estás listo para iniciar tu camino como instructor! Completá tu
-        solicitud para ser verificado y poder crear cursos, editar tu perfil
-        como instructor y gestionar alumnos.
+        Para publicar cursos y ofrecer prácticas, primero necesitamos verificar
+        tu perfil como instructor. Podés completar la solicitud ahora o seguir
+        explorando y hacerlo más adelante.
       </p>
 
       <div className="flex gap-2">

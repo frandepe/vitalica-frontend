@@ -111,7 +111,7 @@ export const GiveReview: React.FC<GiveReviewProps> = ({
         </p>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          Sigue avanzando en las lecciones para poder compartir tu experiencia.
+          Seguí avanzando en las lecciones para poder compartir tu experiencia.
         </p>
       </div>
     );

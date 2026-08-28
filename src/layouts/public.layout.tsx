@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { Navbar } from "./Navbar";
 import { ScrollToTop } from "@/utils/scroll-top";
 import { Footer } from "./Footer";
+import { BetaNavbarBar } from "@/components/beta/BetaNavbarBar";
 
 const PublicLayout = () => {
   return (
@@ -16,6 +17,8 @@ const PublicLayout = () => {
             <Navbar />
           </div>
         </div>
+        <BetaNavbarBar />
+        <div className="h-10" aria-hidden />
       </header>
 
       {/* Main Content */}

@@ -29,21 +29,22 @@ const footerLinkGroups: FooterLinkGroup[] = [
     links: [
       { title: "Explorar cursos", href: "/buscar?search=&page=1&limit=10" },
       { title: "Red de instructores", href: "/instructores" },
-      { title: "Blog y guias", href: "/blogs" },
-      { title: "Ensenar en Vitalica", href: "/dar-cursos" },
+      { title: "Blog y guías", href: "/blogs" },
+      { title: "Enseñar en Vitalica", href: "/dar-cursos" },
     ],
   },
   {
     label: "Vitalica",
     links: [
       { title: "Sobre nosotros", href: "/sobre-nosotros" },
+      { title: "Preguntas frecuentes", href: "/preguntas-frecuentes" },
       { title: "Contacto", href: "/contacto" },
       {
-        title: "Politicas de privacidad",
+        title: "Políticas de privacidad",
         href: "/politicas-de-privacidad",
       },
       {
-        title: "Terminos y condiciones",
+        title: "Términos y condiciones",
         href: "/terminos-y-condiciones",
       },
     ],
@@ -51,9 +52,9 @@ const footerLinkGroups: FooterLinkGroup[] = [
 ];
 
 const trustPillars = [
-  "Formacion orientada a emergencias medicas",
+  "Formación orientada a emergencias medicas",
   "Instructores con perfil profesional",
-  "Aprendizaje flexible y acompanado",
+  "Aprendizaje flexible y acompañado",
 ];
 
 const socialLinks = [
@@ -90,11 +91,11 @@ export function Footer({ className, ...props }: FooterProps) {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               <HeartPulse className="h-3.5 w-3.5" />
-              Formacion con criterio
+              Formación con criterio
             </div>
 
             <h2 className="mt-6 max-w-2xl text-4xl font-semibold tracking-[-0.04em] text-foreground sm:text-5xl">
-              Aprendizaje hibrido
+              Aprendizaje híbrido
             </h2>
 
             <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
@@ -125,7 +126,7 @@ export function Footer({ className, ...props }: FooterProps) {
                 className="inline-flex items-center gap-3 text-foreground transition-opacity hover:opacity-90"
               >
                 <img
-                  src="/Logo/logoVitalica.png"
+                  src="/Logo/logoVitalica_beta.png"
                   alt="Vitalica"
                   className="h-10 w-auto"
                 />
@@ -151,6 +152,8 @@ export function Footer({ className, ...props }: FooterProps) {
                   href={item.href}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-background/80 text-muted-foreground transition-all hover:border-primary/30 hover:text-primary"
                   aria-label={item.label}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <item.icon className="h-4 w-4" />
                 </a>

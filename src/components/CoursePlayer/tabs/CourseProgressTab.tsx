@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 import type { NavigateFunction } from "react-router-dom";
-import { ChartPie, GraduationCap, Info, Stethoscope } from "lucide-react";
+import {
+  ArrowRight,
+  ChartPie,
+  GraduationCap,
+  Info,
+  Stethoscope,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -53,9 +59,9 @@ function getTheorySectionSummary(course: ICourseProgressResponse) {
     return {
       title: "Teoría completada",
       description:
-        "Ya terminaste la cursada teorica y aprobaste el examen final.",
+        "Ya terminaste la cursada teórica y aprobaste el examen final.",
       nextStep:
-        "Continuá con la practica presencial para completar el recorrido.",
+        "Continuá con la práctica presencial para completar el recorrido.",
     };
   }
 
@@ -63,16 +69,16 @@ function getTheorySectionSummary(course: ICourseProgressResponse) {
     return {
       title: "Teoría en curso",
       description:
-        "Aca ves el avance de lecciones, el estado del examen final y tu certificado teorico.",
+        "Aca ves el avance de lecciones, el estado del examen final y tu certificado teórico.",
       nextStep:
-        "Completa las lecciones pendientes para habilitar el examen final.",
+        "Completá las lecciones pendientes para habilitar el examen final.",
     };
   }
 
   return {
     title: "Teoría lista para examen",
     description:
-      "Ya completaste la cursada teorica. Solo falta rendir y aprobar el examen final.",
+      "Ya completaste la cursada teórica. Solo falta rendir y aprobar el exámen final.",
     nextStep: "Presentate al examen final para cerrar esta etapa.",
   };
 }
@@ -136,10 +142,9 @@ function PracticeRedirectCard({ navigate }: { navigate: NavigateFunction }) {
           Etapa práctica
         </CardTitle>
         <CardDescription className="text-sm leading-6">
-          La gestión de la práctica ahora se realiza desde la sección
-          “Práctica” de Mis cursos. Desde ahí podés ver el estado, elegir
-          instructor, seguir tu solicitud o acceder al certificado cuando
-          corresponda.
+          La gestión de la práctica ahora se realiza desde la sección “Práctica”
+          de Mis cursos. Desde ahí podés ver el estado, elegir instructor,
+          seguir tu solicitud o acceder al certificado cuando corresponda.
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
@@ -167,39 +172,71 @@ function ProgressSection({
 }: ProgressSectionProps) {
   return (
     <section className="space-y-5 rounded-3xl border border-border bg-background/80 p-4 shadow-sm md:p-6">
-      <div className="flex flex-col gap-4 border-b pb-5 lg:flex-row lg:items-start lg:justify-between">
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            {eyebrow}
-          </p>
-          <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-              {icon}
-            </span>
-            <div className="space-y-1">
-              <h3 className="text-xl font-semibold tracking-tight text-foreground">
-                {title}
-              </h3>
-              <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                {description}
-              </p>
+      <div className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm">
+        <div className="grid lg:grid-cols-[minmax(0,1fr)_360px]">
+          {/* Información principal */}
+          <div className="p-5 sm:p-6 lg:p-7">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {eyebrow}
+              </span>
+            </div>
+
+            <div className="mt-4 flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                {icon}
+              </div>
+
+              <div className="min-w-0">
+                <h3 className="text-xl font-semibold tracking-tight text-foreground">
+                  {title}
+                </h3>
+
+                <p className="mt-1.5 max-w-2xl text-sm leading-6 text-muted-foreground">
+                  {description}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="rounded-2xl border bg-muted/20 px-4 py-4 lg:max-w-sm">
-          <p className="text-sm font-semibold text-foreground">
-            {summaryTitle}
-          </p>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            {summaryDescription}
-          </p>
-          <p className="mt-3 text-sm font-medium text-foreground">
-            Siguiente paso:{" "}
-            <span className="font-normal text-muted-foreground">
-              {nextStep}
-            </span>
-          </p>
+          {/* Estado */}
+          <div className="border-t border-border/60 bg-muted/20 lg:border-l lg:border-t-0">
+            <div className="p-5 sm:p-6">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-primary/30" />
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
+                </span>
+
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  Estado actual
+                </p>
+              </div>
+
+              <h4 className="mt-3 text-base font-semibold tracking-tight text-foreground">
+                {summaryTitle}
+              </h4>
+
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                {summaryDescription}
+              </p>
+            </div>
+
+            {/* Próximo paso */}
+            <div className="border-t border-border/60 bg-background/60 px-5 py-4 sm:px-6">
+              <p className="text-xs font-medium text-muted-foreground">
+                Siguiente paso
+              </p>
+
+              <div className="mt-1.5 flex items-start gap-2">
+                <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+
+                <p className="text-sm font-medium leading-5 text-foreground">
+                  {nextStep}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -227,16 +264,15 @@ export function CourseProgressTab({
           Tu progreso
         </h2>
         <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-          Este espacio esta dividido en dos etapas para que puedas ubicarte
-          rápido: primero tu avance teórico y, si el curso lo requiere, después
-          la práctica presencial.
+          Seguí tu avance, desde la formación teórica hasta la práctica
+          presencial.
         </p>
       </div>
 
       <ProgressSection
         eyebrow="Etapa 1"
-        title="Progreso teorico"
-        description="Aqui ves el avance de lecciones, el estado del examen final y el acceso al certificado teorico."
+        title="Progreso teórico"
+        description="Avance de tus clases, examen final y acceso al certificado teórico."
         icon={<GraduationCap className="h-5 w-5" />}
         summaryTitle={theorySection.title}
         summaryDescription={theorySection.description}
@@ -364,8 +400,8 @@ export function CourseProgressTab({
               Examen final
             </CardTitle>
             <CardDescription className="text-sm leading-6">
-              Esta acción cierra la etapa teórica y define el pase a la práctica
-              presencial.
+              Completá el examen final para finalizar la etapa teórica y avanzar
+              a la práctica presencial.
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-0">

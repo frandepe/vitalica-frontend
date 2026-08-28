@@ -1,9 +1,4 @@
-import {
-  ArrowRight,
-  Target,
-  Crown,
-  Route,
-} from "lucide-react";
+import { ArrowRight, Target, Crown, Route } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -98,19 +93,17 @@ export default function GlassmorphismHero() {
                   "linear-gradient(180deg, black 0%, black 80%, transparent 100%)",
               }}
             >
-              Enseñá online
+              Enseñá,
               <br />
               <span className="bg-gradient-to-br from-white via-white to-[#ffcd75] bg-clip-text text-transparent">
-                con respaldo
+                acompañá
               </span>
-              <br />
-              profesional
+              <br />y formá.
             </h1>
 
             {/* Description */}
             <p className="animate-fade-in delay-300 max-w-xl text-lg text-zinc-300 leading-relaxed">
-              Sin perder el control de tu contenido ni tu autoridad como
-              instructor
+              Vos definís tu contenido, tu forma de enseñar y tu propuesta.
             </p>
 
             {/* CTA Buttons */}

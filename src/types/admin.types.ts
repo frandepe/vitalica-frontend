@@ -1,6 +1,10 @@
 import { CourseStatus } from "./course.types";
 import { ISpecialty } from "./course.types";
-import { InstructorSpecialtyRequestStatus } from "./instructor.types";
+import {
+  InstructorCredential,
+  InstructorCredentialType,
+  InstructorSpecialtyRequestStatus,
+} from "./instructor.types";
 
 export interface AdminCourse {
   id: string;
@@ -72,6 +76,20 @@ export interface AdminInstructorSpecialtyRequest {
   instructorProfileId: string;
   status: InstructorSpecialtyRequestStatus;
   requestedSpecialties: ISpecialty[];
+  credentialId: string | null;
+  credential: InstructorCredential | null;
+  credentialType: InstructorCredentialType | null;
+  credentialTitle: string | null;
+  credentialOrg: string | null;
+  credentialNumber: string | null;
+  credentialJurisdiction: string | null;
+  credentialIssuedAt: string | null;
+  credentialExpiresAt: string | null;
+  credentialRoleOrArea: string | null;
+  credentialStartDate: string | null;
+  credentialEndDate: string | null;
+  credentialCurrentlyActive: boolean;
+  credentialDescription: string | null;
   certificateUrls: string[];
   certificateUrlIds: string[];
   reviewedAt: string | null;
@@ -249,4 +267,35 @@ export interface AdminCommerceAttentionItem {
   attentionReasons: string[];
   lastPaymentAttemptAt: string | null;
   latestWebhookFailedAt: string | null;
+}
+
+export type AdminInstructorSupportReason =
+  | "PROBLEM"
+  | "QUESTION"
+  | "SUGGESTION"
+  | "OTHER";
+
+export type AdminInstructorSupportStatus = "PENDING" | "ANSWERED";
+
+export interface AdminInstructorSupportUser {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+}
+
+export interface AdminInstructorSupportTicketListItem {
+  id: string;
+  reason: AdminInstructorSupportReason;
+  subject: string;
+  status: AdminInstructorSupportStatus;
+  createdAt: string;
+  respondedAt: string | null;
+  user: AdminInstructorSupportUser;
+}
+
+export interface AdminInstructorSupportTicket
+  extends AdminInstructorSupportTicketListItem {
+  message: string;
+  adminResponse: string | null;
 }

@@ -22,10 +22,10 @@ export default function Step4({
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 space-y-6 text-center">
       <h2 className="text-2xl font-semibold">
-        ¿Qué querés hacer como instructor en Vitalica?
+        ¿Cuál es tu principal objetivo como instructor?
       </h2>
       <p className="text-sm text-muted-foreground max-w-xs">
-        Selecciona la opción que mejor refleje tu objetivo.
+        Elegí la opción que mejor represente lo que buscás.
       </p>
 
       <RadioGroup
@@ -37,31 +37,31 @@ export default function Step4({
           value="create_courses"
           emoji={<Book className="w-6 h-6" />}
           title="Crear y publicar cursos"
-          description="Ya sé qué enseñar."
+          description="Quiero desarrollar mi propia propuesta de formación."
         />
         <RadioCard
           value="share_experience"
           emoji={<Users className="w-6 h-6" />}
           title="Compartir mi experiencia profesional"
-          description="Perfil fuerte, contenido más avanzado."
+          description="Quiero enseñar a partir de mi experiencia y conocimientos."
         />
         <RadioCard
           value="monetize_knowledge"
           emoji={<DollarSign className="w-6 h-6" />}
-          title="Monetizar mis conocimientos"
-          description="Enfoque negocio."
+          title="Generar ingresos con mis cursos"
+          description="Quiero obtener ingresos a partir de mi formación."
         />
         <RadioCard
           value="reach_more_students"
           emoji={<Globe className="w-6 h-6" />}
           title="Llegar a más alumnos"
-          description="Escalabilidad, visibilidad."
+          description="Quiero ampliar el alcance de mis cursos y prácticas."
         />
         <RadioCard
           value="exploring"
           emoji={<Compass className="w-6 h-6" />}
           title="Todavía estoy explorando la plataforma"
-          description="No hay apuro."
+          description="Quiero conocer cómo funciona antes de decidir."
         />
       </RadioGroup>
     </div>

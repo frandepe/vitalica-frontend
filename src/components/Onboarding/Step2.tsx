@@ -38,7 +38,7 @@ const PRODUCT_DATA: Record<ProductId, ProductData> = {
     label: "Alumno",
     title: "Aprender para actuar con criterio",
     description:
-      "Para quienes quieren capacitarse accediendo a cursos dictados por instructores certificados.",
+      "Accedé a cursos dictados por instructores certificados y completá tu formación con una práctica presencial.",
     image: "/alumno.jpg",
     colors: {
       gradient: "from-primary to-primary-dark",
@@ -54,9 +54,9 @@ const PRODUCT_DATA: Record<ProductId, ProductData> = {
   PROFESSIONAL: {
     id: "PROFESSIONAL",
     label: "Instructor",
-    title: "Enseñar con respaldo profesional",
+    title: "Compartí tu experiencia como instructor",
     description:
-      "Solo para instructores o profesionales certificados. Permite crear cursos, organizar contenidos y gestionar alumnos en Vitalica.",
+      "Creá cursos, ofrecé prácticas presenciales y acompañá a tus alumnos durante su formación.",
     image: "/profesor.jpg",
     colors: {
       gradient: "from-secondary to-teal-700",

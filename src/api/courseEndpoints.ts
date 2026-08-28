@@ -58,6 +58,22 @@ export const getCourseBySlug = async (slug: string): Promise<ApiResponse> => {
   });
 };
 
+export interface FreeCourseEnrollmentResponse {
+  enrollmentId: string;
+  courseId: string;
+  courseSlug: string;
+  alreadyEnrolled: boolean;
+}
+
+export const enrollFreeCourse = async (
+  courseId: string,
+): Promise<ApiResponse<FreeCourseEnrollmentResponse>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/${courseId}/enroll-free`,
+    method: "POST",
+  });
+};
+
 export const saveCourseAsDraft = async (
   data: SaveCourseDraftPayload,
 ): Promise<ApiResponse> => {
@@ -298,13 +314,23 @@ export const reorderFinalQuizzes = async (
 
 // Obtener preview de un curso (estructura, lecciones, quizzes)
 export const getCoursePreview = async (
-  courseId: string,
+  slug: string,
 ): Promise<ApiResponse> => {
   return apiRequest({
-    url: `${API_ROUTES.COURSE}/preview/${courseId}`,
+    url: `${API_ROUTES.COURSE}/preview/${slug}`,
     method: "GET",
   });
 };
+
+export const evaluateCoursePreviewFinalExam = async (
+  slug: string,
+  answers: Record<string, number>,
+): Promise<ApiResponse> =>
+  apiRequest({
+    url: `${API_ROUTES.COURSE}/preview/${slug}/final-quiz/evaluate`,
+    method: "POST",
+    data: { answers },
+  });
 
 // Enviar curso para revisión
 export const submitCourseForReview = async (

@@ -1,4 +1,7 @@
-import { StatusInstructorApplication } from "@/types/instructor.types";
+import {
+  InstructorCredential,
+  StatusInstructorApplication,
+} from "@/types/instructor.types";
 import { apiRequest } from "./configEndpoint";
 import { API_ROUTES } from "@/constants";
 import { ApiResponse } from "@/types/endpoints.types";
@@ -8,6 +11,8 @@ import {
   AdminCommerceOrderDiagnostic,
   AdminCommerceOrdersResponse,
   AdminCommerceRepairResult,
+  AdminInstructorSupportTicket,
+  AdminInstructorSupportTicketListItem,
   AdminInstructorSpecialtyProfile,
   AdminInstructorSpecialtyRequest,
   GetAllCoursesAdminParams,
@@ -143,5 +148,56 @@ export const getCommercialOrdersRequiringAttentionAdmin = async (): Promise<
   return apiRequest({
     url: `${API_ROUTES.ADMIN}/commerce/orders/requiring-attention`,
     method: "GET",
+  });
+};
+
+export const approveInstructorCredentialAdmin = async (
+  applicationId: string,
+  credentialId: string,
+  data?: { reviewerNotes?: string; reviewedBy?: string },
+): Promise<ApiResponse<InstructorCredential>> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/application/${applicationId}/credentials/${credentialId}/approve`,
+    method: "PATCH",
+    data,
+  });
+};
+
+export const rejectInstructorCredentialAdmin = async (
+  applicationId: string,
+  credentialId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/application/${applicationId}/credentials/${credentialId}`,
+    method: "DELETE",
+  });
+};
+
+export const getInstructorSupportTicketsAdmin = async (): Promise<
+  ApiResponse<AdminInstructorSupportTicketListItem[]>
+> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/support-requests`,
+    method: "GET",
+  });
+};
+
+export const getInstructorSupportTicketAdmin = async (
+  ticketId: string,
+): Promise<ApiResponse<AdminInstructorSupportTicket>> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/support-requests/${ticketId}`,
+    method: "GET",
+  });
+};
+
+export const respondInstructorSupportTicketAdmin = async (
+  ticketId: string,
+  adminResponse: string,
+): Promise<ApiResponse<AdminInstructorSupportTicket>> => {
+  return apiRequest({
+    url: `${API_ROUTES.ADMIN}/support-requests/${ticketId}/response`,
+    method: "PATCH",
+    data: { adminResponse },
   });
 };
