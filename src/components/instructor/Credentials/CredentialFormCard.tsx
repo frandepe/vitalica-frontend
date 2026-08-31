@@ -93,9 +93,9 @@ const CredentialFormCard = ({
               })}
               placeholder={
                 type === "PROFESSIONAL_DEGREE"
-                  ? "Medico, enfermero, tecnico..."
+                  ? "Médico, enfermero, técnico..."
                   : type === "INSTRUCTOR_CERTIFICATION"
-                    ? "Instructor de RCP, Primeros Auxilios..."
+                    ? "Instructor de RCP y DEA, BLS Provider, PHTLS..."
                     : "ACLS, PHTLS, trauma..."
               }
             />
@@ -110,10 +110,10 @@ const CredentialFormCard = ({
         <div className="space-y-2">
           <Label>
             {isExperienceCredential(type)
-              ? "Institucion"
+              ? "Institución"
               : type === "PROFESSIONAL_LICENSE"
                 ? "Organismo / colegio"
-                : "Institucion / entidad"}
+                : "Institución / entidad"}
             {(type === "PROFESSIONAL_LICENSE" ||
               type === "INSTRUCTOR_CERTIFICATION" ||
               isExperienceCredential(type)) && (
@@ -146,8 +146,7 @@ const CredentialFormCard = ({
           <>
             <div className="space-y-2">
               <Label htmlFor={`professional-license-number-${index}`}>
-                Numero de matricula{" "}
-                <span className="text-destructive">*</span>
+                Número de matricula <span className="text-destructive">*</span>
               </Label>
               <Input
                 id={`professional-license-number-${index}`}
@@ -189,7 +188,7 @@ const CredentialFormCard = ({
           type === "COMPLEMENTARY_TRAINING") && (
           <div className="space-y-2">
             <Label htmlFor={`professional-credential-id-${index}`}>
-              ID / numero de credencial
+              ID / número de credencial
             </Label>
             <Input
               id={`professional-credential-id-${index}`}
@@ -322,7 +321,7 @@ const CredentialFormCard = ({
 
             <div className="space-y-2">
               <Label htmlFor={`professional-degree-registry-${index}`}>
-                Numero / registro si aplica
+                Número / registro si aplica
               </Label>
               <Input
                 id={`professional-degree-registry-${index}`}
@@ -421,16 +420,16 @@ const CredentialFormCard = ({
       </div>
 
       <div className="space-y-2">
-        <Label>Descripcion / aclaraciones</Label>
+        <Label>Descripción / aclaraciones</Label>
         <Textarea
           {...register(`credentials.${index}.description`)}
-          placeholder="Agrega detalles relevantes para la revision"
+          placeholder="Agregá detalles relevantes para la revisión"
         />
       </div>
 
       <div className="space-y-2">
         <Label>
-          Documentacion respaldatoria
+          Documentación respaldatoria
           {requiresImage && <span className="text-destructive"> *</span>}
         </Label>
         <ImagesUpload

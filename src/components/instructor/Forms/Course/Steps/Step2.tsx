@@ -2,22 +2,10 @@ import { Controller, useFormContext } from "react-hook-form";
 import MuxPlayer from "@mux/mux-player-react";
 import { FileUpload } from "@/components/Uploads/FileUpload";
 import { VideoUploadCard } from "@/components/Uploads/VideoUpload";
+import { VideoUploadStatus } from "@/components/Uploads/VideoUploadStatus";
 import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress-bar";
 import { Button } from "@/components/ui/button";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  CircleCheckBig,
   Clapperboard,
   ImagePlus,
   InfoIcon,
@@ -27,12 +15,15 @@ import {
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { TooltipIconButton } from "@/components/TooltipIconButton";
+import type { VideoUploadPhase } from "@/types/video-upload.types";
 
 type Step2Props = {
   onThumbnailReady: (base64: string) => void;
   onPromoVideoUpload: (file: File) => Promise<void>;
   onCancelPromoVideoUpload: () => void;
+  onRetryPromoVideoUpload: () => void;
   isPromoVideoUploading: boolean;
+  uploadPhase: VideoUploadPhase;
   uploadStatus: string;
   uploadProgress: number;
 };
@@ -41,7 +32,9 @@ export const Step2 = ({
   onThumbnailReady,
   onPromoVideoUpload,
   onCancelPromoVideoUpload,
+  onRetryPromoVideoUpload,
   isPromoVideoUploading,
+  uploadPhase,
   uploadStatus,
   uploadProgress,
 }: Step2Props) => {
@@ -94,45 +87,15 @@ export const Step2 = ({
 
       {/* Progreso */}
       {isPromoVideoUploading && (
-        <div className="space-y-3 max-w-sm w-full mx-auto mb-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold flex items-center gap-2">
-              {uploadStatus === "¡Video guardado!" && (
-                <CircleCheckBig className="text-primary" />
-              )}
-              Subiendo video
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {uploadStatus}
-            </span>
-          </div>
-          <Progress value={uploadProgress} showValue size="sm" />
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button type="button" variant="outline" size="sm">
-                Cancelar carga
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  ¿Cancelar la carga del video?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  El archivo no se guardará.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Volver</AlertDialogCancel>
-                <AlertDialogAction
-                  variant="destructive"
-                  onClick={onCancelPromoVideoUpload}
-                >
-                  Cancelar carga
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+        <div className="mb-4">
+          <VideoUploadStatus
+            phase={uploadPhase}
+            status={uploadStatus}
+            progress={uploadProgress}
+            onRetry={onRetryPromoVideoUpload}
+            onCancel={onCancelPromoVideoUpload}
+            cancelDisabled={uploadPhase === "confirming"}
+          />
         </div>
       )}
 

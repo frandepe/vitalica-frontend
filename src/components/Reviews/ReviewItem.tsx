@@ -2,6 +2,7 @@ import { Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { ReviewItemProps } from "@/types/reviews.types";
+import { OptimizedAvatarImage } from "@/components/user/OptimizedAvatarImage";
 
 export const ReviewItem = ({ review }: ReviewItemProps) => {
   const stars = Array.from({ length: 5 }, (_, i) => {
@@ -14,8 +15,10 @@ export const ReviewItem = ({ review }: ReviewItemProps) => {
   return (
     <div className="flex flex-col gap-2 border-b border-border pb-4">
       <div className="flex items-center gap-3">
-        <img
-          src={review.user?.avatarUrl || "/Placeholders/no-image-profile.jpg"}
+        <OptimizedAvatarImage
+          source={review.user?.avatarUrl}
+          fallbackSource="/Placeholders/no-image-profile.jpg"
+          displaySize={40}
           alt={review.user?.name || "Usuario"}
           className="h-10 w-10 rounded-full object-cover"
         />

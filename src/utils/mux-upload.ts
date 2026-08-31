@@ -1,7 +1,5 @@
 import { PromoUploadStatus } from "@/types/endpoints.types";
 
-type UploadProgressCallback = (progress: number) => void;
-
 type PollMuxOptions = {
   signal?: AbortSignal;
   timeoutMs?: number;
@@ -11,7 +9,6 @@ type PollMuxOptions = {
 };
 
 const DEFAULT_POLL_TIMEOUT_MS = 10 * 60 * 1000;
-const DEFAULT_UPLOAD_TIMEOUT_MS = 15 * 60 * 1000;
 
 const delay = (ms: number, signal?: AbortSignal) =>
   new Promise<void>((resolve, reject) => {
@@ -36,68 +33,6 @@ const delay = (ms: number, signal?: AbortSignal) =>
 export const isUploadAbortError = (error: unknown): boolean => {
   if (!(error instanceof Error)) return false;
   return error.message === "UPLOAD_ABORTED";
-};
-
-export const uploadFileToMux = async (
-  uploadUrl: string,
-  file: File,
-  onProgress?: UploadProgressCallback,
-  signal?: AbortSignal,
-  timeoutMs: number = DEFAULT_UPLOAD_TIMEOUT_MS,
-): Promise<void> => {
-  await new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
-    const cleanup = () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      signal?.removeEventListener("abort", abortUpload);
-    };
-
-    const abortUpload = () => {
-      cleanup();
-      xhr.abort();
-      reject(new Error("UPLOAD_ABORTED"));
-    };
-
-    if (signal?.aborted) {
-      reject(new Error("UPLOAD_ABORTED"));
-      return;
-    }
-
-    xhr.open("PUT", uploadUrl);
-    xhr.setRequestHeader("Content-Type", file.type);
-
-    xhr.upload.onprogress = (event) => {
-      if (!event.lengthComputable || !onProgress) return;
-      const progress = Math.round((event.loaded / event.total) * 100);
-      onProgress(progress);
-    };
-
-    xhr.onload = () => {
-      cleanup();
-      if (xhr.status === 200) {
-        resolve();
-        return;
-      }
-
-      reject(new Error("MUX_UPLOAD_FAILED"));
-    };
-
-    xhr.onerror = () => {
-      cleanup();
-      reject(new Error("MUX_UPLOAD_FAILED"));
-    };
-
-    timeoutId = setTimeout(() => {
-      cleanup();
-      xhr.abort();
-      reject(new Error("UPLOAD_TIMEOUT"));
-    }, timeoutMs);
-
-    signal?.addEventListener("abort", abortUpload, { once: true });
-    xhr.send(file);
-  });
 };
 
 export const waitForMuxAssetReady = async (

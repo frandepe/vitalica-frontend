@@ -165,8 +165,9 @@ const HomePage = () => {
               },
             }}
           >
-            Formación híbrida en
-            <span className="text-primary"> emergencias médicas</span>
+            Formación en
+            <span className="text-primary"> emergencias médicas</span>. <br />
+            De la teoría a la práctica
           </motion.h1>
 
           <motion.p
@@ -183,8 +184,9 @@ const HomePage = () => {
               },
             }}
           >
-            Conocimiento y criterio para actuar con seguridad en{" "}
-            <span className="font-semibold">situaciones críticas</span>.
+            Aprendé online y continuá tu formación con prácticas presenciales
+            junto a{" "}
+            <span className="font-semibold">profesionales capacitados</span>.
           </motion.p>
 
           <motion.div

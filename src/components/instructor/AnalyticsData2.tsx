@@ -5,6 +5,7 @@ import { Filter, Users, Clock, Zap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Assuming you have a Button component
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getAvatarDeliveryProps } from "@/utils/avatar-url";
 import { cn } from "@/utils/cn";
 
 // Type definitions for component props
@@ -189,7 +190,10 @@ export const MarketingDashboard = React.forwardRef<
                       whileHover={{ scale: 1.2, zIndex: 10, y: -2 }} // Added for hover effect
                     >
                       <Avatar className="border-2 border-lime-100 dark:border-lime-900">
-                        <AvatarImage src={member.avatarUrl} alt={member.name} />
+                        <AvatarImage
+                          {...getAvatarDeliveryProps(member.avatarUrl, 40)}
+                          alt={member.name}
+                        />
                         <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                     </motion.div>

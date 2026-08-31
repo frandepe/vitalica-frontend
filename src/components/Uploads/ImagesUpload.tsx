@@ -207,8 +207,8 @@ const ImagesUpload: React.FC<ImageUploadProps> = ({
           <div className="space-y-1">
             <p className="text-sm font-medium text-foreground">
               {isDragOver
-                ? "Suelta las imágenes aquí"
-                : "Haz clic o arrastra y suelta imágenes para subir"}
+                ? "Soltá las imágenes acá"
+                : "Hacé clic o arrastré y soltá imágenes para subir"}
             </p>
             <p className="text-xs text-muted-foreground">
               Máx. {(maxSize / (1024 * 1024)).toFixed(1)} MB • {files.length}/

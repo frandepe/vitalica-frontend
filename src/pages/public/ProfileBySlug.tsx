@@ -8,6 +8,7 @@ import { MainCarousel } from "@/components/Carousel/MainCarousel";
 import { FoundingInstructorBadge } from "@/components/FoundingInstructorBadge";
 import { StatCard } from "@/components/CardsAnimated/StatCard";
 import { GlobalLoading } from "@/components/Loadings/GlobalLoading";
+import { OptimizedAvatarImage } from "@/components/user/OptimizedAvatarImage";
 import { Badge } from "@/components/ui/badge";
 import { ISpecialty } from "@/types/course.types";
 import { t } from "@/utils/translations";
@@ -194,8 +195,10 @@ const ProfileBySlug = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <img
-              src={avatarUrl || "/Placeholders/no-image-profile.jpg"}
+            <OptimizedAvatarImage
+              source={avatarUrl}
+              fallbackSource="/Placeholders/no-image-profile.jpg"
+              displaySize={160}
               alt="avatar"
               className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover shadow-lg"
             />

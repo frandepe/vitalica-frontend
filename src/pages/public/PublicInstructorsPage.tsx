@@ -1,4 +1,5 @@
 import { getPublicInstructors } from "@/api";
+import { CirclesImg } from "@/components/Banners/HeaderBanner";
 import { InstructorProfileCard } from "@/components/CardsAnimated/InstructorProfileCard";
 import { TextPagination } from "@/components/Pagination/TextPagination";
 import { Alert } from "@/components/ui/alert";
@@ -17,8 +18,12 @@ import { specialties } from "@/constants/course";
 import { ISpecialty } from "@/types/course.types";
 import { PublicInstructorListItem } from "@/types/public-instructor.types";
 import { t } from "@/utils/translations";
-import { AlertCircle, BookOpen, Search, ShieldCheck, Users } from "lucide-react";
+import { AlertCircle, Search, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
+import mask01 from "@/assets/Masks/mask-11.svg";
+import banner1 from "/Banners/banner1.jpg";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 const PAGE_LIMIT = 12;
 const SEO_TITLE = "Instructores | Vitalica";
@@ -35,15 +40,6 @@ const formatLocation = (instructor: PublicInstructorListItem) => {
   }
 
   return instructor.city || instructor.state || null;
-};
-
-const formatApprovedYear = (approvedAt: string | null) => {
-  if (!approvedAt) return null;
-
-  const parsed = new Date(approvedAt);
-  if (Number.isNaN(parsed.getTime())) return null;
-
-  return parsed.getFullYear();
 };
 
 const formatReviewLabel = (instructor: PublicInstructorListItem) => {
@@ -109,7 +105,10 @@ const PublicInstructorsPage = () => {
     const previousTitle = document.title;
     const previousLang = document.documentElement.lang;
 
-    const ensureMeta = (selector: string, attributes: Record<string, string>) => {
+    const ensureMeta = (
+      selector: string,
+      attributes: Record<string, string>,
+    ) => {
       let element = document.head.querySelector(selector) as
         | HTMLMetaElement
         | HTMLLinkElement
@@ -183,7 +182,7 @@ const PublicInstructorsPage = () => {
       </div>
 
       <div className="relative mx-auto container px-4 pb-24 pt-16 md:px-0">
-        <header className="grid gap-10 border-b border-border/60 pb-14 pt-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)] lg:items-end">
+        <header className="grid gap-10 border-b border-border/60 pb-14 pt-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)] lg:items-center">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               <ShieldCheck className="h-3.5 w-3.5" />
@@ -195,13 +194,17 @@ const PublicInstructorsPage = () => {
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-              Explora perfiles de instructores con experiencia en formacion en
+              Explorá perfiles de instructores con experiencia en formación en
               emergencias. Vas a encontrar sus especialidades, trayectoria y
               actividad dentro de la red.
             </p>
           </div>
-
-          <div className="rounded-lg border-l border-primary bg-background/90 p-6 shadow-[0_24px_80px_-40px_rgba(34,80,69,0.35)]">
+          <CirclesImg
+            className="hidden 2xl:block"
+            maskSrc={mask01}
+            imgCircles={banner1}
+          />
+          {/* <div className="rounded-lg border-l border-primary bg-background/90 p-6 shadow-[0_24px_80px_-40px_rgba(34,80,69,0.35)]">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               Confianza
             </p>
@@ -231,7 +234,7 @@ const PublicInstructorsPage = () => {
                 </span>
               </div>
             </div>
-          </div>
+          </div> */}
         </header>
 
         <section className="border-b border-border/60 py-10">
@@ -366,10 +369,15 @@ const PublicInstructorsPage = () => {
                 {items.map((instructor) => {
                   const fullName = formatFullName(instructor);
                   const location = formatLocation(instructor);
-                  const approvedYear = formatApprovedYear(
-                    instructor.approvedAt,
-                  );
-
+                  const approvedDate =
+                    instructor.approvedAt &&
+                    format(
+                      new Date(instructor.approvedAt),
+                      "d 'de' MMMM 'de' yyyy",
+                      {
+                        locale: es,
+                      },
+                    );
                   return (
                     <InstructorProfileCard
                       key={instructor.userId}
@@ -395,10 +403,11 @@ const PublicInstructorsPage = () => {
                         instructor.totalStudents,
                       )}
                       approvedLabel={
-                        approvedYear
-                          ? `Parte de Vitalica desde ${approvedYear}`
+                        approvedDate
+                          ? `Parte de Vitalica desde ${approvedDate}`
                           : "Instructor aprobado en Vitalica"
                       }
+                      credentialTypes={instructor.credentialTypes}
                       profileHref={`/perfil/${instructor.slug}`}
                       isFoundingInstructor={instructor.isFoundingInstructor}
                     />

@@ -8,7 +8,7 @@ import {
 } from "@/types/beta-feedback.types";
 import { cn } from "@/utils/cn";
 import { CheckCircle2, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   BetaFeedbackImage,
@@ -62,12 +62,14 @@ const fileToBase64 = (file: File): Promise<string> =>
 
 export function BetaFeedbackForm({ originPath }: BetaFeedbackFormProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSucceeded, setSubmitSucceeded] = useState(false);
+  const successMessageRef = useRef<HTMLDivElement>(null);
   const {
     control,
     handleSubmit,
     register,
     reset,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    formState: { errors, isSubmitting },
   } = useForm<BetaFeedbackFormValues>({
     defaultValues: {
       type: "",
@@ -76,9 +78,23 @@ export function BetaFeedbackForm({ originPath }: BetaFeedbackFormProps) {
     },
   });
 
+  useEffect(() => {
+    if (!submitSucceeded) return;
+
+    const successMessage = successMessageRef.current;
+    if (!successMessage) return;
+
+    successMessage.focus({ preventScroll: true });
+    successMessage.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, [submitSucceeded]);
+
   const onSubmit = async (values: BetaFeedbackFormValues) => {
     if (!values.type) return;
     setSubmitError(null);
+    setSubmitSucceeded(false);
 
     try {
       const images = await Promise.all(
@@ -101,6 +117,7 @@ export function BetaFeedbackForm({ originPath }: BetaFeedbackFormProps) {
         return;
       }
 
+      setSubmitSucceeded(true);
       values.images.forEach((image) => URL.revokeObjectURL(image.preview));
       reset({
         type: "",
@@ -108,21 +125,25 @@ export function BetaFeedbackForm({ originPath }: BetaFeedbackFormProps) {
         images: [],
       });
     } catch {
+      setSubmitSucceeded(false);
       setSubmitError("No pudimos enviar tu comentario. Probá de nuevo.");
     }
   };
 
   return (
     <div className="rounded-lg border border-border/70 bg-background/95 p-5 shadow-[0_24px_80px_-48px_rgba(34,80,69,0.4)] sm:p-7">
-      {isSubmitSuccessful && (
+      {submitSucceeded && (
         <div
-          className="mb-6 flex gap-3 rounded-lg border border-primary/20 bg-primary/8 p-4 text-sm text-primary-dark"
+          ref={successMessageRef}
+          tabIndex={-1}
+          className="mb-6 flex gap-3 rounded-lg border border-emerald-400/70 bg-emerald-50 p-4 text-sm text-emerald-950 shadow-[0_12px_32px_-20px_rgba(5,150,105,0.75)] outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 dark:border-emerald-600/70 dark:bg-emerald-950/45 dark:text-emerald-100"
           role="status"
+          aria-live="polite"
         >
-          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
           <div>
             <p className="font-semibold">¡Gracias! Recibimos tu comentario.</p>
-            <p className="mt-1 text-primary-dark/75">
+            <p className="mt-1 text-emerald-800 dark:text-emerald-200/85">
               Lo vamos a revisar para mejorar la Beta.
             </p>
           </div>

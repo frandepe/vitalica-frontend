@@ -1,4 +1,5 @@
 import { SpecialtyLabels } from "@/constants";
+import type { VideoUploadPhase } from "@/types/video-upload.types";
 
 export type ISpecialty = keyof typeof SpecialtyLabels;
 
@@ -238,6 +239,8 @@ export interface ICreateCourse {
 }
 
 export type LessonUploadState = {
+  sessionId?: number;
+  phase: VideoUploadPhase;
   progress: number;
   status: string;
   previousPlaybackId?: string | null;

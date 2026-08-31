@@ -9,7 +9,7 @@ import {
   LessonFormValues,
   NewCourseFormValues,
 } from "@/types/course.types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import banner1 from "/Banners/banner4.jpg";
 import mask01 from "@/assets/Masks/mask-20.svg";
@@ -27,6 +27,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import {
   getCourseById,
+  getFinalQuizzes,
   saveCourseAsDraft,
   saveCourseThumbnail,
   submitCourseForReview,
@@ -39,14 +40,13 @@ import { getValidationIssues } from "@/utils/course-validations";
 import { Badge } from "@/components/ui/badge";
 import {
   createPromoVideoDirectUpload,
-  getPromoMuxUploadStatus,
-  savePromoVideoToCourse,
 } from "@/api/videoEndpoints";
-import {
-  isUploadAbortError,
-  uploadFileToMux,
-  waitForMuxAssetReady,
-} from "@/utils/mux-upload";
+import { isUploadAbortError } from "@/utils/mux-upload";
+import { processAndConfirmPromoVideo } from "@/utils/promo-video-upload";
+import MuxVideoUploader, {
+  type MuxVideoUploadContext,
+  type MuxVideoUploaderHandle,
+} from "@/components/Uploads/MuxVideoUploader";
 import { useAuth } from "@/hooks/useAuth";
 import { SpecialtyLabels } from "@/constants";
 import {
@@ -59,6 +59,8 @@ import {
   VIDEO_FORMAT_ERROR_MESSAGE,
 } from "@/constants/video";
 import axios from "axios";
+import type { VideoUploadPhase } from "@/types/video-upload.types";
+import type { InstructorFinalQuiz } from "@/types/quiz.types";
 
 // TODO: (Posible TODO)
 // click siguiente ->
@@ -72,8 +74,10 @@ interface LessonTypes {
 }
 
 type UploadStatus =
+  | "Validando archivo..."
   | "Preparando subida..."
   | "Subiendo video..."
+  | "Sin conexión. La subida continuará cuando vuelva internet..."
   | "Procesando el video, esto puede tardar varios minutos..."
   | "Guardando video..."
   | "¡Video guardado!"
@@ -88,11 +92,19 @@ export default function EditCourse() {
     "Preparando subida...",
   );
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [promoUploadPhase, setPromoUploadPhase] =
+    useState<VideoUploadPhase>("idle");
   const [isPromoVideoUploading, setIsPromoVideoUploading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [publishValidation, setPublishValidation] =
     useState<CoursePublishValidation | null>(null);
+  const [isPublishValidationLoading, setIsPublishValidationLoading] =
+    useState(false);
+  const [isFinalQuizMutationPending, setIsFinalQuizMutationPending] =
+    useState(false);
   const promoUploadAbortRef = useRef<AbortController | null>(null);
+  const promoUploaderRef = useRef<MuxVideoUploaderHandle | null>(null);
+  const promoUploadCompletionRef = useRef<(() => void) | null>(null);
   const redirectHandledRef = useRef(false);
   const { setBackendErrors, getGeneralErrors, clearErrors } =
     useBackendErrors();
@@ -230,15 +242,45 @@ export default function EditCourse() {
   useEffect(() => {
     if (currentStep !== 6 || !courseId) return;
 
-    const loadPublishValidation = async () => {
-      const response = await validateCourseForPublication(courseId);
-      if (response.success && response.data) {
-        setPublishValidation(response.data);
+    let cancelled = false;
+
+    const loadStep6Data = async () => {
+      setIsPublishValidationLoading(true);
+      const [quizzesResponse, validationResponse] = await Promise.all([
+        getFinalQuizzes(courseId),
+        validateCourseForPublication(courseId),
+      ]);
+
+      if (cancelled) return;
+
+      if (quizzesResponse.success) {
+        setValue("quizzes", quizzesResponse.data || [], {
+          shouldDirty: false,
+        });
       }
+
+      if (validationResponse.success && validationResponse.data) {
+        setPublishValidation(validationResponse.data);
+      } else {
+        setPublishValidation(null);
+      }
+
+      setIsPublishValidationLoading(false);
     };
 
-    loadPublishValidation();
-  }, [courseId, currentStep]);
+    loadStep6Data();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId, currentStep, setValue]);
+
+  const handleFinalQuizzesChange = useCallback(
+    (quizzes: InstructorFinalQuiz[]) => {
+      setValue("quizzes", quizzes, { shouldDirty: false });
+    },
+    [setValue],
+  );
 
   const handleLessonTypeChange = (
     sectionIndex: number,
@@ -446,16 +488,114 @@ export default function EditCourse() {
     }
   };
 
+  const createPromoDirectUploadForUploader = useCallback(
+    async (file: File) => {
+      if (!courseId) throw new Error("COURSE_ID_REQUIRED");
+
+      const response = await createPromoVideoDirectUpload(courseId, file);
+      if (!response.success || !response.data) {
+        throw new Error(response.message || "MUX_DIRECT_UPLOAD_FAILED");
+      }
+
+      return response.data;
+    },
+    [courseId],
+  );
+
+  const finishPromoUploadOperation = useCallback(() => {
+    promoUploadCompletionRef.current?.();
+    promoUploadCompletionRef.current = null;
+  }, []);
+
+  const handlePromoTransferComplete = useCallback(
+    async ({ uploadId }: Required<MuxVideoUploadContext>) => {
+      if (!courseId) return;
+
+      const abortController = new AbortController();
+      promoUploadAbortRef.current?.abort();
+      promoUploadAbortRef.current = abortController;
+
+      try {
+        setPromoUploadPhase("processing");
+        setUploadProgress(100);
+        setUploadStatus(
+          "Procesando el video, esto puede tardar varios minutos...",
+        );
+
+        const { assetId, playbackId, confirmation: response } =
+          await processAndConfirmPromoVideo({
+            courseId,
+            uploadId,
+            signal: abortController.signal,
+            onReadyToConfirm: () => {
+              setPromoUploadPhase("confirming");
+              setUploadStatus("Guardando video...");
+            },
+          });
+
+        if (!response.success) {
+          setUploadProgress(0);
+          setPromoUploadPhase("error");
+          setUploadStatus("Ocurrió un error al subir el video");
+          showToast(
+            response.message || "Ocurrió un error al validar el video",
+            "warning",
+            "top-right",
+          );
+          return;
+        }
+
+        form.setValue("muxPromoAssetId", assetId, { shouldDirty: true });
+        if (playbackId) {
+          form.setValue("muxPlaybackId", playbackId, { shouldDirty: true });
+        }
+
+        setUploadStatus("¡Video guardado!");
+        setPromoUploadPhase("ready");
+        setUploadProgress(100);
+        setIsPromoVideoUploading(false);
+        finishPromoUploadOperation();
+      } catch (error) {
+        console.error(error);
+        if (isUploadAbortError(error)) return;
+        setUploadProgress(0);
+        setPromoUploadPhase("error");
+        setUploadStatus("Ocurrió un error al subir el video");
+      } finally {
+        if (promoUploadAbortRef.current === abortController) {
+          promoUploadAbortRef.current = null;
+        }
+      }
+    },
+    [courseId, finishPromoUploadOperation, form, showToast],
+  );
+
+  const handlePromoUploaderError = useCallback((error: Error) => {
+    console.error(error);
+    setUploadProgress(0);
+    setPromoUploadPhase("error");
+    setUploadStatus("Ocurrió un error al subir el video");
+  }, []);
+
   const handlePromoVideoUpload = async (file: File) => {
     if (!courseId) return;
+    setIsPromoVideoUploading(true);
+    setPromoUploadPhase("validating");
+    setUploadProgress(0);
+    setUploadStatus("Validando archivo...");
+
     if (!isMp4VideoFile(file)) {
       setUploadProgress(0);
+      setPromoUploadPhase("idle");
+      setIsPromoVideoUploading(false);
       showToast(VIDEO_FORMAT_ERROR_MESSAGE, "warning", "top-right");
       return;
     }
 
     if (file.size > MAX_VIDEO_SIZE_BYTES) {
       setUploadProgress(0);
+      setPromoUploadPhase("idle");
+      setIsPromoVideoUploading(false);
       showToast(MAX_VIDEO_SIZE_ERROR_MESSAGE, "warning", "top-right");
       return;
     }
@@ -466,96 +606,73 @@ export default function EditCourse() {
       durationSeconds > MAX_VIDEO_DURATION_SECONDS
     ) {
       setUploadProgress(0);
+      setPromoUploadPhase("idle");
+      setIsPromoVideoUploading(false);
       showToast(MAX_VIDEO_DURATION_ERROR_MESSAGE, "warning", "top-right");
       return;
     }
 
     promoUploadAbortRef.current?.abort();
-    const abortController = new AbortController();
-    promoUploadAbortRef.current = abortController;
+    promoUploaderRef.current?.abort();
+    finishPromoUploadOperation();
 
-    try {
-      setIsPromoVideoUploading(true);
-      setUploadProgress(0);
-      setUploadStatus("Preparando subida...");
+    setPromoUploadPhase("preparing");
+    setUploadProgress(0);
+    setUploadStatus("Preparando subida...");
 
-      const res1 = await createPromoVideoDirectUpload(courseId, file);
+    await new Promise<void>((resolve) => {
+      promoUploadCompletionRef.current = resolve;
+      promoUploaderRef.current?.start(file);
+    });
+  };
 
-      if (!res1.success) {
-        console.error(res1.message);
-        return;
-      }
-
-      const { uploadUrl, uploadId } = res1.data;
-
-      setUploadStatus("Subiendo video...");
-      await uploadFileToMux(
-        uploadUrl,
-        file,
-        (progress) => setUploadProgress(progress),
-        abortController.signal,
-      );
-
-      setUploadStatus(
-        "Procesando el video, esto puede tardar varios minutos...",
-      );
-
-      const { assetId, playbackId } = await waitForMuxAssetReady(
-        uploadId,
-        (currentUploadId) =>
-          getPromoMuxUploadStatus(courseId, currentUploadId),
-        { signal: abortController.signal },
-      );
-
-      setUploadStatus("Guardando video...");
-      const res2 = await savePromoVideoToCourse(courseId, uploadId);
-
-      if (!res2.success) {
-        setUploadProgress(0);
-        showToast(
-          res2.message || "Ocurrió un error al validar el video",
-          "warning",
-          "top-right",
-        );
-        return;
-      }
-
-      form.setValue("muxPromoAssetId", assetId, { shouldDirty: true });
-
-      if (playbackId) {
-        form.setValue("muxPlaybackId", playbackId, { shouldDirty: true });
-      }
-
-      setUploadStatus("¡Video guardado!");
-      setUploadProgress(100);
-    } catch (err) {
-      console.error(err);
-      if (isUploadAbortError(err)) {
-        setUploadProgress(0);
-        setUploadStatus("Preparando subida...");
-        return;
-      }
-      setUploadStatus("Ocurrió un error al subir el video");
-    } finally {
-      if (promoUploadAbortRef.current === abortController) {
-        promoUploadAbortRef.current = null;
-      }
-      setIsPromoVideoUploading(false);
-    }
+  const handleRetryPromoVideoUpload = () => {
+    promoUploadAbortRef.current?.abort();
+    promoUploadAbortRef.current = null;
+    setUploadProgress(0);
+    setPromoUploadPhase("preparing");
+    setUploadStatus("Preparando subida...");
+    promoUploaderRef.current?.retry();
   };
 
   const handleCancelPromoVideoUpload = () => {
     promoUploadAbortRef.current?.abort();
     promoUploadAbortRef.current = null;
+    promoUploaderRef.current?.abort();
     setUploadProgress(0);
+    setPromoUploadPhase("idle");
     setUploadStatus("Preparando subida...");
     setIsPromoVideoUploading(false);
+    finishPromoUploadOperation();
   };
 
   if (isLoading) return <GlobalLoading text="Autoguardado..." />;
 
   return (
     <div className="my-8">
+      <MuxVideoUploader
+        ref={promoUploaderRef}
+        createDirectUpload={createPromoDirectUploadForUploader}
+        onPhaseChange={(phase) => {
+          if (phase === "preparing") {
+            setPromoUploadPhase("preparing");
+            setUploadStatus("Preparando subida...");
+          }
+          if (phase === "uploading") {
+            setPromoUploadPhase("uploading");
+            setUploadStatus("Subiendo video...");
+          }
+          if (phase === "offline") {
+            setPromoUploadPhase("offline");
+            setUploadStatus(
+              "Sin conexión. La subida continuará cuando vuelva internet...",
+            );
+          }
+        }}
+        onProgress={(progress) => setUploadProgress(Math.round(progress))}
+        onTransferComplete={handlePromoTransferComplete}
+        onError={handlePromoUploaderError}
+      />
       <h2 className="text-2xl font-semibold">Crea un nuevo curso</h2>
       <Form {...form}>
         <Stepper
@@ -568,6 +685,12 @@ export default function EditCourse() {
           backButtonText="Atrás"
           nextButtonText="Siguiente"
           errorCount={errorCount}
+          nextButtonProps={{
+            disabled:
+              (currentStep === 5 && isFinalQuizMutationPending) ||
+              (currentStep === 6 &&
+                (isPublishValidationLoading || errorCount > 0)),
+          }}
         >
           <Step>
             <h2 className="text-xl font-semibold text-slate-700 mb-3 flex items-center gap-2">
@@ -596,7 +719,9 @@ export default function EditCourse() {
               onThumbnailReady={handleThumbnailReady}
               onPromoVideoUpload={handlePromoVideoUpload}
               onCancelPromoVideoUpload={handleCancelPromoVideoUpload}
+              onRetryPromoVideoUpload={handleRetryPromoVideoUpload}
               isPromoVideoUploading={isPromoVideoUploading}
+              uploadPhase={promoUploadPhase}
               uploadProgress={uploadProgress}
               uploadStatus={uploadStatus}
             />
@@ -636,7 +761,11 @@ export default function EditCourse() {
               <ClipboardCheck /> Examen final del curso
             </h2>
             <div className="min-h-[60vh]">
-              <Step5 courseId={courseId!} />
+              <Step5
+                courseId={courseId!}
+                onQuizzesChange={handleFinalQuizzesChange}
+                onPendingChange={setIsFinalQuizMutationPending}
+              />
             </div>
           </Step>
           <Step>

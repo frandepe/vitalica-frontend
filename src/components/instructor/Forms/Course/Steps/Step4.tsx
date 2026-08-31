@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress-bar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   COURSE_STRUCTURE_LIMITS,
@@ -80,18 +79,21 @@ import UploadMaterial from "../UploadMaterial";
 import {
   createLessonDirectUpload,
   deleteLessonVideo,
-  getLessonMuxUploadStatus,
-  saveLessonVideoToCourse,
 } from "@/api/videoEndpoints";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import {
-  isUploadAbortError,
-  uploadFileToMux,
-  waitForMuxAssetReady,
-} from "@/utils/mux-upload";
+import { isUploadAbortError } from "@/utils/mux-upload";
 import { SortableItem, useStep4Dnd } from "@/hooks/useStep4Dnd";
 import { useToast } from "@/components/ui/toast";
+import MuxVideoUploader, {
+  type MuxVideoUploadContext,
+  type MuxVideoUploaderHandle,
+} from "@/components/Uploads/MuxVideoUploader";
+import { VideoUploadStatus } from "@/components/Uploads/VideoUploadStatus";
+import {
+  findLessonLocation,
+  processAndConfirmLessonVideo,
+} from "@/utils/lesson-video-upload";
 
 interface Props {
   courseId: string;
@@ -111,6 +113,9 @@ interface Props {
   control: Control<NewCourseFormValues>;
   priceDB: string | undefined;
 }
+
+const isLessonUploadActive = (upload?: LessonUploadState) =>
+  Boolean(upload && !["idle", "ready", "aborted"].includes(upload.phase));
 
 export const Step4 = ({
   courseId,
@@ -137,10 +142,15 @@ export const Step4 = ({
   const [lessonUploads, setLessonUploads] = useState<
     Record<string, LessonUploadState>
   >({});
-  const [replacingLessonId, setReplacingLessonId] = useState<string | null>(
-    null,
-  );
+  const [replacingLessonIds, setReplacingLessonIds] = useState<
+    Record<string, boolean>
+  >({});
   const lessonUploadAbortRef = useRef<Record<string, AbortController>>({});
+  const lessonUploaderRefs = useRef<
+    Record<string, MuxVideoUploaderHandle | null>
+  >({});
+  const lessonUploadSessionRef = useRef<Record<string, number>>({});
+  const lessonUploadCompletionRef = useRef<Record<string, () => void>>({});
   const { showToast } = useToast();
 
   const {
@@ -165,8 +175,9 @@ export const Step4 = ({
   });
 
   useEffect(() => {
+    const uploadControllers = lessonUploadAbortRef.current;
     return () => {
-      Object.values(lessonUploadAbortRef.current).forEach((controller) =>
+      Object.values(uploadControllers).forEach((controller) =>
         controller.abort(),
       );
     };
@@ -219,6 +230,20 @@ export const Step4 = ({
   };
 
   const handleDeleteModule = async (moduleId: string, moduleIndex: number) => {
+    const hasActiveUpload = (
+      watch(`modules.${moduleIndex}.lessons`) || []
+    ).some((lesson: LessonFormValues) =>
+      isLessonUploadActive(lessonUploads[lesson.id]),
+    );
+    if (hasActiveUpload) {
+      showToast(
+        "Cancelá las subidas activas antes de eliminar el módulo",
+        "warning",
+        "top-right",
+      );
+      return;
+    }
+
     try {
       setDeletingModuleId(moduleId);
 
@@ -282,6 +307,15 @@ export const Step4 = ({
     lessonIndex: number,
     lessonId: string,
   ) => {
+    if (isLessonUploadActive(lessonUploads[lessonId])) {
+      showToast(
+        "Cancelá la subida antes de eliminar la lección",
+        "warning",
+        "top-right",
+      );
+      return;
+    }
+
     try {
       setDeletingLessonId(lessonId);
 
@@ -312,18 +346,139 @@ export const Step4 = ({
     }
   };
 
-  const handleLessonVideoUpload = async (
-    file: File,
+  const finishLessonUploadOperation = (lessonId: string) => {
+    lessonUploadCompletionRef.current[lessonId]?.();
+    delete lessonUploadCompletionRef.current[lessonId];
+  };
+
+  const updateLessonUpload = (
     lessonId: string,
-    lessonIndex: number,
-    moduleIndex: number,
+    updates: Partial<LessonUploadState>,
   ) => {
+    setLessonUploads((previous) => {
+      const current = previous[lessonId] ?? {
+        phase: "idle" as const,
+        progress: 0,
+        status: "",
+      };
+      return {
+        ...previous,
+        [lessonId]: { ...current, ...updates },
+      };
+    });
+  };
+
+  const createLessonUploadEndpoint = async (lessonId: string, file: File) => {
+    const response = await createLessonDirectUpload(lessonId, file);
+    if (!response.success || !response.data) {
+      throw new Error(response.message || "MUX_DIRECT_UPLOAD_FAILED");
+    }
+    return response.data;
+  };
+
+  const handleLessonTransferComplete = async (
+    lessonId: string,
+    { uploadId, sessionId }: Required<MuxVideoUploadContext>,
+  ) => {
+    if (lessonUploadSessionRef.current[lessonId] !== sessionId) return;
+
+    const abortController = new AbortController();
+    lessonUploadAbortRef.current[lessonId]?.abort();
+    lessonUploadAbortRef.current[lessonId] = abortController;
+
+    try {
+      updateLessonUpload(lessonId, {
+        phase: "processing",
+        progress: 100,
+        status: "Procesando el video, esto puede tardar varios minutos...",
+      });
+
+      const { playbackId, confirmation } = await processAndConfirmLessonVideo({
+        lessonId,
+        uploadId,
+        signal: abortController.signal,
+        onReadyToConfirm: () =>
+          updateLessonUpload(lessonId, {
+            phase: "confirming",
+            status: "Guardando video...",
+          }),
+      });
+
+      if (!confirmation.success) {
+        showToast(
+          confirmation.message || "Ocurrió un error al validar el video",
+          "warning",
+          "top-right",
+        );
+        updateLessonUpload(lessonId, {
+          phase: "error",
+          progress: 0,
+          status: "Ocurrió un error al subir el video",
+        });
+        return;
+      }
+
+      const location = findLessonLocation(watch("modules") || [], lessonId);
+      if (!location) throw new Error("LESSON_NOT_FOUND_AFTER_UPLOAD");
+
+      setValue(
+        `modules.${location.moduleIndex}.lessons.${location.lessonIndex}.muxPlaybackId`,
+        playbackId,
+        { shouldDirty: true },
+      );
+
+      updateLessonUpload(lessonId, {
+        phase: "ready",
+        progress: 100,
+        status: "¡Video guardado!",
+      });
+      setReplacingLessonIds((previous) => ({
+        ...previous,
+        [lessonId]: false,
+      }));
+      delete lessonUploadSessionRef.current[lessonId];
+      finishLessonUploadOperation(lessonId);
+    } catch (error) {
+      console.error("Error procesando video de lección:", error);
+      if (isUploadAbortError(error)) return;
+      updateLessonUpload(lessonId, {
+        phase: "error",
+        progress: 0,
+        status: "Ocurrió un error al subir el video",
+      });
+    } finally {
+      if (lessonUploadAbortRef.current[lessonId] === abortController) {
+        delete lessonUploadAbortRef.current[lessonId];
+      }
+    }
+  };
+
+  const handleLessonVideoUpload = async (file: File, lessonId: string) => {
+    const location = findLessonLocation(watch("modules") || [], lessonId);
+    if (!location) return;
+    const previousPlaybackId =
+      watch(
+        `modules.${location.moduleIndex}.lessons.${location.lessonIndex}.muxPlaybackId`,
+      ) ?? null;
+
+    setLessonUploads((previous) => ({
+      ...previous,
+      [lessonId]: {
+        phase: "validating",
+        progress: 0,
+        status: "Validando archivo...",
+        previousPlaybackId,
+      },
+    }));
+
     if (!isMp4VideoFile(file)) {
+      updateLessonUpload(lessonId, { phase: "idle", status: "" });
       showToast(VIDEO_FORMAT_ERROR_MESSAGE, "warning", "top-right");
       return;
     }
 
     if (file.size > MAX_VIDEO_SIZE_BYTES) {
+      updateLessonUpload(lessonId, { phase: "idle", status: "" });
       showToast(MAX_VIDEO_SIZE_ERROR_MESSAGE, "warning", "top-right");
       return;
     }
@@ -333,140 +488,84 @@ export const Step4 = ({
       durationSeconds !== null &&
       durationSeconds > MAX_VIDEO_DURATION_SECONDS
     ) {
+      updateLessonUpload(lessonId, { phase: "idle", status: "" });
       showToast(MAX_VIDEO_DURATION_ERROR_MESSAGE, "warning", "top-right");
       return;
     }
 
     lessonUploadAbortRef.current[lessonId]?.abort();
-    const abortController = new AbortController();
-    lessonUploadAbortRef.current[lessonId] = abortController;
-    const playbackIdField =
-      `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId` as const;
-    const previousPlaybackId = watch(playbackIdField) ?? null;
+    lessonUploaderRefs.current[lessonId]?.abort();
+    finishLessonUploadOperation(lessonId);
 
-    setValue(playbackIdField, null, { shouldDirty: true });
+    const completion = new Promise<void>((resolve) => {
+      lessonUploadCompletionRef.current[lessonId] = resolve;
+    });
+    const sessionId = lessonUploaderRefs.current[lessonId]?.start(file);
+    if (!sessionId) {
+      finishLessonUploadOperation(lessonId);
+      return;
+    }
+    lessonUploadSessionRef.current[lessonId] = sessionId;
 
-    setLessonUploads((prev) => ({
-      ...prev,
+    setLessonUploads((previous) => ({
+      ...previous,
       [lessonId]: {
+        sessionId,
+        phase: "preparing",
         progress: 0,
         status: "Preparando subida...",
         previousPlaybackId,
       },
     }));
 
-    try {
-      const res = await createLessonDirectUpload(lessonId, file);
-
-      if (!res.success) return;
-
-      const { uploadUrl, uploadId } = res.data;
-
-      await uploadFileToMux(
-        uploadUrl,
-        file,
-        (progress) =>
-          setLessonUploads((prev) => ({
-            ...prev,
-            [lessonId]: {
-              ...prev[lessonId],
-              progress,
-            },
-          })),
-        abortController.signal,
-      );
-
-      setLessonUploads((prev) => ({
-        ...prev,
-        [lessonId]: {
-          ...prev[lessonId],
-          progress: 100,
-          status: "Procesando el video, esto puede tardar varios minutos...",
-        },
-      }));
-
-      const { playbackId } = await waitForMuxAssetReady(
-        uploadId,
-        (currentUploadId) =>
-          getLessonMuxUploadStatus(lessonId, currentUploadId),
-        { signal: abortController.signal },
-      );
-
-      const saveResponse = await saveLessonVideoToCourse(lessonId, uploadId);
-
-      if (!saveResponse.success) {
-        showToast(
-          saveResponse.message || "Ocurrió un error al validar el video",
-          "warning",
-          "top-right",
-        );
-        setLessonUploads((prev) => ({
-          ...prev,
-          [lessonId]: {
-            ...prev[lessonId],
-            progress: 0,
-            status: "Ocurrió un error al subir el video",
-          },
-        }));
-        return;
-      }
-
-      setValue(
-        `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
-        playbackId,
-        { shouldDirty: true },
-      );
-
-      setLessonUploads((prev) => ({
-        ...prev,
-        [lessonId]: {
-          progress: 100,
-          status: "¡Video guardado!",
-        },
-      }));
-    } catch (error) {
-      console.error("Error subiendo video de lección:", error);
-      if (isUploadAbortError(error)) return;
-
-      setLessonUploads((prev) => ({
-        ...prev,
-        [lessonId]: {
-          progress: 0,
-          status: "Ocurrió un error al subir el video",
-        },
-      }));
-    } finally {
-      if (lessonUploadAbortRef.current[lessonId] === abortController) {
-        delete lessonUploadAbortRef.current[lessonId];
-      }
-    }
+    await completion;
   };
 
-  const handleCancelLessonVideoUpload = (
-    lessonId: string,
-    moduleIndex: number,
-    lessonIndex: number,
-  ) => {
+  const handleRetryLessonVideoUpload = (lessonId: string) => {
+    lessonUploadAbortRef.current[lessonId]?.abort();
+    delete lessonUploadAbortRef.current[lessonId];
+    const sessionId = lessonUploaderRefs.current[lessonId]?.retry();
+    if (!sessionId) return;
+    lessonUploadSessionRef.current[lessonId] = sessionId;
+    updateLessonUpload(lessonId, {
+      sessionId,
+      phase: "preparing",
+      progress: 0,
+      status: "Preparando subida...",
+    });
+  };
+
+  const handleCancelLessonVideoUpload = (lessonId: string) => {
     const previousPlaybackId =
       lessonUploads[lessonId]?.previousPlaybackId ?? null;
 
     lessonUploadAbortRef.current[lessonId]?.abort();
     delete lessonUploadAbortRef.current[lessonId];
+    lessonUploaderRefs.current[lessonId]?.abort();
+    delete lessonUploadSessionRef.current[lessonId];
 
-    setValue(
-      `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
-      previousPlaybackId,
-      { shouldDirty: true },
-    );
+    const location = findLessonLocation(watch("modules") || [], lessonId);
+    if (location) {
+      setValue(
+        `modules.${location.moduleIndex}.lessons.${location.lessonIndex}.muxPlaybackId`,
+        previousPlaybackId,
+        { shouldDirty: true },
+      );
+    }
     setLessonUploads((prev) => ({
       ...prev,
       [lessonId]: {
+        phase: "aborted",
         progress: 0,
         status: "",
         previousPlaybackId,
       },
     }));
-    setReplacingLessonId(null);
+    setReplacingLessonIds((previous) => ({
+      ...previous,
+      [lessonId]: false,
+    }));
+    finishLessonUploadOperation(lessonId);
   };
 
   const handleDeleteLessonVideo = async (
@@ -474,6 +573,15 @@ export const Step4 = ({
     moduleIndex: number,
     lessonIndex: number,
   ) => {
+    if (isLessonUploadActive(lessonUploads[lessonId])) {
+      showToast(
+        "Cancelá la subida antes de eliminar el video",
+        "warning",
+        "top-right",
+      );
+      return false;
+    }
+
     try {
       setDeletingVideoLesson(lessonId);
       const res = await deleteLessonVideo(lessonId);
@@ -491,6 +599,7 @@ export const Step4 = ({
       setLessonUploads((prev) => ({
         ...prev,
         [lessonId]: {
+          phase: "idle",
           progress: 0,
           status: "",
         },
@@ -522,6 +631,11 @@ export const Step4 = ({
                   watch(`modules.${moduleIndex}.lessons`)?.length || 0;
                 const hasReachedLessonLimit =
                   lessonCount >= COURSE_STRUCTURE_LIMITS.MAX_LESSONS_PER_MODULE;
+                const hasActiveModuleUpload = (
+                  watch(`modules.${moduleIndex}.lessons`) || []
+                ).some((lesson: LessonFormValues) =>
+                  isLessonUploadActive(lessonUploads[lesson.id]),
+                );
 
                 return (
                   <SortableItem key={moduleDragId} id={moduleDragId}>
@@ -581,7 +695,10 @@ export const Step4 = ({
                                   <Button
                                     variant="outline"
                                     type="button"
-                                    disabled={deletingModuleId === section.id}
+                                    disabled={
+                                      deletingModuleId === section.id ||
+                                      hasActiveModuleUpload
+                                    }
                                     className="ml-2"
                                   >
                                     {deletingModuleId === section.id ? (
@@ -753,13 +870,8 @@ export const Step4 = ({
                                         `modules.${moduleIndex}.lessons.${lessonIndex}.muxPlaybackId`,
                                       );
                                       const upload = lessonUploads[lesson.id];
-                                      const isLessonVideoUploading = Boolean(
-                                        upload?.status &&
-                                          !upload.status.includes(
-                                            "Video guardado",
-                                          ) &&
-                                          !upload.status.includes("error"),
-                                      );
+                                      const isLessonVideoUploading =
+                                        isLessonUploadActive(upload);
                                       const lessonDragId = getLessonDragId(
                                         lesson,
                                         moduleIndex,
@@ -777,6 +889,81 @@ export const Step4 = ({
                                               setLessonActivatorNodeRef,
                                           }) => (
                                             <div className="border border-slate-400 px-2 md:px-3 rounded-md py-2">
+                                              <MuxVideoUploader
+                                                ref={(handle) => {
+                                                  lessonUploaderRefs.current[
+                                                    lesson.id
+                                                  ] = handle;
+                                                }}
+                                                createDirectUpload={(file) =>
+                                                  createLessonUploadEndpoint(
+                                                    lesson.id,
+                                                    file,
+                                                  )
+                                                }
+                                                onPhaseChange={(phase) => {
+                                                  if (phase === "preparing") {
+                                                    updateLessonUpload(
+                                                      lesson.id,
+                                                      {
+                                                        phase: "preparing",
+                                                        status:
+                                                          "Preparando subida...",
+                                                      },
+                                                    );
+                                                  }
+                                                  if (phase === "uploading") {
+                                                    updateLessonUpload(
+                                                      lesson.id,
+                                                      {
+                                                        phase: "uploading",
+                                                        status:
+                                                          "Subiendo video...",
+                                                      },
+                                                    );
+                                                  }
+                                                  if (phase === "offline") {
+                                                    updateLessonUpload(
+                                                      lesson.id,
+                                                      {
+                                                        phase: "offline",
+                                                        status:
+                                                          "Sin conexión. La subida continuará cuando vuelva internet...",
+                                                      },
+                                                    );
+                                                  }
+                                                }}
+                                                onProgress={(progress) =>
+                                                  updateLessonUpload(
+                                                    lesson.id,
+                                                    {
+                                                      progress:
+                                                        Math.round(progress),
+                                                    },
+                                                  )
+                                                }
+                                                onTransferComplete={(context) =>
+                                                  void handleLessonTransferComplete(
+                                                    lesson.id,
+                                                    context,
+                                                  )
+                                                }
+                                                onError={(error) => {
+                                                  console.error(
+                                                    "Error subiendo video de lección:",
+                                                    error,
+                                                  );
+                                                  updateLessonUpload(
+                                                    lesson.id,
+                                                    {
+                                                      phase: "error",
+                                                      progress: 0,
+                                                      status:
+                                                        "Ocurrió un error al subir el video",
+                                                    },
+                                                  );
+                                                }}
+                                              />
                                               <p className="pb-2 md:pb-3 text-sm md:text-base">
                                                 Lección {lessonIndex + 1}
                                               </p>
@@ -808,7 +995,8 @@ export const Step4 = ({
                                                       variant="outline"
                                                       disabled={
                                                         deletingLessonId ===
-                                                        lesson.id
+                                                          lesson.id ||
+                                                        isLessonVideoUploading
                                                       }
                                                       className="ml-2"
                                                     >
@@ -911,6 +1099,9 @@ export const Step4 = ({
                                                     {/* VIDEO */}
                                                     <button
                                                       type="button"
+                                                      disabled={
+                                                        isLessonVideoUploading
+                                                      }
                                                       onClick={() => {
                                                         setValue(
                                                           `modules.${moduleIndex}.lessons.${lessonIndex}.type`,
@@ -923,7 +1114,7 @@ export const Step4 = ({
                                                         );
                                                       }}
                                                       className={cn(
-                                                        "relative flex flex-col items-center justify-center gap-2 rounded-lg border border-slate-400 p-4 text-sm transition cursor-pointer",
+                                                        "relative flex flex-col items-center justify-center gap-2 rounded-lg border border-slate-400 p-4 text-sm transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
                                                         lesson.type ===
                                                           "videoFile"
                                                           ? "border-primary bg-primary/10 ring-2 ring-primary"
@@ -944,6 +1135,9 @@ export const Step4 = ({
                                                     {/* TEXTO */}
                                                     <button
                                                       type="button"
+                                                      disabled={
+                                                        isLessonVideoUploading
+                                                      }
                                                       onClick={() => {
                                                         setValue(
                                                           `modules.${moduleIndex}.lessons.${lessonIndex}.type`,
@@ -956,7 +1150,7 @@ export const Step4 = ({
                                                         );
                                                       }}
                                                       className={cn(
-                                                        "relative flex flex-col items-center justify-center gap-2 rounded-lg border border-slate-400 p-4 text-sm transition cursor-pointer",
+                                                        "relative flex flex-col items-center justify-center gap-2 rounded-lg border border-slate-400 p-4 text-sm transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
                                                         lesson.type ===
                                                           "content"
                                                           ? "border-primary bg-primary/10 ring-2 ring-primary"
@@ -997,72 +1191,32 @@ export const Step4 = ({
                                                 <div className="space-y-2">
                                                   {/* ===== PROGRESO ===== */}
                                                   {isLessonVideoUploading && (
-                                                      <div className="space-y-3 max-w-sm w-full mx-auto">
-                                                        <div className="flex items-center justify-between">
-                                                          <span className="text-sm font-semibold">
-                                                            Subiendo video
-                                                          </span>
-                                                          <span className="text-xs text-muted-foreground">
-                                                            {upload.status}
-                                                          </span>
-                                                        </div>
-
-                                                        <Progress
-                                                          value={
-                                                            upload.progress
-                                                          }
-                                                          showValue
-                                                          size="sm"
-                                                        />
-                                                        <AlertDialog>
-                                                          <AlertDialogTrigger
-                                                            asChild
-                                                          >
-                                                            <Button
-                                                              type="button"
-                                                              variant="outline"
-                                                              size="sm"
-                                                            >
-                                                              Cancelar carga
-                                                            </Button>
-                                                          </AlertDialogTrigger>
-                                                          <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                              <AlertDialogTitle>
-                                                                ¿Cancelar la
-                                                                carga del video?
-                                                              </AlertDialogTitle>
-                                                              <AlertDialogDescription>
-                                                                El archivo no se
-                                                                guardará.
-                                                              </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                              <AlertDialogCancel>
-                                                                Volver
-                                                              </AlertDialogCancel>
-                                                              <AlertDialogAction
-                                                                variant="destructive"
-                                                                onClick={() =>
-                                                                  handleCancelLessonVideoUpload(
-                                                                    lesson.id,
-                                                                    moduleIndex,
-                                                                    lessonIndex,
-                                                                  )
-                                                                }
-                                                              >
-                                                                Cancelar carga
-                                                              </AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                          </AlertDialogContent>
-                                                        </AlertDialog>
-                                                      </div>
-                                                    )}
+                                                    <VideoUploadStatus
+                                                      phase={upload.phase}
+                                                      status={upload.status}
+                                                      progress={upload.progress}
+                                                      onRetry={() =>
+                                                        handleRetryLessonVideoUpload(
+                                                          lesson.id,
+                                                        )
+                                                      }
+                                                      onCancel={() =>
+                                                        handleCancelLessonVideoUpload(
+                                                          lesson.id,
+                                                        )
+                                                      }
+                                                      cancelDisabled={
+                                                        upload.phase ===
+                                                        "confirming"
+                                                      }
+                                                    />
+                                                  )}
 
                                                   {/* ===== VIDEO EXISTENTE ===== */}
                                                   {playbackId &&
-                                                    replacingLessonId !==
-                                                      lesson.id && (
+                                                    !replacingLessonIds[
+                                                      lesson.id
+                                                    ] && (
                                                       <>
                                                         <div className="aspect-video w-full max-w-lg rounded-xl overflow-hidden">
                                                           <MuxPlayer
@@ -1079,9 +1233,15 @@ export const Step4 = ({
                                                           <Button
                                                             type="button"
                                                             variant="outline"
+                                                            disabled={
+                                                              isLessonVideoUploading
+                                                            }
                                                             onClick={() =>
-                                                              setReplacingLessonId(
-                                                                lesson.id,
+                                                              setReplacingLessonIds(
+                                                                (previous) => ({
+                                                                  ...previous,
+                                                                  [lesson.id]: true,
+                                                                }),
                                                               )
                                                             }
                                                           >
@@ -1097,7 +1257,8 @@ export const Step4 = ({
                                                                 type="button"
                                                                 disabled={
                                                                   deletingVideoLesson ===
-                                                                  lesson.id
+                                                                    lesson.id ||
+                                                                  isLessonVideoUploading
                                                                 }
                                                               >
                                                                 {deletingVideoLesson ===
@@ -1153,65 +1314,67 @@ export const Step4 = ({
 
                                                   {/* ===== SUBIDA ===== */}
                                                   {(!playbackId ||
-                                                    replacingLessonId ===
-                                                      lesson.id) && (
-                                                    <div className="flex">
-                                                      <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        className="flex items-center gap-2"
-                                                        onClick={() =>
-                                                          document
-                                                            .getElementById(
-                                                              `lesson-video-${moduleIndex}-${lessonIndex}`,
-                                                            )
-                                                            ?.click()
-                                                        }
-                                                      >
-                                                        <Upload className="w-4 h-4" />
-                                                        Subir video
-                                                      </Button>
-
-                                                      <input
-                                                        id={`lesson-video-${moduleIndex}-${lessonIndex}`}
-                                                        type="file"
-                                                        accept=".mp4,video/mp4"
-                                                        className="hidden"
-                                                        onChange={async (e) => {
-                                                          const file =
-                                                            e.target.files?.[0];
-                                                          if (!file) return;
-
-                                                          await handleLessonVideoUpload(
-                                                            file,
-                                                            lesson.id,
-                                                            lessonIndex,
-                                                            moduleIndex,
-                                                          );
-
-                                                          setReplacingLessonId(
-                                                            null,
-                                                          );
-                                                          e.target.value = "";
-                                                        }}
-                                                      />
-
-                                                      {playbackId && (
+                                                    replacingLessonIds[
+                                                      lesson.id
+                                                    ]) &&
+                                                    !isLessonVideoUploading && (
+                                                      <div className="flex">
                                                         <Button
                                                           type="button"
-                                                          variant="ghost"
+                                                          variant="outline"
+                                                          className="flex items-center gap-2"
                                                           onClick={() =>
-                                                            setReplacingLessonId(
-                                                              null,
-                                                            )
+                                                            document
+                                                              .getElementById(
+                                                                `lesson-video-${lesson.id}`,
+                                                              )
+                                                              ?.click()
                                                           }
-                                                          className="ml-2"
                                                         >
-                                                          Cancelar reemplazo
+                                                          <Upload className="w-4 h-4" />
+                                                          Subir video
                                                         </Button>
-                                                      )}
-                                                    </div>
-                                                  )}
+
+                                                        <input
+                                                          id={`lesson-video-${lesson.id}`}
+                                                          type="file"
+                                                          accept=".mp4,video/mp4"
+                                                          className="hidden"
+                                                          onChange={async (
+                                                            e,
+                                                          ) => {
+                                                            const file =
+                                                              e.target
+                                                                .files?.[0];
+                                                            if (!file) return;
+
+                                                            await handleLessonVideoUpload(
+                                                              file,
+                                                              lesson.id,
+                                                            );
+                                                            e.target.value = "";
+                                                          }}
+                                                        />
+
+                                                        {playbackId && (
+                                                          <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            onClick={() =>
+                                                              setReplacingLessonIds(
+                                                                (previous) => ({
+                                                                  ...previous,
+                                                                  [lesson.id]: false,
+                                                                }),
+                                                              )
+                                                            }
+                                                            className="ml-2"
+                                                          >
+                                                            Cancelar reemplazo
+                                                          </Button>
+                                                        )}
+                                                      </div>
+                                                    )}
                                                 </div>
                                               )}
                                               <Separator className="mt-4 bg-slate-400" />

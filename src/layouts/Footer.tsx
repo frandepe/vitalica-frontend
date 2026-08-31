@@ -191,7 +191,7 @@ export function Footer({ className, ...props }: FooterProps) {
           delay={0.12}
           className="flex flex-col gap-4 border-t border-border/60 pt-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between"
         >
-          <p>© 2026 Vitalica. Formacion online en emergencias medicas.</p>
+          <p>© 2026 Vitalica. Formación en emergencias médicas.</p>
           <div className="flex flex-wrap items-center gap-4">
             <Link
               to="/politicas-de-privacidad"
@@ -203,7 +203,7 @@ export function Footer({ className, ...props }: FooterProps) {
               to="/terminos-y-condiciones"
               className="transition-colors hover:text-foreground"
             >
-              Terminos
+              Términos
             </Link>
             <Link
               to="/contacto"

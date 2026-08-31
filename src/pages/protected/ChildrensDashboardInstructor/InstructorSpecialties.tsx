@@ -524,7 +524,7 @@ export default function InstructorSpecialties() {
                 </h4>
                 <p className="text-sm text-muted-foreground">
                   Opcional. No selecciones especialidades si la credencial no
-                  respalda una nueva area de ensenanza.
+                  respalda una nueva area de enseñanza.
                 </p>
               </div>
 

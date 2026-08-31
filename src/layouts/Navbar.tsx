@@ -42,13 +42,13 @@ export function Navbar() {
         { title: "Sobre Vitalica", href: "/sobre-nosotros" },
         { title: "Preguntas frecuentes", href: "/preguntas-frecuentes" },
         { title: "Instructores", href: "/instructores" },
-        { title: "Contacto", href: "/contacto" },
+
         {
           title: "Politicas de privacidad",
           href: "/politicas-de-privacidad",
         },
         {
-          title: "Terminos y condiciones",
+          title: "Términos y condiciones",
           href: "/terminos-y-condiciones",
         },
       ],

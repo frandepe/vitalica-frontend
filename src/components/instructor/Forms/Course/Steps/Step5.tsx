@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,7 @@ import {
   RadioGroupQuestion,
 } from "@/components/RadioGroups/RadioGroupQuestion";
 import { SortableItem } from "@/hooks/useStep4Dnd";
+import type { InstructorFinalQuiz } from "@/types/quiz.types";
 
 interface FinalQuizItem {
   id: string;
@@ -50,12 +51,18 @@ interface FinalQuizItem {
 
 interface Props {
   courseId: string;
+  onQuizzesChange: (quizzes: InstructorFinalQuiz[]) => void;
+  onPendingChange: (pending: boolean) => void;
 }
 
 const EMPTY_OPTIONS = ["", "", "", ""];
 const MAX_FINAL_QUIZZES = 20;
 
-export const Step5 = ({ courseId }: Props) => {
+export const Step5 = ({
+  courseId,
+  onQuizzesChange,
+  onPendingChange,
+}: Props) => {
   const [quizzes, setQuizzes] = useState<FinalQuizItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -68,6 +75,7 @@ export const Step5 = ({ courseId }: Props) => {
   const [editOptions, setEditOptions] = useState([...EMPTY_OPTIONS]);
   const [editCorrectAnswer, setEditCorrectAnswer] = useState<number | null>(null);
   const [savingQuizId, setSavingQuizId] = useState<string | null>(null);
+  const [deletingQuizId, setDeletingQuizId] = useState<string | null>(null);
 
   const maxReached = quizzes.length >= MAX_FINAL_QUIZZES;
   const sensors = useSensors(
@@ -76,19 +84,39 @@ export const Step5 = ({ courseId }: Props) => {
     }),
   );
 
-  const fetchQuizzes = async () => {
+  const fetchQuizzes = useCallback(async () => {
     setLoading(true);
     const res = await getFinalQuizzes(courseId);
     if (res.success) {
       const sorted = [...(res.data || [])].sort((a, b) => a.order - b.order);
       setQuizzes(sorted);
+      onQuizzesChange(sorted);
     }
     setLoading(false);
-  };
+  }, [courseId, onQuizzesChange]);
 
   useEffect(() => {
     fetchQuizzes();
-  }, [courseId]);
+  }, [fetchQuizzes]);
+
+  useEffect(() => {
+    onPendingChange(
+      loading ||
+        creating ||
+        reordering ||
+        deletingQuizId !== null ||
+        savingQuizId !== null,
+    );
+  }, [
+    creating,
+    deletingQuizId,
+    loading,
+    onPendingChange,
+    reordering,
+    savingQuizId,
+  ]);
+
+  useEffect(() => () => onPendingChange(false), [onPendingChange]);
 
   const resetCreateForm = () => {
     setQuestion("");
@@ -133,11 +161,17 @@ export const Step5 = ({ courseId }: Props) => {
   };
 
   const handleDelete = async (quizId: string) => {
-    await deleteFinalQuiz(quizId);
+    setDeletingQuizId(quizId);
+    const response = await deleteFinalQuiz(quizId);
+    if (!response.success) {
+      setDeletingQuizId(null);
+      return;
+    }
     if (editingQuizId === quizId) {
       resetEditForm();
     }
     await fetchQuizzes();
+    setDeletingQuizId(null);
   };
 
   const handleStartEdit = (quiz: FinalQuizItem) => {
@@ -170,8 +204,8 @@ export const Step5 = ({ courseId }: Props) => {
       return;
     }
 
-    resetEditForm();
     await fetchQuizzes();
+    resetEditForm();
   };
 
   const handleDragEnd = async ({ active, over }: DragEndEvent) => {
@@ -190,14 +224,12 @@ export const Step5 = ({ courseId }: Props) => {
     setQuizzes(reordered);
     setReordering(true);
 
-    const response = await reorderFinalQuizzes(
+    await reorderFinalQuizzes(
       courseId,
       reordered.map((quiz) => quiz.id),
     );
 
-    if (!response.success) {
-      await fetchQuizzes();
-    }
+    await fetchQuizzes();
 
     setReordering(false);
   };
@@ -254,6 +286,7 @@ export const Step5 = ({ courseId }: Props) => {
                           size="icon"
                           variant="ghost"
                           onClick={() => handleStartEdit(quiz)}
+                          aria-label={`Editar pregunta ${i + 1}`}
                         >
                           <Pencil className="w-4 h-4" />
                         </Button>
@@ -261,6 +294,8 @@ export const Step5 = ({ courseId }: Props) => {
                           size="icon"
                           variant="ghost"
                           onClick={() => handleDelete(quiz.id)}
+                          disabled={deletingQuizId === quiz.id}
+                          aria-label={`Eliminar pregunta ${i + 1}`}
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
@@ -284,7 +319,7 @@ export const Step5 = ({ courseId }: Props) => {
                             value={
                               editCorrectAnswer !== null
                                 ? editCorrectAnswer.toString()
-                                : undefined
+                                : ""
                             }
                             onValueChange={(value) =>
                               setEditCorrectAnswer(Number(value))
@@ -377,7 +412,7 @@ export const Step5 = ({ courseId }: Props) => {
 
             <RadioGroupQuestion
               value={
-                correctAnswer !== null ? correctAnswer.toString() : undefined
+                correctAnswer !== null ? correctAnswer.toString() : ""
               }
               onValueChange={(value) => setCorrectAnswer(Number(value))}
               className="grid grid-cols-2 gap-3"

@@ -30,7 +30,7 @@ export function BetaExplainerVideo() {
                 video_id: BETA_EXPLAINER_MUX_PLAYBACK_ID,
                 video_title: "Video explicativo de la Beta pública",
               }}
-              thumbnailTime={2}
+              thumbnailTime={5.5}
               accentColor="#20ab9f"
             />
           ) : (

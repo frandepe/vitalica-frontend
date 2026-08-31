@@ -1,4 +1,5 @@
 import { ICourseProgressResponse } from "@/types/courseProgress.types";
+import { OptimizedAvatarImage } from "@/components/user/OptimizedAvatarImage";
 
 interface CourseInstructorCardProps {
   instructor: ICourseProgressResponse["instructor"];
@@ -15,8 +16,9 @@ export function CourseInstructorCard({
     >
       <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-full bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground">
         {instructor.user.avatarUrl ? (
-          <img
-            src={instructor.user.avatarUrl}
+          <OptimizedAvatarImage
+            source={instructor.user.avatarUrl}
+            displaySize={56}
             alt={`${instructor.user.firstName} ${instructor.user.lastName}`}
             className="h-full w-full object-cover"
           />

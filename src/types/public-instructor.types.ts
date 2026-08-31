@@ -1,4 +1,5 @@
 import { ISpecialty } from "./course.types";
+import type { InstructorCredentialType } from "./instructor.types";
 
 export interface PublicInstructorListItem {
   userId: string;
@@ -16,6 +17,7 @@ export interface PublicInstructorListItem {
   totalStudents: number;
   avgTheoreticalRating: number;
   ratingCount: number;
+  credentialTypes: InstructorCredentialType[];
 }
 
 export interface PublicInstructorListMeta {

@@ -25,12 +25,14 @@ export interface PracticeStatusCopy {
   icon: LucideIcon;
 }
 
-export function getStatusCopy(practice: PracticeProgressInfo): PracticeStatusCopy {
+export function getStatusCopy(
+  practice: PracticeProgressInfo,
+): PracticeStatusCopy {
   if (practice.practiceCompleted) {
     return {
       title: "Practica completada",
       description:
-        "Tu practica ya fue registrada y el certificado esta disponible.",
+        "Tu práctica ya fue registrada y el certificado esta disponible.",
       badge: "Completada",
       variant: "success",
       icon: CheckCircle2,
@@ -41,7 +43,7 @@ export function getStatusCopy(practice: PracticeProgressInfo): PracticeStatusCop
     return {
       title: "Solicitud en curso",
       description:
-        "Tu solicitud ya fue enviada. Desde aca podes seguirla o cancelarla.",
+        "Tu solicitud ya fue enviada. Desde acá podes seguirla o cancelarla.",
       badge: "Pendiente",
       variant: "info",
       icon: RefreshCcw,
@@ -51,7 +53,7 @@ export function getStatusCopy(practice: PracticeProgressInfo): PracticeStatusCop
   if (practice.latestPracticeRequestStatus === "CANCELLED") {
     return {
       title: "Solicitud cancelada",
-      description: "Podes iniciar una nueva solicitud con otro instructor.",
+      description: "Podés iniciar una nueva solicitud con otro instructor.",
       badge: "Cancelada",
       variant: "warning",
       icon: AlertCircle,
@@ -71,7 +73,7 @@ export function getStatusCopy(practice: PracticeProgressInfo): PracticeStatusCop
   return {
     title: "Practica bloqueada",
     description:
-      "La practica se habilita cuando completes la parte teorica requerida.",
+      "La práctica se habilita cuando completes la parte teórica requerida.",
     badge: "Bloqueada",
     variant: "warning",
     icon: AlertCircle,

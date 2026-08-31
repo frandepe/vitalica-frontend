@@ -44,7 +44,7 @@ export function CoursePlayerSidebar({
   }
 
   return (
-    <div className="w-80 border-r border-border bg-card flex flex-col">
+    <div className="flex min-h-0 w-80 flex-col border-r border-border bg-card">
       <div className="p-4 border-b border-border">
         <h1 className="text-xl font-bold mb-4">{course.title}</h1>
 

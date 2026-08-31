@@ -28,7 +28,6 @@ interface VideoComponentProps {
 interface UploadCardBaseProps {
   className?: string;
   isDragOver?: boolean;
-  isUploading?: boolean;
 }
 
 // Utility function to truncate filename
@@ -238,19 +237,14 @@ const VideoComponent = ({
 const UploadCardBase = ({
   className,
   isDragOver = false,
-  isUploading = false,
 }: UploadCardBaseProps) => {
   return (
     <div className="relative">
       <div
         className={cn(
           "rounded-xl min-h-[300px] flex items-center justify-center relative transition-colors duration-200 z-0",
-          !isUploading && "cursor-pointer hover:bg-accent/20",
-          isUploading
-            ? "bg-primary/20"
-            : isDragOver
-              ? "bg-accent/40 shadow-inner"
-              : "bg-card",
+          "cursor-pointer hover:bg-accent/20",
+          isDragOver ? "bg-accent/40 shadow-inner" : "bg-card",
           className,
         )}
       >
@@ -260,7 +254,6 @@ const UploadCardBase = ({
             className={cn(
               "transition-colors duration-200",
               isDragOver ? "text-primary" : "text-muted",
-              isUploading && "text-primary",
             )}
           />
         </div>
@@ -269,11 +262,7 @@ const UploadCardBase = ({
       <div
         className={cn(
           "absolute inset-0 rounded-xl border-2 border-dashed pointer-events-none z-20",
-          isUploading
-            ? "border-primary/60"
-            : isDragOver
-              ? "border-accent/80"
-              : "border-border",
+          isDragOver ? "border-accent/80" : "border-border",
         )}
       />
     </div>
@@ -291,7 +280,6 @@ export function VideoUploadCard({
 }: VideoUploadCardProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -340,12 +328,7 @@ export function VideoUploadCard({
 
       if (videoFile) {
         onChange?.(videoFile);
-        setIsUploading(true);
-
-        setTimeout(() => {
-          setIsUploading(false);
-          setIsAnimating(true);
-        }, 200);
+        setIsAnimating(true);
       }
     },
     [onChange],
@@ -356,12 +339,7 @@ export function VideoUploadCard({
       const file = e.target.files?.[0];
       if (file) {
         onChange?.(file);
-        setIsUploading(true);
-
-        setTimeout(() => {
-          setIsUploading(false);
-          setIsAnimating(true);
-        }, 200);
+        setIsAnimating(true);
       }
     },
     [onChange],
@@ -376,10 +354,10 @@ export function VideoUploadCard({
   }, [onChange]);
 
   const handleBaseClick = useCallback(() => {
-    if (!isUploading && !value) {
+    if (!value) {
       fileInputRef.current?.click();
     }
-  }, [isUploading, value]);
+  }, [value]);
 
   return (
     <motion.div
@@ -410,10 +388,7 @@ export function VideoUploadCard({
               onDrop={handleDrop}
               onClick={handleBaseClick}
             >
-              <UploadCardBase
-                isDragOver={isDragOver}
-                isUploading={isUploading}
-              />
+              <UploadCardBase isDragOver={isDragOver} />
 
               <VideoComponent
                 isAnimating={isAnimating}

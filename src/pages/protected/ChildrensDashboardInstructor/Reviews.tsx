@@ -23,6 +23,7 @@ import {
 import { formatDate } from "@/utils/formatDate";
 import { BookOpen, Filter, MessageSquare, RefreshCw, Star } from "lucide-react";
 import { ReviewsLoadingState } from "@/components/Skeletons/Reviews";
+import { OptimizedAvatarImage } from "@/components/user/OptimizedAvatarImage";
 import TitleAdminPages from "@/components/Texts/TitleAdminPages";
 
 const REVIEWS_PER_PAGE = 12;
@@ -121,11 +122,10 @@ function ReviewRow({ review }: { review: InstructorReviewItem }) {
           </div>
 
           <div className="mt-4 flex items-center gap-3">
-            <img
-              src={
-                review.student?.avatarUrl ||
-                "/Placeholders/no-image-profile.jpg"
-              }
+            <OptimizedAvatarImage
+              source={review.student?.avatarUrl}
+              fallbackSource="/Placeholders/no-image-profile.jpg"
+              displaySize={48}
               alt={review.student?.name || "Alumno"}
               className="h-12 w-12 rounded-full border border-slate-200 object-cover"
             />

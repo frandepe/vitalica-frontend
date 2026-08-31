@@ -149,14 +149,14 @@ function CoursePlayerContent() {
   if (loading || !course) return <GlobalLoading text="Obteniendo curso..." />;
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-[calc(100dvh-104px)] min-h-0 overflow-hidden bg-background">
       <CoursePlayerSidebar
         course={course}
         isMobile={isMobile}
         basePath={experience.basePath}
       />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ScrollArea className="flex-1">
           <div className="p-6">
             {activeLesson?.type === "videoFile" ? (
@@ -231,14 +231,12 @@ function CoursePlayerContent() {
               </div>
             ) : (
               <Card>
-                <ScrollArea className="max-h-[70vh] rounded-xl shadow-lg shadow-primary/10">
-                  <div
-                    className="tiptap px-6 py-5"
-                    dangerouslySetInnerHTML={{
-                      __html: activeLesson?.content ?? "",
-                    }}
-                  />
-                </ScrollArea>
+                <div
+                  className="tiptap rounded-xl px-6 py-5 shadow-lg shadow-primary/10"
+                  dangerouslySetInnerHTML={{
+                    __html: activeLesson?.content ?? "",
+                  }}
+                />
               </Card>
             )}
 

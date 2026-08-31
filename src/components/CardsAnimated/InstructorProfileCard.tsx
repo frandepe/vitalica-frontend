@@ -1,12 +1,66 @@
 import { FoundingInstructorBadge } from "@/components/FoundingInstructorBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { InstructorCredentialType } from "@/types/instructor.types";
 import { cn } from "@/utils/cn";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, MapPin, ShieldCheck, Star, Users } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  MapPin,
+  ShieldCheck,
+  Star,
+  Users,
+} from "lucide-react";
 import { Link } from "react-router-dom";
+import { OptimizedAvatarImage } from "@/components/user/OptimizedAvatarImage";
 
 const FALLBACK_AVATAR = "/Placeholders/no-image-profile.jpg";
+
+const CREDENTIAL_BADGES: Record<
+  InstructorCredentialType,
+  { label: string; icon: string }
+> = {
+  PROFESSIONAL_DEGREE: {
+    label: "Título profesional",
+    icon: "/Icons/titulo-profesional.png",
+  },
+  PROFESSIONAL_LICENSE: {
+    label: "Matrícula profesional",
+    icon: "/Icons/matricula-profesional.png",
+  },
+  INSTRUCTOR_CERTIFICATION: {
+    label: "Certificación como instructor",
+    icon: "/Icons/certificacion-como-instructor.png",
+  },
+  COMPLEMENTARY_TRAINING: {
+    label: "Formación complementaria",
+    icon: "/Icons/formacion-complementaria.png",
+  },
+  PROFESSIONAL_EXPERIENCE: {
+    label: "Experiencia profesional",
+    icon: "/Icons/experiencia-profesional.png",
+  },
+  TEACHING_EXPERIENCE: {
+    label: "Experiencia docente",
+    icon: "/Icons/experiencia-docente.png",
+  },
+};
+
+const CREDENTIAL_ORDER: InstructorCredentialType[] = [
+  "PROFESSIONAL_DEGREE",
+  "PROFESSIONAL_LICENSE",
+  "INSTRUCTOR_CERTIFICATION",
+  "COMPLEMENTARY_TRAINING",
+  "PROFESSIONAL_EXPERIENCE",
+  "TEACHING_EXPERIENCE",
+];
 
 interface InstructorProfileCardProps {
   name: string;
@@ -21,6 +75,7 @@ interface InstructorProfileCardProps {
   courseLabel: string;
   studentLabel: string;
   approvedLabel: string;
+  credentialTypes?: InstructorCredentialType[];
   profileHref: string;
   isFoundingInstructor?: boolean;
   enableAnimations?: boolean;
@@ -40,11 +95,16 @@ export function InstructorProfileCard({
   courseLabel,
   studentLabel,
   approvedLabel,
+  credentialTypes = [],
   profileHref,
   isFoundingInstructor = false,
 
   className,
 }: InstructorProfileCardProps) {
+  const visibleCredentialTypes = CREDENTIAL_ORDER.filter((credentialType) =>
+    credentialTypes.includes(credentialType),
+  );
+
   return (
     <motion.article
       initial={false}
@@ -62,13 +122,12 @@ export function InstructorProfileCard({
       <div className="relative flex h-full flex-col p-5 sm:p-6">
         <div className="flex items-start gap-4">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-border bg-muted/30 shadow-sm">
-            <img
-              src={avatarUrl || FALLBACK_AVATAR}
+            <OptimizedAvatarImage
+              source={avatarUrl}
+              fallbackSource={FALLBACK_AVATAR}
+              displaySize={80}
               alt={name}
               className="h-full w-full object-cover"
-              onError={(event) => {
-                event.currentTarget.src = FALLBACK_AVATAR;
-              }}
             />
             <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-slate-900/25 to-transparent" />
           </div>
@@ -90,8 +149,44 @@ export function InstructorProfileCard({
             <p className="mt-2 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-muted-foreground">
               {headline}
             </p>
+
           </div>
         </div>
+
+        {visibleCredentialTypes.length > 0 ? (
+          <TooltipProvider delayDuration={250}>
+            <div
+              className="mt-4 flex flex-wrap items-center justify-start gap-2"
+              aria-label="Credenciales profesionales verificadas"
+            >
+              {visibleCredentialTypes.map((credentialType) => {
+                const credential = CREDENTIAL_BADGES[credentialType];
+
+                return (
+                  <Tooltip key={credentialType}>
+                    <TooltipTrigger asChild>
+                      <span
+                        tabIndex={0}
+                        aria-label={credential.label}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-primary/15 bg-background/85 shadow-sm outline-none transition-colors hover:border-primary/35 hover:bg-primary/5 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      >
+                        <img
+                          src={credential.icon}
+                          alt=""
+                          aria-hidden="true"
+                          className="h-7 w-7 object-contain"
+                        />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      {credential.label}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+          </TooltipProvider>
+        ) : null}
 
         <div className="mt-5 flex flex-wrap gap-2">
           {specialties.map((specialty) => (
@@ -105,7 +200,7 @@ export function InstructorProfileCard({
           ))}
           {extraSpecialtiesCount > 0 ? (
             <Badge variant="outline" size="sm" className="border-border">
-              +{extraSpecialtiesCount} mas
+              +{extraSpecialtiesCount} más
             </Badge>
           ) : null}
         </div>

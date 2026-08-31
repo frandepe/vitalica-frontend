@@ -4,17 +4,17 @@ const TermsAndConditionsPage = () => {
   return (
     <LegalPageLayout
       eyebrow="Legal"
-      title="Terminos y condiciones"
+      title="Términos y condiciones"
       intro="Este contenido es un ejemplo breve para definir las condiciones generales de uso de Vitalica. Podes editarlo despues con tus condiciones comerciales y legales definitivas."
       lastUpdated="19 de marzo de 2026"
       sections={[
         {
-          title: "1. Aceptacion de los terminos",
+          title: "1. Aceptacion de los términos",
           content: (
             <>
               <p>
                 Al navegar, registrarse o utilizar Vitalica, el usuario acepta
-                estos terminos y condiciones. Si no esta de acuerdo, debe
+                estos términos y condiciones. Si no esté de acuerdo, debe
                 abstenerse de utilizar la plataforma.
               </p>
             </>
@@ -26,7 +26,7 @@ const TermsAndConditionsPage = () => {
             <>
               <p>
                 El usuario se compromete a utilizar la plataforma de manera
-                responsable, licita y conforme a la normativa vigente. No esta
+                responsable, lícita y conforme a la normativa vigente. No está
                 permitido realizar actividades que afecten el funcionamiento del
                 sitio o vulneren derechos de terceros.
               </p>
@@ -51,9 +51,10 @@ const TermsAndConditionsPage = () => {
           content: (
             <>
               <p>
-                Los cursos, materiales y servicios ofrecidos pueden estar sujetos
-                a condiciones particulares, precios y disponibilidad. El acceso
-                adquirido es personal y no debe compartirse sin autorizacion.
+                Los cursos, materiales y servicios ofrecidos pueden estar
+                sujetos a condiciones particulares, precios y disponibilidad. El
+                acceso adquirido es personal y no debe compartirse sin
+                autorizacion.
               </p>
             </>
           ),
@@ -63,9 +64,9 @@ const TermsAndConditionsPage = () => {
           content: (
             <>
               <p>
-                Vitalica puede actualizar estos terminos en cualquier momento.
-                Cuando eso ocurra, la version mas reciente quedara publicada en
-                esta pagina para su consulta.
+                Vitalica puede actualizar estos términos en cualquier momento.
+                Cuando eso ocurra, la versión más reciente quedará publicada en
+                esta página para su consulta.
               </p>
             </>
           ),

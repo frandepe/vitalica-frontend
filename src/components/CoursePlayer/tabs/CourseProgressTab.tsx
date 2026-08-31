@@ -136,7 +136,7 @@ interface ProgressSectionProps {
 
 function PracticeRedirectCard({ navigate }: { navigate: NavigateFunction }) {
   return (
-    <Card className="border-dashed bg-muted/10">
+    <Card className="border-dashed bg-muted/10 p-2">
       <CardHeader className="space-y-2">
         <CardTitle className="text-base font-semibold">
           Etapa práctica

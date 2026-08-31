@@ -27,7 +27,9 @@ const PublicLayout = () => {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <div className="bg-[linear-gradient(180deg,#ffffff_0%,#f8fffd_100%)]">
+        <Footer />
+      </div>
     </div>
   );
 };

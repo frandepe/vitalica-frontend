@@ -134,8 +134,10 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
 
                   <DropdownContent align="end" className="bg-background">
                     {isPublished && (
-                      <DropdownItem onClick={() => navigate(`/vista-previa/${slug}`)}>
-                        Vista previa como alumno
+                      <DropdownItem
+                        onClick={() => navigate(`/vista-previa/${slug}`)}
+                      >
+                        Vista previa
                       </DropdownItem>
                     )}
 
@@ -210,7 +212,7 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
           <div className="flex items-center justify-between pt-3">
             <div className="text-lg font-semibold text-primary">
               {Number(price) === 0
-                ? "Clase gratuita"
+                ? "Curso gratuito"
                 : `${currency} $${formatPrice(price)}`}
             </div>
 
@@ -248,7 +250,7 @@ export const CardInstructorCourse: React.FC<ICourse> = ({
         title={title}
       >
         <ShareCourse
-          courseUrl={`https://www.vitalica.com.ar/cursos/${id}`}
+          courseUrl={`https://www.vitalica.com.ar/cursos/${slug}`}
           titleCourse={title || "Curso sin título"}
         />
       </UniversalModal>

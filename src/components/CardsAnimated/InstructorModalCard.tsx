@@ -2,6 +2,7 @@ import { cn } from "@/utils/cn";
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
+import { OptimizedAvatarImage } from "../user/OptimizedAvatarImage";
 
 export interface ProfileCardProps {
   name?: string;
@@ -29,8 +30,9 @@ export function InstructorModalCard(props: ProfileCardProps) {
       <div className="hidden md:flex relative items-center">
         {/* Square Image */}
         <div className="w-[380px] h-[380px] rounded-3xl overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center">
-          <img
-            src={imageUrl}
+          <OptimizedAvatarImage
+            source={imageUrl}
+            displaySize={400}
             alt={name}
             width={380}
             height={380}
@@ -74,8 +76,9 @@ export function InstructorModalCard(props: ProfileCardProps) {
       >
         {/* Square Mobile Image */}
         <div className="w-full aspect-square bg-gray-200 dark:bg-gray-700 rounded-3xl overflow-hidden mb-6 flex items-center justify-center">
-          <img
-            src={imageUrl}
+          <OptimizedAvatarImage
+            source={imageUrl}
+            displaySize={400}
             alt={name}
             width={400}
             height={400}

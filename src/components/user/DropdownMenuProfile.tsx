@@ -26,6 +26,7 @@ import { useMedia } from "@/hooks/useMedia";
 import { useAuth } from "@/hooks/useAuth";
 import RoleBadge from "./RoleBadge";
 import { INSTRUCTOR_ROUTES } from "@/constants";
+import { OptimizedAvatarImage } from "./OptimizedAvatarImage";
 
 export default function ProfileMenu() {
   const { user, logout } = useAuth();
@@ -37,8 +38,10 @@ export default function ProfileMenu() {
     return (
       <Drawer>
         <DrawerTrigger asChild>
-          <img
-            src={user?.avatarUrl || "/Placeholders/no-image-profile.jpg"}
+          <OptimizedAvatarImage
+            source={user?.avatarUrl}
+            fallbackSource="/Placeholders/no-image-profile.jpg"
+            displaySize={40}
             alt="User avatar"
             className="h-10 w-10 rounded-full border-2 border-border hover:border-primary transition-colors cursor-pointer"
           />
@@ -49,8 +52,10 @@ export default function ProfileMenu() {
           </DrawerHeader>
 
           <div className="flex items-center gap-3 p-4 border-b">
-            <img
-              src={user?.avatarUrl || "/Placeholders/no-image-profile.jpg"}
+            <OptimizedAvatarImage
+              source={user?.avatarUrl}
+              fallbackSource="/Placeholders/no-image-profile.jpg"
+              displaySize={48}
               alt="User avatar"
               className="h-12 w-12 rounded-full"
             />
@@ -139,8 +144,10 @@ export default function ProfileMenu() {
   return (
     <Dropdown>
       <DropdownTrigger className="cursor-pointer">
-        <img
-          src={user?.avatarUrl || "/Placeholders/no-image-profile.jpg"}
+        <OptimizedAvatarImage
+          source={user?.avatarUrl}
+          fallbackSource="/Placeholders/no-image-profile.jpg"
+          displaySize={40}
           alt="User avatar"
           className="h-10 w-10 rounded-full object-cover border-2 border-border hover:border-primary transition-colors cursor-pointer"
         />
@@ -148,8 +155,10 @@ export default function ProfileMenu() {
       <DropdownContent align="end" className="w-64 bg-background">
         {/* Profile Section */}
         <div className="flex items-center gap-3 p-3">
-          <img
-            src={user?.avatarUrl || "/Placeholders/no-image-profile.jpg"}
+          <OptimizedAvatarImage
+            source={user?.avatarUrl}
+            fallbackSource="/Placeholders/no-image-profile.jpg"
+            displaySize={40}
             alt="User avatar"
             className="h-10 w-10 rounded-full object-cover"
           />

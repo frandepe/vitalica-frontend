@@ -1,4 +1,5 @@
 import { BetaFeedbackForm } from "@/components/beta/BetaFeedbackForm";
+import { HatGlasses } from "lucide-react";
 import { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -38,9 +39,13 @@ const BetaFeedbackPage = () => {
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
             ¿Encontraste algo que no funciona o no sabés cómo hacer algo?
-            Contanos. Tu experiencia nos ayuda a mejorar Vitalica antes del
+            Contanos. Tu experiencia nos ayuda a mejorar la plataforma antes del
             lanzamiento.
           </p>
+          <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+            <HatGlasses size={20} />
+            <b>Tus comentarios son anónimos</b>
+          </div>
         </header>
 
         <BetaFeedbackForm originPath={originPath} />
