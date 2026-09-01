@@ -1,0 +1,391 @@
+import {
+  CoursePublishValidation,
+  Lesson,
+  LessonType,
+  SaveCourseDraftPayload,
+} from "@/types/course.types";
+import type {
+  FinalQuizQuestion,
+  InstructorFinalQuiz,
+  ModuleQuiz,
+} from "@/types/quiz.types";
+import { apiRequest } from "./configEndpoint";
+import { ApiResponse } from "@/types/endpoints.types";
+import type { CourseSearchFilters } from "@/utils/search-filters";
+import type { ISpecialty } from "@/types/course.types";
+
+import { API_ROUTES } from "@/constants";
+
+export const createCourse = async (): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}`,
+    method: "POST",
+  });
+};
+
+export const getInstructorCourses = async (): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/instructor-courses`,
+    method: "GET",
+  });
+};
+
+export const getCourses = async (
+  page: number,
+  limit: number,
+  search: string,
+  filters?: CourseSearchFilters,
+  specialty?: ISpecialty,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/`,
+    method: "GET",
+    params: {
+      page,
+      limit,
+      search,
+      rating: filters?.rating || undefined,
+      duration: filters?.duration || undefined,
+      level: filters?.levels.length ? filters.levels.join(",") : undefined,
+      price:
+        filters?.prices.length === 1 ? filters.prices[0] : undefined,
+      specialty,
+    },
+  });
+};
+
+export const getCourseById = async (courseId: string): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/${courseId}`,
+    method: "GET",
+  });
+};
+
+export const getCourseBySlug = async (slug: string): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/public/${slug}`,
+    method: "GET",
+  });
+};
+
+export interface FreeCourseEnrollmentResponse {
+  enrollmentId: string;
+  courseId: string;
+  courseSlug: string;
+  alreadyEnrolled: boolean;
+}
+
+export const enrollFreeCourse = async (
+  courseId: string,
+): Promise<ApiResponse<FreeCourseEnrollmentResponse>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/${courseId}/enroll-free`,
+    method: "POST",
+  });
+};
+
+export const saveCourseAsDraft = async (
+  data: SaveCourseDraftPayload,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/save-draft`,
+    method: "PUT",
+    data,
+  });
+};
+
+export const saveCourseThumbnail = async (
+  id: string,
+  thumbnailUrl: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/save-thumbnail`,
+    method: "PUT",
+    data: {
+      id,
+      thumbnailUrl,
+    },
+  });
+};
+
+// AWS S3 Material Upload Test
+interface UploadUrlResponse {
+  uploadUrl: string;
+  key?: string;
+  material?: {
+    id: string;
+    lessonId: string;
+    type: string;
+    originalName: string;
+    mimeType: string;
+    sizeBytes: number;
+    key: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
+interface DownloadMaterialResponse {
+  url: string;
+}
+
+export const requestMaterialDownloadUrl = async (
+  materialId: string,
+): Promise<ApiResponse<DownloadMaterialResponse>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/download-material`,
+    method: "GET",
+    params: { materialId },
+  });
+};
+
+// Creacion de Modulos y Lecciones
+export const createCourseModule = async (
+  courseId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/${courseId}/modules`,
+    method: "POST",
+  });
+};
+
+export const deleteCourseModule = async (
+  moduleId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/module/${moduleId}`,
+    method: "DELETE",
+  });
+};
+
+export const createCourseLesson = async (
+  moduleId: string,
+  payload?: { title?: string; type: LessonType },
+) => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/${moduleId}/lesson`,
+    method: "POST",
+    data: payload,
+  });
+};
+
+export const deleteCourseLesson = async (
+  lessonId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/lesson/${lessonId}`,
+    method: "DELETE",
+  });
+};
+
+export const requestMaterialUploadUrl = async (
+  lessonId: string,
+  file: File,
+): Promise<ApiResponse<UploadUrlResponse>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/upload-lesson-material`,
+    method: "POST",
+    data: {
+      lessonId,
+      fileType: file.type,
+      originalName: file.name,
+      fileSize: file.size,
+    },
+  });
+};
+
+export const deleteLessonMaterial = async (
+  materialId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/lesson-material/${materialId}`,
+    method: "DELETE",
+  });
+};
+
+export interface CreateModuleQuizPayload {
+  moduleId: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+}
+
+export interface UpdateCourseQuizPayload {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+}
+
+export const createModuleQuiz = async (
+  payload: CreateModuleQuizPayload,
+): Promise<ApiResponse<{ id: string }>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/module/quiz`,
+    method: "POST",
+    data: payload,
+  });
+};
+
+export const getModuleQuizzes = async (
+  moduleId: string,
+): Promise<ApiResponse<ModuleQuiz[]>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/module/${moduleId}/quizzes`,
+    method: "GET",
+  });
+};
+
+export const getFinalCourseQuizzes = async (
+  courseId: string,
+): Promise<ApiResponse<FinalQuizQuestion[]>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/quiz/final/${courseId}`,
+    method: "GET",
+  });
+};
+
+export const deleteModuleQuiz = async (
+  quizId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/module/quiz/${quizId}`,
+    method: "DELETE",
+  });
+};
+
+export const updateCourseQuiz = async (
+  quizId: string,
+  payload: UpdateCourseQuizPayload,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/quiz/${quizId}`,
+    method: "PATCH",
+    data: payload,
+  });
+};
+
+export const reorderModuleQuizzes = async (
+  moduleId: string,
+  quizIds: string[],
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/module/${moduleId}/quizzes/reorder`,
+    method: "PATCH",
+    data: { quizIds },
+  });
+};
+
+export interface CreateFinalQuizPayload {
+  courseId: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+}
+
+// Crear quiz final del curso
+export const createFinalQuiz = async (
+  payload: CreateFinalQuizPayload,
+): Promise<ApiResponse<{ id: string }>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/quiz/final-quiz`,
+    method: "POST",
+    data: payload,
+  });
+};
+
+// Obtener quizzes finales del curso
+export const getFinalQuizzes = async (
+  courseId: string,
+): Promise<ApiResponse<InstructorFinalQuiz[]>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/quiz/final/${courseId}`,
+    method: "GET",
+  });
+};
+
+// Eliminar quiz final
+export const deleteFinalQuiz = async (quizId: string): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/quiz/final/${quizId}`,
+    method: "DELETE",
+  });
+};
+
+export const reorderFinalQuizzes = async (
+  courseId: string,
+  quizIds: string[],
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/quiz/final/${courseId}/reorder`,
+    method: "PATCH",
+    data: { quizIds },
+  });
+};
+
+// Obtener preview de un curso (estructura, lecciones, quizzes)
+export const getCoursePreview = async (
+  slug: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/preview/${slug}`,
+    method: "GET",
+  });
+};
+
+export const evaluateCoursePreviewFinalExam = async (
+  slug: string,
+  answers: Record<string, number>,
+): Promise<ApiResponse> =>
+  apiRequest({
+    url: `${API_ROUTES.COURSE}/preview/${slug}/final-quiz/evaluate`,
+    method: "POST",
+    data: { answers },
+  });
+
+// Enviar curso para revisión
+export const submitCourseForReview = async (
+  courseId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/submit/${courseId}`,
+    method: "PATCH",
+  });
+};
+
+export const getCourseStatus = async (
+  courseId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/status/${courseId}`,
+    method: "GET",
+  });
+};
+
+export const validateCourseForPublication = async (
+  courseId: string,
+): Promise<ApiResponse<CoursePublishValidation>> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/validate/${courseId}`,
+    method: "GET",
+  });
+};
+
+export const getFreeLessons = async (
+  courseId: string,
+): Promise<
+  ApiResponse<{ modules: Array<{ id: string; lessons: Lesson[] }> }>
+> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/free-lessons/${courseId}`,
+    method: "GET",
+  });
+};
+
+export const createOrGetCourseDraft = async (
+  courseId: string,
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.COURSE}/edit-published/${courseId}`,
+    method: "POST",
+  });
+};

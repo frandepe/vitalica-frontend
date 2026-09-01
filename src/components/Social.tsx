@@ -7,6 +7,7 @@ import {
   MessageCircle,
   Copy,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 type Platform = "whatsapp" | "linkedin" | "facebook" | "copy";
 
@@ -25,7 +26,14 @@ export interface SocialLinksProps {
   floatingButtonColor?: string;
 }
 
-const PLATFORM_STYLES: Record<Platform, any> = {
+interface PlatformStyle {
+  label: string;
+  icon: LucideIcon;
+  gradient: string;
+  hoverGradient: string;
+}
+
+const PLATFORM_STYLES: Record<Platform, PlatformStyle> = {
   whatsapp: {
     label: "Compartir WhatsApp",
     icon: MessageCircle,
@@ -77,8 +85,8 @@ export const SocialLinks: React.FC<SocialLinksProps> = ({
     platform: Platform,
     href: string,
     className: string,
-    Icon: any,
-    style: any
+    Icon: LucideIcon,
+    style: PlatformStyle
   ) => {
     if (platform === "copy") {
       return (

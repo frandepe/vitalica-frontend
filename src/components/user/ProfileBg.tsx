@@ -1,0 +1,133 @@
+// import { useImageUpload } from "@/hooks/useImageUpload";
+// import { ImagePlus, X } from "lucide-react";
+// import { useState } from "react";
+
+// function ProfileBg({ defaultImage }: { defaultImage?: string }) {
+//   const [hideDefault, setHideDefault] = useState(false);
+//   const {
+//     previewUrl,
+//     fileInputRef,
+//     handleThumbnailClick,
+//     handleFileChange,
+//     handleRemove,
+//   } = useImageUpload();
+
+//   const currentImage = previewUrl || (!hideDefault ? defaultImage : null);
+
+//   const handleImageRemove = () => {
+//     handleRemove();
+//     setHideDefault(true);
+//   };
+
+//   return (
+//     <div className="h-52">
+//       <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-muted rounded-b-2xl">
+//         {currentImage && (
+//           <img
+//             className="h-full w-full object-cover"
+//             src={currentImage}
+//             alt={
+//               previewUrl
+//                 ? "Preview of uploaded image"
+//                 : "Default profile background"
+//             }
+//             width={512}
+//             height={96}
+//           />
+//         )}
+//         <div className="absolute inset-0 flex items-center justify-center gap-2">
+//           <button
+//             type="button"
+//             className="z-50 flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white outline-offset-2 transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-ring/70"
+//             onClick={handleThumbnailClick}
+//             aria-label={currentImage ? "Change image" : "Upload image"}
+//           >
+//             <ImagePlus size={16} strokeWidth={2} aria-hidden="true" />
+//           </button>
+//           {currentImage && (
+//             <button
+//               type="button"
+//               className="z-50 flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white outline-offset-2 transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-ring/70"
+//               onClick={handleImageRemove}
+//               aria-label="Remove image"
+//             >
+//               <X size={16} strokeWidth={2} aria-hidden="true" />
+//             </button>
+//           )}
+//         </div>
+//       </div>
+//       <input
+//         type="file"
+//         ref={fileInputRef}
+//         onChange={handleFileChange}
+//         className="hidden"
+//         accept="image/*"
+//         aria-label="Upload image file"
+//       />
+//     </div>
+//   );
+// }
+
+// export default ProfileBg;
+import { useAuth } from "@/hooks/useAuth";
+import { BlurMotionText } from "../Texts/BlurMotionText";
+
+function ProfileBg() {
+  const { user } = useAuth();
+
+  const getBannerData = () => {
+    switch (user?.role) {
+      case "ADMIN":
+        return {
+          src: "/Banners/perfil-generico.jpg",
+          alt: "Imagen de portada para administradores. Fondo profesional que representa la gestión del sistema.",
+        };
+      case "INSTRUCTOR":
+        return {
+          src: "/Banners/perfil-generico.jpg",
+          alt: "Imagen de portada para instructores. Fondo educativo que simboliza enseñanza y guía.",
+        };
+      case "USER":
+      default:
+        return {
+          src: "/Banners/perfil-generico.jpg",
+          alt: "Imagen de portada para usuarios. Fondo amigable que representa la participación en la comunidad.",
+        };
+    }
+  };
+
+  const { src, alt } = getBannerData();
+
+  return (
+    <div className="h-52">
+      <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-muted rounded-b-2xl">
+        <img
+          className="h-full w-full object-cover"
+          src={src}
+          alt={alt}
+          width={512}
+          height={96}
+        />
+
+        <section
+          id="header"
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center"
+        >
+          <BlurMotionText delay={0.25} inView>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl">
+              Hola {user?.firstName || ""} 👋
+            </h2>
+          </BlurMotionText>
+
+          <BlurMotionText delay={0.5} inView>
+            <span className="text-xl tracking-tighter sm:text-3xl xl:text-4xl">
+              Continuá donde lo dejaste
+            </span>
+          </BlurMotionText>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+export default ProfileBg;

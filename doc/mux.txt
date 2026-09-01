@@ -1,0 +1,27 @@
+1️⃣ Thumbnail:
+
+https://image.mux.com/{PLAYBACK_ID}/thumbnail.jpg?time=10
+
+Opciones útiles:
+
+time=5 → segundo exacto del frame que quiero capturar para una portada
+width=640
+height=360
+fit_mode=preserve
+format=png|jpg|webp
+
+2️⃣ Preview con gif:
+
+https://image.mux.com/{PLAYBACK_ID}/animated.gif
+
+params: ?start=2&end=6&fps=8&width=320
+
+
+3️⃣ Storyboard (como YouTube)
+
+https://image.mux.com/{PLAYBACK_ID}/storyboard.vtt
+
+hover preview
+navegación por frames
+UX premium si algún día querés algo tipo scrub preview
+

@@ -7,11 +7,12 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, isLoading } = useAuth();
   const location = useLocation();
+  const { isActive, isInitialized } = useAuth();
 
-  // Mostrar loading mientras se verifica la autenticación
-  if (isLoading) {
+  // Mientras no sepamos si hay sesión (hidratación inicial),
+  // mostramos un loading y NO redirigimos todavía.
+  if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -20,7 +21,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   // Si no está autenticado, redirigir al login con la ubicación actual
-  if (!user) {
+  if (!isActive) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 

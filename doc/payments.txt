@@ -1,0 +1,95 @@
+1. Seguridad
+
+Nunca confiar en datos enviados desde el cliente. Todo lo sensible (monto, estado, IDs de transacción) debe validarse en el backend.
+
+Usar HTTPS obligatorio en todas las rutas de pago.
+
+Guardar los secret keys solo en backend, no exponerlos en frontend.
+
+Validar webhooks con firma para asegurarte que la notificación es legítima.
+
+Implementar Stripe Radar o mecanismos anti-fraude equivalentes.
+
+Limitar la cantidad de intentos de pago para prevenir ataques de fuerza bruta.
+
+Revisar el IP y país del usuario para bloquear pagos sospechosos (Radar puede ayudar).
+
+2. Consistencia y arquitectura
+
+Separar responsabilidades: Frontend → UI/UX; Backend → lógica de negocio y comunicación con la API de pagos; DB → estado de la orden.
+
+Siempre crear la orden en tu DB antes de iniciar el pago, con estado Pending.
+
+Actualizar la orden solo desde webhook, nunca desde frontend.
+
+Mantener idempotencia: si un webhook llega dos veces, que no duplique pagos ni actualice mal la orden.
+
+Registrar logs de transacciones y errores de manera estructurada para auditoría y soporte.
+
+3. Flujo de pago robusto
+
+Crear sesión/preference en backend para cada pago.
+
+Validar que monto y moneda coincidan con la orden de tu DB antes de crear la sesión.
+
+Manejar todos los posibles estados: Pending, Paid, Failed, Cancelled.
+
+Implementar redirección clara después del pago (success, cancel).
+
+Considerar pagos pendientes (Mercado Pago puede tardar en confirmar).
+
+Manejar reembolsos de manera centralizada.
+
+4. Experiencia de usuario (UX)
+
+Mostrar claramente estado de pago en la UI: pendiente, completado, fallido.
+
+Evitar que el usuario pueda generar múltiples pagos para la misma orden sin control.
+
+Informar tiempo estimado de confirmación si el pago no es instantáneo.
+
+Gestionar errores de manera amigable: tarjeta rechazada, límite excedido, método no soportado.
+
+5. Moneda, impuestos y contabilidad
+
+Manejar múltiples monedas correctamente: Stripe soporta centavos, Mercado Pago depende del país.
+
+Considerar comisiones y fees de cada plataforma.
+
+Registrar impuestos y generar documentación fiscal si corresponde.
+
+Mantener historial completo de transacciones para conciliación contable.
+
+6. Escalabilidad y mantenimiento
+
+Diseñar el backend para manejar múltiples órdenes y pagos simultáneos.
+
+Usar colas o retries para procesar webhooks si hay fallas temporales.
+
+Preparar para pagos recurrentes o suscripciones si aplica.
+
+Documentar claramente la integración y los endpoints de webhook para futuros desarrolladores.
+
+7. Monitorización y alertas
+
+Alertar al equipo cuando un pago falla o queda pendiente demasiado tiempo.
+
+Registrar métricas de éxito/fallo para análisis de UX y conversión.
+
+Monitorizar alertas de fraude (Radar) o pagos sospechosos.
+
+✅ Resumen conceptual
+
+Seguridad primero: HTTPS, secret keys, webhooks validados, Radar.
+
+Orden y sesión: backend crea orden → backend crea sesión → frontend redirige.
+
+Estado único de la orden: actualizado solo desde webhook, idempotente.
+
+UX clara: estado de pago, errores, confirmaciones.
+
+Monetario sólido: moneda, impuestos, fees, conciliación.
+
+Escalable: manejar alto volumen, retries, pagos pendientes, suscripciones.
+
+Monitorización: alertas, logs, métricas, fraude.

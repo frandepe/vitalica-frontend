@@ -1,17 +1,197 @@
-export const Navbar = () => {
+import { SearchNav } from "@/components/Search/SearchNav";
+
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import DropdownMenuNotifications from "@/components/user/DropdownMenuNotifications";
+import DropdownMenuProfile from "@/components/user/DropdownMenuProfile";
+import { useHideOnScroll } from "@/hooks/useHideOnScroll";
+import { Menu } from "lucide-react";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+
+export function Navbar() {
+  const navigationItems = [
+    {
+      title: "Aprender",
+      description:
+        "Accede rapido a los recorridos mas utiles para descubrir cursos, empezar tu formacion o enseñar en Vitalica.",
+      ctaLabel: "Ver cursos",
+      ctaHref: "/buscar?search=&page=1&limit=10",
+      items: [
+        { title: "Explorar cursos", href: "/buscar?search=&page=1&limit=10" },
+        { title: "Red de instructores", href: "/instructores" },
+        { title: "Blog y guias", href: "/blogs" },
+        { title: "Enseñá en Vitalica", href: "/dar-cursos" },
+      ],
+    },
+    {
+      title: "Ayuda y confianza",
+      description:
+        "Todo lo importante para entender la plataforma, resolver dudas y encontrar lo que necesitás.",
+      ctaLabel: "Contactanos",
+      ctaHref: "/contacto",
+      items: [
+        { title: "Sobre Vitalica", href: "/sobre-nosotros" },
+        { title: "Preguntas frecuentes", href: "/preguntas-frecuentes" },
+        { title: "Instructores", href: "/instructores" },
+
+        {
+          title: "Politicas de privacidad",
+          href: "/politicas-de-privacidad",
+        },
+        {
+          title: "Términos y condiciones",
+          href: "/terminos-y-condiciones",
+        },
+      ],
+    },
+  ];
+
+  const showNavbar = useHideOnScroll(50);
+  const { isActive, user } = useAuth();
+  const navigate = useNavigate();
+  const isInstructor = user.role === "INSTRUCTOR";
   return (
-    <nav className="bg-primary text-white py-4 px-6 shadow-md">
-      <div className="container mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold">Mi Logo</h1>
-        <ul className="flex gap-4">
-          <li>
-            <a href="/">Home</a>
-          </li>
-          <li>
-            <a href="/contacto">Contacto</a>
-          </li>
-        </ul>
+    <div
+      className={`w-full z-40 fixed top-0 left-0 bg-background ${
+        showNavbar ? "translate-y-0 shadow-md" : "-translate-y-full"
+      }`}
+    >
+      <div className="container relative mx-auto min-h-16 flex gap-4 flex-row lg:grid lg:grid-cols-3 items-center">
+        {/* NAV DESKTOP */}
+        <div className="justify-start items-center gap-4 lg:flex hidden flex-row">
+          <NavigationMenu className="flex justify-start items-start">
+            <NavigationMenuList className="flex justify-start gap-4 flex-row">
+              {navigationItems.map((item) => (
+                <NavigationMenuItem key={item.title}>
+                  <NavigationMenuTrigger className="font-medium text-sm">
+                    {item.title}
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent className="!w-[450px] p-4 bg-background">
+                    <div className="flex flex-col lg:grid grid-cols-2 gap-4">
+                      <div className="flex flex-col h-full justify-between">
+                        <div className="flex flex-col">
+                          <p className="text-base">{item.title}</p>
+                          <p className="text-muted-foreground text-sm">
+                            {item.description}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="mt-10"
+                          onClick={() => navigate(item.ctaHref)}
+                        >
+                          {item.ctaLabel}
+                        </Button>
+                      </div>
+                      <div className="flex flex-col text-sm h-full justify-end">
+                        {item.items?.map((subItem) => (
+                          <NavigationMenuLink
+                            href={subItem.href}
+                            key={subItem.title}
+                            className="flex flex-row justify-between items-center hover:bg-muted py-2 px-4 rounded"
+                          >
+                            <span>{subItem.title}</span>
+                          </NavigationMenuLink>
+                        ))}
+                      </div>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+          <SearchNav />
+        </div>
+
+        {/* LOGO */}
+        <div className="flex lg:justify-center ml-4 md:ml-0">
+          <img
+            src="/Logo/logoVitalica_beta.png"
+            alt="Logotipo de Vitalica con la letra V en forma de pulso de actividad, completando el nombre de la marca"
+            width={120}
+            height={80}
+            onClick={() => navigate("/")}
+            className="cursor-pointer"
+          />
+        </div>
+
+        {/* USER AREA */}
+        {!isActive ? (
+          <div className="flex justify-end w-full gap-4">
+            {!isInstructor && (
+              <Button
+                variant="ghost"
+                className="hidden md:inline"
+                onClick={() => navigate("/dar-cursos")}
+              >
+                Enseñá en Vitalica
+              </Button>
+            )}
+            <div className="border-r hidden md:inline"></div>
+            <Button variant="outline" onClick={() => navigate("/auth/login")}>
+              Iniciar sesion
+            </Button>
+            <Button onClick={() => navigate("/auth/register")}>
+              Registrate
+            </Button>
+          </div>
+        ) : (
+          <div className="flex justify-end items-center w-full gap-4">
+            <Button
+              variant="ghost"
+              className="hidden md:inline"
+              onClick={() => navigate("/dar-cursos")}
+            >
+              Enseñá en Vitalica
+            </Button>
+            <DropdownMenuNotifications />
+            <DropdownMenuProfile />
+          </div>
+        )}
+
+        {/* MOBILE MENU */}
+        <div className="flex w-12 shrink lg:hidden items-end justify-end">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button variant="ghost">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="p-6">
+              <div className="flex flex-col gap-8">
+                {navigationItems.map((item) => (
+                  <div key={item.title}>
+                    <p className="text-lg font-medium mb-2">{item.title}</p>
+                    <div className="flex flex-col gap-2">
+                      {item.items?.map((subItem) => (
+                        <a
+                          key={subItem.title}
+                          href={subItem.href}
+                          className="flex justify-between items-center py-2 px-2 rounded hover:bg-muted"
+                        >
+                          <span className="text-muted-foreground">
+                            {subItem.title}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <SearchNav />
+              </div>
+            </DrawerContent>
+          </Drawer>
+        </div>
       </div>
-    </nav>
+    </div>
   );
-};
+}
