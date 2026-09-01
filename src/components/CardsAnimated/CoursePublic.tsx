@@ -55,11 +55,11 @@ export function CoursePublicCard({
 
   return (
     <div
-      className="cursor-pointer group relative flex w-full overflow-hidden rounded-xl bg-card border border-border/50 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+      className="group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-xl border border-border/50 bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 md:flex-row"
       onClick={() => handleNavigate(slug)}
     >
       {/* Left side - Image */}
-      <div className="relative w-72 shrink-0 overflow-hidden bg-muted">
+      <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-muted md:aspect-auto md:w-72">
         {/* Thumbnail */}
         <img
           src={imageUrl}
@@ -101,19 +101,21 @@ export function CoursePublicCard({
       </div>
 
       {/* Right side - Content */}
-      <div className="flex flex-1 flex-col justify-between p-5">
+      <div className="min-w-0 flex flex-1 flex-col justify-between p-4 sm:p-5">
         <div>
           {/* Header */}
-          <div className="mb-3 flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/20">
+          <div className="mb-3 flex flex-col items-start gap-3 sm:flex-row sm:justify-between">
+            <div className="flex min-w-0 items-start gap-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/20">
                 <BookOpen className="h-4 w-4 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+              <h3 className="break-words text-lg font-semibold text-foreground">
+                {title}
+              </h3>
             </div>
             <Badge
               variant="outline"
-              className="shrink-0 border-primary/50 bg-primary/10 text-primary text-xs"
+              className="max-w-full shrink-0 whitespace-normal border-primary/50 bg-primary/10 text-left text-xs text-primary"
             >
               {t("courseSpecialty", specialty)}
             </Badge>
@@ -152,7 +154,7 @@ export function CoursePublicCard({
         </div>
 
         {/* Students & Specialty */}
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           <Badge
             variant="secondary"
             className="bg-muted/50 text-muted-foreground border border-border/50 font-normal flex items-center gap-1.5 w-fit"
