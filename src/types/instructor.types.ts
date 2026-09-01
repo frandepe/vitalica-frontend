@@ -216,10 +216,6 @@ export interface InstructorProfile {
 
   specialties: ISpecialty[];
 
-  avgTheoreticalRating: number;
-  ratingCount: number;
-  totalStudents: number;
-  totalCourses: number;
 
   payoutMethod?: PayoutMethod;
 
@@ -252,6 +248,8 @@ export interface InstructorProfile {
 }
 
 export interface InstructorDashboardCounts {
+  managedCourses: number;
+  /** @deprecated Usar managedCourses. */
   courses: number;
   reviews: number;
   practices: number;

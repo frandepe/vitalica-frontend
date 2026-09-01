@@ -11,6 +11,8 @@ import type {
 } from "@/types/quiz.types";
 import { apiRequest } from "./configEndpoint";
 import { ApiResponse } from "@/types/endpoints.types";
+import type { CourseSearchFilters } from "@/utils/search-filters";
+import type { ISpecialty } from "@/types/course.types";
 
 import { API_ROUTES } from "@/constants";
 
@@ -32,6 +34,8 @@ export const getCourses = async (
   page: number,
   limit: number,
   search: string,
+  filters?: CourseSearchFilters,
+  specialty?: ISpecialty,
 ): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.COURSE}/`,
@@ -40,6 +44,12 @@ export const getCourses = async (
       page,
       limit,
       search,
+      rating: filters?.rating || undefined,
+      duration: filters?.duration || undefined,
+      level: filters?.levels.length ? filters.levels.join(",") : undefined,
+      price:
+        filters?.prices.length === 1 ? filters.prices[0] : undefined,
+      specialty,
     },
   });
 };

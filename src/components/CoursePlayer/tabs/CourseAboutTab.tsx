@@ -3,6 +3,7 @@ import { ICourseProgressResponse } from "@/types/courseProgress.types";
 import { formatDuration } from "@/utils/format-duration";
 import { formatDate } from "@/utils/formatDate";
 import { t } from "@/utils/translations";
+import { formatStudentCount } from "@/utils/format-student-count";
 
 interface CourseAboutTabProps {
   course: ICourseProgressResponse;
@@ -69,7 +70,7 @@ export function CourseAboutTab({ course }: CourseAboutTabProps) {
             />
           ))}
           <span className="text-sm text-muted-foreground">
-            {course.totalStudents} • estudiantes
+            {formatStudentCount(course.totalStudents)}
           </span>
         </div>
       </div>

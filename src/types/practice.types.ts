@@ -37,7 +37,7 @@ export interface PracticeInstructor {
   city: string | null;
   state: string | null;
   contactMethod: PracticeContactMethod;
-  avgPracticeRating: number;
+  avgPracticeRating: number | null;
   practiceRatingCount: number;
   contact?: PracticePublicContact | null;
   publicContact?: PracticePublicContact | null;

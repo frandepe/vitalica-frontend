@@ -30,22 +30,21 @@ export function FoundingInstructorBadge({
   }
 
   return (
-    <div className={cn("inline-flex items-center gap-2", className)}>
+    <div className={cn("inline-flex items-center", className)}>
       <Badge
         variant="warning"
         size="md"
         className="gap-2 rounded-full px-3 py-1"
       >
-        <Award className="h-3.5 w-3.5" />
+        <TooltipIconButton
+          tooltip={tooltip}
+          side="top"
+          className="size-7 rounded-full p-0 text-black"
+        >
+          <Award />
+        </TooltipIconButton>
         Miembro fundador
       </Badge>
-      <TooltipIconButton
-        tooltip={tooltip}
-        side="top"
-        className="size-7 rounded-full p-0 text-amber-600 hover:bg-transparent hover:text-amber-600"
-      >
-        <Award className="h-4 w-4" />
-      </TooltipIconButton>
     </div>
   );
 }

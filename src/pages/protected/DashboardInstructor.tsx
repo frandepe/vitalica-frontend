@@ -56,10 +56,10 @@ const navigationItems: NavigationItem[] = [
   },
   {
     id: "cursos",
-    name: "Mis Cursos",
+    name: "Cursos gestionados",
     icon: BookOpen,
     href: INSTRUCTOR_ROUTES.COURSES,
-    badgeCountKey: "courses",
+    badgeCountKey: "managedCourses",
   },
   {
     id: "resenas",

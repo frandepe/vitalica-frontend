@@ -5,6 +5,7 @@ import { t } from "@/utils/translations";
 import { CourseLevel, ISpecialty } from "@/types/course.types";
 import { formatPrice } from "@/utils/format-price";
 import { formatDuration } from "@/utils/format-duration";
+import { formatStudentCount } from "@/utils/format-student-count";
 
 export interface CourseCardProps {
   id: string;
@@ -94,7 +95,7 @@ export function CoursePublicCard({
             {avgTheoreticalRating.toFixed(1)}
           </span>
           <span className="text-gray-400 text-sm">
-            ({totalStudents} estudiantes)
+            ({formatStudentCount(totalStudents)})
           </span>
         </div>
       </div>
@@ -157,7 +158,7 @@ export function CoursePublicCard({
             className="bg-muted/50 text-muted-foreground border border-border/50 font-normal flex items-center gap-1.5 w-fit"
           >
             <Users className="h-3 w-3" />
-            {totalStudents} estudiantes
+            {formatStudentCount(totalStudents)}
           </Badge>
           <Badge
             variant="secondary"

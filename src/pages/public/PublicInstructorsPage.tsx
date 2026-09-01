@@ -18,6 +18,7 @@ import { specialties } from "@/constants/course";
 import { ISpecialty } from "@/types/course.types";
 import { PublicInstructorListItem } from "@/types/public-instructor.types";
 import { t } from "@/utils/translations";
+import { formatStudentCount } from "@/utils/format-student-count";
 import { AlertCircle, Search, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import mask01 from "@/assets/Masks/mask-11.svg";
@@ -42,21 +43,8 @@ const formatLocation = (instructor: PublicInstructorListItem) => {
   return instructor.city || instructor.state || null;
 };
 
-const formatReviewLabel = (instructor: PublicInstructorListItem) => {
-  if (instructor.ratingCount <= 0) {
-    return "Sin resenas publicas todavia";
-  }
-
-  const reviewLabel = instructor.ratingCount === 1 ? "resena" : "resenas";
-
-  return `${instructor.avgTheoreticalRating.toFixed(1)} de promedio en ${instructor.ratingCount} ${reviewLabel}`;
-};
-
 const formatCourseLabel = (totalCourses: number) =>
   totalCourses === 1 ? "1 curso" : `${totalCourses} cursos`;
-
-const formatStudentLabel = (totalStudents: number) =>
-  totalStudents === 1 ? "1 estudiante" : `${totalStudents} estudiantes`;
 
 const PublicInstructorsPage = () => {
   const [items, setItems] = useState<PublicInstructorListItem[]>([]);
@@ -395,12 +383,19 @@ const PublicInstructorsPage = () => {
                         0,
                       )}
                       location={location || "Ubicacion no especificada"}
-                      reviewLabel={formatReviewLabel(instructor)}
-                      totalCourses={instructor.totalCourses}
-                      totalStudents={instructor.totalStudents}
-                      courseLabel={formatCourseLabel(instructor.totalCourses)}
-                      studentLabel={formatStudentLabel(
-                        instructor.totalStudents,
+                      theoryRating={instructor.stats.theory.averageRating}
+                      theoryReviewCount={instructor.stats.theory.reviewCount}
+                      practiceRating={instructor.stats.practice.averageRating}
+                      practiceReviewCount={
+                        instructor.stats.practice.reviewCount
+                      }
+                      totalCourses={instructor.stats.publishedCourses}
+                      totalStudents={instructor.stats.uniqueStudents}
+                      courseLabel={formatCourseLabel(
+                        instructor.stats.publishedCourses,
+                      )}
+                      studentLabel={formatStudentCount(
+                        instructor.stats.uniqueStudents,
                       )}
                       approvedLabel={
                         approvedDate

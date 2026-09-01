@@ -35,4 +35,3 @@ export const QuizList = ({
     ))}
   </section>
 );
-// TODO: Reutilizar en las quiz del formulatrio de creacion de curso

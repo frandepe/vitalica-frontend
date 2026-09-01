@@ -26,7 +26,7 @@ export const DEMO_ITEMS: FocusRailItem[] = [
     id: 4,
     title: "Lesiones",
     alt: "Atención de lesión deportiva durante una actividad física",
-    meta: "Actuación inmediata",
+    meta: "Atención de lesiones deportivas",
     imageSrc: "/HeroCarousel/sport.jpg",
   },
   {

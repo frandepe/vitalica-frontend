@@ -132,7 +132,7 @@ export function Achievements({
           id="achievements-title"
           className="text-lg font-semibold text-foreground"
         >
-          Tu recorrido en Vitalica
+          Tu recorrido
         </h2>
         <p role="alert" className="mt-2 text-sm text-muted-foreground">
           {error}
@@ -173,7 +173,7 @@ export function Achievements({
             id="achievements-title"
             className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
           >
-            Tu recorrido en Vitalica
+            Tu recorrido
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
             Los momentos que marcan tu camino en la plataforma.

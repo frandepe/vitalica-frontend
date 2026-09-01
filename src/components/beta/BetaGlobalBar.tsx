@@ -11,13 +11,13 @@ export function BetaGlobalBar() {
         <FlaskConical className="h-3.5 w-3.5 shrink-0 text-primary" />
         <span className="hidden md:inline">
           <span className="font-semibold uppercase tracking-[0.16em]">
-            Vitalica Beta
+            Beta pública
           </span>
           <span className="mx-2 text-primary-dark/45">|</span>
-          Estás probando una versión previa. No hay pagos.
+          Algunos cursos y perfiles son de demostración.
         </span>
         <span className="md:hidden">
-          <span className="font-semibold">Vitalica Beta</span>
+          <span className="font-semibold">Beta Pública</span>
         </span>
         <span className="inline-flex items-center gap-1 text-primary">
           Conocé más

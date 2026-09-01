@@ -27,10 +27,11 @@ export const blogs: BlogPost[] = [
   {
     id: "inst-002",
     slug: "audio-claro-luz-simple-setup-minimo",
-    title: "Audio claro, luz simple: setup mínimo para grabar clases confiables",
+    title:
+      "Audio claro, luz simple: setup mínimo para grabar clases confiables",
     excerpt:
       "Una guía concreta para resolver sonido, iluminación y fondo sin convertir la grabación en un proyecto técnico innecesario.",
-    image: "/Blogs/edicion.png",
+    image: "/Blogs/audio-claro.png",
     audience: "INSTRUCTORES",
     topic: "Producción de Video",
   },
@@ -78,10 +79,11 @@ export const blogs: BlogPost[] = [
   {
     id: "inst-007",
     slug: "transformar-experiencia-profesional-en-propuesta-formativa",
-    title: "Cómo transformar experiencia profesional en una propuesta formativa clara",
+    title:
+      "Cómo transformar experiencia profesional en una propuesta formativa clara",
     excerpt:
       "Convertí conocimiento experto en una secuencia didáctica útil para alumnos reales y contextos de práctica.",
-    image: "/Blogs/ideas.png",
+    image: "/Blogs/propuesta.png",
     audience: "INSTRUCTORES",
     topic: "Estrategia Profesional",
   },
@@ -112,7 +114,7 @@ export const blogs: BlogPost[] = [
     title: "Qué tener en cuenta antes de inscribirte en una formación online",
     excerpt:
       "Revisá objetivos, modalidad, evaluación y soporte para elegir propuestas serias y alineadas con la necesidad real.",
-    image: "/Blogs/tu-primer-curso.png",
+    image: "/Blogs/tener-en-cuenta.png",
     audience: "ALUMNOS",
     topic: "Orientación Académica",
   },
@@ -133,7 +135,7 @@ export const blogs: BlogPost[] = [
     title: "Cómo organizar el tiempo para completar una formación profesional",
     excerpt:
       "Una estrategia realista para estudiar con agenda ocupada sin resignar comprensión ni continuidad.",
-    image: "/Blogs/organizacion.png",
+    image: "/Blogs/organizar-tiempo.png",
     audience: "ALUMNOS",
     topic: "Hábitos de Estudio",
   },
@@ -143,17 +145,18 @@ export const blogs: BlogPost[] = [
     title: "Qué diferencia a un curso serio de uno superficial",
     excerpt:
       "Señales para detectar profundidad formativa, criterio profesional y diseño pedagógico antes de inscribirte.",
-    image: "/Blogs/errores-comunes.png",
+    image: "/Blogs/diferencia.png",
     audience: "ALUMNOS",
     topic: "Criterio de Selección",
   },
   {
     id: "alu-006",
     slug: "como-aprovechar-quizzes-materiales-y-clases",
-    title: "Cómo aprovechar quizzes, materiales y clases grabadas para aprender mejor",
+    title:
+      "Cómo aprovechar quizzes, materiales y clases grabadas para aprender mejor",
     excerpt:
       "Usá cada recurso de la plataforma con intención para pasar de consumir contenido a incorporar criterios aplicables.",
-    image: "/Blogs/como-filmarte.png",
+    image: "/Blogs/como-aprovechar.png",
     audience: "ALUMNOS",
     topic: "Experiencia del Alumno",
   },
@@ -163,14 +166,15 @@ export const blogs: BlogPost[] = [
     title: "Cuándo elegir formación teórica, práctica o híbrida",
     excerpt:
       "Qué aporta cada enfoque y cómo identificar cuál tiene más sentido según la etapa y los objetivos.",
-    image: "/Blogs/ideas.png",
+    image: "/Blogs/cuando-elegir.png",
     audience: "ALUMNOS",
     topic: "Orientación Académica",
   },
   {
     id: "alu-008",
     slug: "como-construir-continuidad-despues-de-un-curso",
-    title: "Cómo construir continuidad de aprendizaje después de terminar un curso",
+    title:
+      "Cómo construir continuidad de aprendizaje después de terminar un curso",
     excerpt:
       "Convertí el cierre de una cursada en un punto de apoyo para seguir profundizando con orden y criterio.",
     image: "/Blogs/edicion.png",
@@ -180,7 +184,8 @@ export const blogs: BlogPost[] = [
   {
     id: "amb-001",
     slug: "que-hace-efectiva-una-experiencia-de-aprendizaje-online",
-    title: "Qué hace que una experiencia de aprendizaje online sea realmente efectiva",
+    title:
+      "Qué hace que una experiencia de aprendizaje online sea realmente efectiva",
     excerpt:
       "Los elementos que sostienen comprensión, ritmo y confianza en una propuesta de formación digital bien resuelta.",
     image: "/Blogs/tu-primer-curso.png",
@@ -194,7 +199,7 @@ export const blogs: BlogPost[] = [
     title: "Por qué la claridad importa más que la sobreproducción",
     excerpt:
       "Una buena experiencia formativa depende más de decisiones claras que de recursos vistosos o excesivos.",
-    image: "/Blogs/como-filmarte.png",
+    image: "/Blogs/claridad-importa.png",
     audience: "COMUNIDAD",
     topic: "Buenas Prácticas",
   },
@@ -211,7 +216,8 @@ export const blogs: BlogPost[] = [
   {
     id: "amb-004",
     slug: "importancia-de-la-buena-secuencia-formativa",
-    title: "La importancia de una buena secuencia entre teoría, práctica y evaluación",
+    title:
+      "La importancia de una buena secuencia entre teoría, práctica y evaluación",
     excerpt:
       "Cuando el recorrido está bien diseñado, enseñar y aprender se vuelve más ordenado, aplicable y sostenible.",
     image: "/Blogs/organizacion.png",

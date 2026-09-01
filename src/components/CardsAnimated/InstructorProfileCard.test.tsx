@@ -17,7 +17,10 @@ const renderCard = () =>
         headline="Instructora de emergencias"
         specialties={["RCP"]}
         location="Buenos Aires"
-        reviewLabel="Sin reseñas públicas todavía"
+        theoryRating={4.75}
+        theoryReviewCount={2}
+        practiceRating={null}
+        practiceReviewCount={0}
         totalCourses={2}
         totalStudents={10}
         courseLabel="2 cursos"
@@ -71,5 +74,12 @@ describe("InstructorProfileCard credentials", () => {
         "Matrícula profesional",
       ),
     );
+  });
+
+  it("keeps theory and practice reputation separate", () => {
+    renderCard();
+
+    expect(screen.getByText("4.8 · 2 reseñas")).toBeInTheDocument();
+    expect(screen.getByText("Sin reseñas")).toBeInTheDocument();
   });
 });

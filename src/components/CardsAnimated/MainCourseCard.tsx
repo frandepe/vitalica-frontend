@@ -5,6 +5,7 @@ import { CourseCardProps } from "./CoursePublic";
 import { useNavigate } from "react-router-dom";
 import { formatPrice } from "@/utils/format-price";
 import { t } from "@/utils/translations";
+import { formatStudentCount } from "@/utils/format-student-count";
 
 interface MainCourseCardProps {
   course: CourseCardProps;
@@ -86,7 +87,7 @@ const MainCourseCard = ({ course, className }: MainCourseCardProps) => {
           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
           <span>{avgTheoreticalRating.toFixed(1)}</span>
           <span className="text-gray-400 text-sm">
-            ({totalStudents} estudiantes)
+            ({formatStudentCount(totalStudents)})
           </span>
         </div>
 

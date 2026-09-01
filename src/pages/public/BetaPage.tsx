@@ -40,19 +40,22 @@ const BetaPage = () => {
 
       <div className="relative mx-auto container px-4 pb-24 pt-16 md:px-0">
         <header className="border-b border-border/60 pb-16 pt-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-            Vitalica Beta Pública
-          </div>
-
           <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1.12fr)_minmax(19rem,0.88fr)] lg:items-end">
             <div>
               <h1 className="max-w-5xl text-5xl font-semibold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
                 Estás probando Vitalica antes de su lanzamiento
               </h1>
               <p className="mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">
-                Durante septiembre abrimos Vitalica para que puedas explorar la
-                plataforma, probar la experiencia como alumno e instructor y
-                ayudarnos a mejorarla antes del lanzamiento oficial de octubre.
+                Durante septiembre abrimos la plataforma para que puedas
+                explorar la plataforma, probar la experiencia como alumno e
+                instructor y ayudarnos a mejorarla antes del lanzamiento oficial
+                de octubre.
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Algunos cursos y perfiles son ficticios y se utilizan
+                exclusivamente para probar la web. Su contenido puede no estar
+                validado y no debe utilizarse como material de formación ni como
+                guía de actuación ante una emergencia.
               </p>
               <div className="mt-8">
                 <BetaFeedbackLink>Enviar comentario</BetaFeedbackLink>

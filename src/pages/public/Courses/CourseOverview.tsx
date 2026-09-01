@@ -18,6 +18,7 @@ import type { CoursePurchaseSellabilityResponse } from "@/api";
 import { ICourse } from "@/types/course.types";
 import { formatDuration } from "@/utils/format-duration";
 import { formatPrice } from "@/utils/format-price";
+import { formatStudentCount } from "@/utils/format-student-count";
 import {
   getStudentCommerceCopy,
   resolveStudentCommerceState,
@@ -275,8 +276,8 @@ export default function CourseOverview() {
                   ))}
                 </div>
                 <span className="opacity-80">
-                  {course.avgTheoreticalRating} · {course.totalStudents}{" "}
-                  estudiantes
+                  {course.avgTheoreticalRating} ·{" "}
+                  {formatStudentCount(course.totalStudents)}
                 </span>
               </div>
 

@@ -19,7 +19,7 @@ const audienceOptions: Array<{
   {
     value: "TODOS",
     label: "Todos",
-    description: "Todo el contenido editorial en la web.",
+    description: "Todo el contenido editorial que necesitás.",
   },
   {
     value: "ALUMNOS",
@@ -147,9 +147,6 @@ export default function BlogLandingPage() {
               className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end"
             >
               <div className="space-y-5">
-                <span className="inline-flex items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-slate-600">
-                  Blog y guías
-                </span>
                 <div className="space-y-3">
                   <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-slate-950 md:text-5xl">
                     Recursos para aprender, enseñar y mejorar la experiencia
@@ -164,10 +161,7 @@ export default function BlogLandingPage() {
               </div>
 
               <div className="relative z-10 rounded-lg border border-slate-200/80 bg-slate-50/80 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Audiencia activa
-                </p>
-                <div className="mt-3 space-y-2">
+                <div className="space-y-2">
                   <p className="text-2xl font-semibold text-slate-950">
                     {activeOption.label}
                   </p>
@@ -235,10 +229,6 @@ export default function BlogLandingPage() {
                   Una selección editorial para empezar por lo más relevante
                 </h2>
               </div>
-              <p className="max-w-xl text-sm leading-6 text-slate-600">
-                Priorizamos contenidos que ayudan a orientarse rápido dentro de
-                cada audiencia.
-              </p>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
@@ -263,10 +253,6 @@ export default function BlogLandingPage() {
                 {audienceSectionLabel[activeAudience]}
               </h2>
             </div>
-            <p className="max-w-xl text-sm leading-6 text-slate-600">
-              El filtro por audiencia es la navegación principal en esta etapa.
-              Los topics se mantienen como metadata visual dentro de cada card.
-            </p>
           </div>
 
           {isPending ? (

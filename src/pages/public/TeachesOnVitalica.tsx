@@ -116,9 +116,9 @@ const TeachesOnVitalica = () => {
           </h1>
 
           <p className="text-muted-foreground max-w-lg mx-auto my-2 text-sm text-center relative z-10">
-            Si conocés a un instructor certificado que quiera dar cursos online,
-            podés invitarlo a formar parte de Vitálica. Ingresá su correo y le
-            enviaremos la invitación directamente.
+            Si conocés a un instructor certificado, podés invitarlo a formar
+            parte de esta experiencia. Ingresá su correo y le enviaremos la
+            invitación.
           </p>
 
           <div className="w-full mt-4 relative z-10 flex gap-2">

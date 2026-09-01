@@ -69,7 +69,10 @@ interface InstructorProfileCardProps {
   specialties: string[];
   extraSpecialtiesCount?: number;
   location: string;
-  reviewLabel: string;
+  theoryRating: number | null;
+  theoryReviewCount: number;
+  practiceRating: number | null;
+  practiceReviewCount: number;
   totalCourses: number;
   totalStudents: number;
   courseLabel: string;
@@ -89,7 +92,10 @@ export function InstructorProfileCard({
   specialties,
   extraSpecialtiesCount = 0,
   location,
-  reviewLabel,
+  theoryRating,
+  theoryReviewCount,
+  practiceRating,
+  practiceReviewCount,
   totalCourses,
   totalStudents,
   courseLabel,
@@ -104,6 +110,11 @@ export function InstructorProfileCard({
   const visibleCredentialTypes = CREDENTIAL_ORDER.filter((credentialType) =>
     credentialTypes.includes(credentialType),
   );
+  const formatReputation = (rating: number | null, reviewCount: number) => {
+    if (rating === null || reviewCount === 0) return "Sin reseñas";
+
+    return `${rating.toFixed(1)} · ${reviewCount} ${reviewCount === 1 ? "reseña" : "reseñas"}`;
+  };
 
   return (
     <motion.article
@@ -211,9 +222,25 @@ export function InstructorProfileCard({
             <span className="truncate">{location}</span>
           </div>
 
-          <div className="flex items-start gap-2 text-sm text-muted-foreground">
-            <Star className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <span className="leading-6">{reviewLabel}</span>
+          <div className="border-t border-border pt-3">
+            <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              <Star className="h-3.5 w-3.5 text-primary" />
+              Reputación
+            </div>
+            <dl className="space-y-2 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <dt className="font-medium text-foreground">Teoría</dt>
+                <dd className="text-right text-muted-foreground">
+                  {formatReputation(theoryRating, theoryReviewCount)}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <dt className="font-medium text-foreground">Prácticas</dt>
+                <dd className="text-right text-muted-foreground">
+                  {formatReputation(practiceRating, practiceReviewCount)}
+                </dd>
+              </div>
+            </dl>
           </div>
         </div>
 

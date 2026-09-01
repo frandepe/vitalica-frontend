@@ -13,11 +13,18 @@ export interface PublicInstructorListItem {
   state: string | null;
   approvedAt: string | null;
   isFoundingInstructor: boolean;
-  totalCourses: number;
-  totalStudents: number;
-  avgTheoreticalRating: number;
-  ratingCount: number;
+  stats: {
+    uniqueStudents: number;
+    publishedCourses: number;
+    theory: PublicInstructorReputationStats;
+    practice: PublicInstructorReputationStats;
+  };
   credentialTypes: InstructorCredentialType[];
+}
+
+export interface PublicInstructorReputationStats {
+  averageRating: number | null;
+  reviewCount: number;
 }
 
 export interface PublicInstructorListMeta {

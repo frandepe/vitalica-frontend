@@ -61,7 +61,6 @@ function CoursePlayerContent() {
   const markLessonCompleted = useCoursePlayerStore(
     (s) => s.markLessonCompleted,
   );
-  const resetPlayer = useCoursePlayerStore((s) => s.resetSimulation);
   const { loading, course, reloadCourse } = useCoursePlayerData({
     slug,
     lessonId,
@@ -316,23 +315,6 @@ function CoursePlayerContent() {
                 {experience.mode === "preview" ? (
                   <PreviewProgressPanel course={course} />
                 ) : (
-                  <>
-                  {false && <Card className="border-dashed p-6">
-                    <p className="text-sm font-medium text-foreground">
-                      Progreso simulado: {course?.progress.percentage}%
-                    </p>
-                    <Button
-                      className="mt-4"
-                      variant="outline"
-                      onClick={resetPlayer}
-                    >
-                      Reiniciar simulación
-                    </Button>
-                    <p className="text-sm text-muted-foreground">
-                      Las transiciones de progreso y examen se habilitarán en
-                      la simulación de Preview.
-                    </p>
-                  </Card>}
                   <CourseProgressTab
                     course={course}
                     navigate={navigate}
@@ -350,7 +332,6 @@ function CoursePlayerContent() {
                       await reloadCourse({ silent: true });
                     }}
                   />
-                  </>
                 )}
               </TabsContent>
               <TabsContent

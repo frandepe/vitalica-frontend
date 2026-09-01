@@ -32,6 +32,7 @@ export const MercadoPagoConnect = () => {
         font-medium
         transition-colors
       "
+      disabled // BETA
     >
       {/* TODO: La imagen deberia ser blanca */}
       <img
@@ -39,7 +40,7 @@ export const MercadoPagoConnect = () => {
         alt="Mercado Pago"
         className="w-10 h-10 rounded-sm p-0.5"
       />
-      Conectar Mercado Pago
+      Conectar Mercado Pago (No en BETA)
     </Button>
   );
 };
