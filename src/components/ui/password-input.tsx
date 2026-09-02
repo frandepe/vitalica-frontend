@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Check, Eye, EyeOff, X } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
+import { PASSWORD_REQUIREMENTS } from "@/utils/password-validation";
 
 interface InputPasswordProps {
   value?: string; // valor controlado desde RHF
@@ -46,15 +47,8 @@ export function InputPassword({
   };
 
   const checkStrength = (pass: string) => {
-    const requirements = [
-      { regex: /.{8,}/, text: "Al menos 8 caracteres" },
-      { regex: /[0-9]/, text: "Al menos 1 número" },
-      { regex: /[a-z]/, text: "Al menos 1 letra minúscula" },
-      { regex: /[A-Z]/, text: "Al menos 1 letra mayúscula" },
-    ];
-
-    return requirements.map((req) => ({
-      met: req.regex.test(pass),
+    return PASSWORD_REQUIREMENTS.map((req) => ({
+      met: req.test(pass),
       text: req.text,
     }));
   };
@@ -69,15 +63,15 @@ export function InputPassword({
   const getStrengthColor = (score: number) => {
     if (score === 0) return "bg-border";
     if (score <= 1) return "bg-red-500";
-    if (score <= 2) return "bg-orange-500";
-    if (score === 3) return "bg-amber-500";
+    if (score <= 3) return "bg-orange-500";
+    if (score === 4) return "bg-amber-500";
     return "bg-emerald-500";
   };
 
   const getStrengthText = (score: number) => {
     if (score === 0) return "Ingrese una contraseña";
-    if (score <= 2) return "Contraseña débil";
-    if (score === 3) return "Contraseña media";
+    if (score <= 3) return "Contraseña débil";
+    if (score === 4) return "Contraseña media";
     return "Contraseña fuerte";
   };
 
@@ -115,14 +109,14 @@ export function InputPassword({
         role="progressbar"
         aria-valuenow={strengthScore}
         aria-valuemin={0}
-        aria-valuemax={4}
+        aria-valuemax={PASSWORD_REQUIREMENTS.length}
         aria-label="Password strength"
       >
         <div
           className={`h-full ${getStrengthColor(
             strengthScore
           )} transition-all duration-500 ease-out`}
-          style={{ width: `${(strengthScore / 4) * 100}%` }}
+          style={{ width: `${(strengthScore / PASSWORD_REQUIREMENTS.length) * 100}%` }}
         />
       </div>
 

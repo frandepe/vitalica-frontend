@@ -85,8 +85,6 @@ export const apiRequest = async ({
     const backendData = axios.isAxiosError(error)
       ? error.response?.data
       : undefined;
-    console.log("error", error);
-
     if (status === 401) {
       const isAuthRoute =
         url.includes("/auth/login") || url.includes("/auth/register");

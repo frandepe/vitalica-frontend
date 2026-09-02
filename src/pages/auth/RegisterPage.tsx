@@ -12,6 +12,7 @@ import { DataValidationEmail, RegisterFormValues } from "@/types/auth.types";
 import { EmailConfirm } from "@/components/user/auth/EmailConfirm";
 import { useBackendErrors } from "@/hooks/useBackendErrors";
 import { ArrowLeft } from "lucide-react";
+import { validatePassword } from "@/utils/password-validation";
 
 const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
@@ -192,7 +193,10 @@ const RegisterPage = () => {
               <Controller
                 control={control}
                 name="password"
-                rules={{ required: "La contraseña es obligatoria" }}
+                rules={{
+                  required: "La contraseña es obligatoria",
+                  validate: validatePassword,
+                }}
                 render={({ field }) => (
                   <InputPassword
                     value={field.value}

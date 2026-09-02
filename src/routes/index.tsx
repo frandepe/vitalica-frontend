@@ -58,6 +58,12 @@ const PracticeCertificatePage = lazy(
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const RegisterPage = lazy(() => import("@/pages/auth/RegisterPage"));
 const VerifyEmailPage = lazy(() => import("@/pages/auth/VerifyEmailPage"));
+const ForgotPasswordPage = lazy(
+  () => import("@/pages/auth/ForgotPasswordPage"),
+);
+const ResetPasswordPage = lazy(
+  () => import("@/pages/auth/ResetPasswordPage"),
+);
 
 // Páginas protegidas por autenticación
 const ProfilePage = lazy(() => import("@/pages/protected/ProfilePage"));
@@ -303,6 +309,14 @@ export const router = createBrowserRouter([
       {
         path: "verificar-email",
         element: <VerifyEmailPage />,
+      },
+      {
+        path: "recuperar-contrasena",
+        element: <ForgotPasswordPage />,
+      },
+      {
+        path: "restablecer-contrasena",
+        element: <ResetPasswordPage />,
       },
     ],
   },

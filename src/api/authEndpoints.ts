@@ -1,6 +1,10 @@
 import { ApiResponse } from "@/types/endpoints.types";
 import { apiRequest } from "./configEndpoint";
 import { API_ROUTES } from "@/constants";
+import {
+  PasswordResetConfirmData,
+  PasswordResetRequestData,
+} from "@/types/auth.types";
 
 // Tipos opcionales para la request/response
 interface RegisterData {
@@ -28,6 +32,26 @@ export const loginUser = async (data: {
 }): Promise<ApiResponse> => {
   return apiRequest({
     url: `${API_ROUTES.AUTH}/login`,
+    method: "POST",
+    data,
+  });
+};
+
+export const requestPasswordReset = async (
+  data: PasswordResetRequestData
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.AUTH}/password-reset/request`,
+    method: "POST",
+    data,
+  });
+};
+
+export const confirmPasswordReset = async (
+  data: PasswordResetConfirmData
+): Promise<ApiResponse> => {
+  return apiRequest({
+    url: `${API_ROUTES.AUTH}/password-reset/confirm`,
     method: "POST",
     data,
   });

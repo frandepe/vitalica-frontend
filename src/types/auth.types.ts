@@ -102,6 +102,15 @@ export interface DataValidationEmail {
   firstName: string;
 }
 
+export interface PasswordResetRequestData {
+  email: string;
+}
+
+export interface PasswordResetConfirmData {
+  token: string;
+  newPassword: string;
+}
+
 export interface EmailVerification {
   id: string;
   token: string;

@@ -140,9 +140,12 @@ const LoginPage = () => {
             </div>
 
             <div className="animate-element animate-delay-500 flex items-center justify-between text-sm">
-              <a className="hover:underline text-black/60 transition-colors cursor-pointer">
+              <Link
+                to="/auth/recuperar-contrasena"
+                className="hover:underline text-black/60 transition-colors cursor-pointer"
+              >
                 Olvidé mi contraseña
-              </a>
+              </Link>
             </div>
             {getGeneralErrors().map((msg, i) => (
               <p key={i} className="text-red-600 text-sm mb-2">
