@@ -541,9 +541,6 @@ export default function PracticeRequests() {
                                 selectedRequest.student.lastName,
                               )}
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              ID del alumno: {selectedRequest.student.id}
-                            </p>
                           </div>
                         </div>
 

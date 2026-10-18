@@ -182,7 +182,7 @@ export default function DashboardInstructor() {
   const sidebarHeight = `calc(100vh - ${top}px)`;
 
   return (
-    <div className="flex">
+    <div className="relative flex flex-1 items-start">
       <button
         onClick={toggleSidebar}
         className="fixed top-8 left-0 z-50 rounded-r-lg border border-slate-100 bg-white p-3 shadow transition-all duration-200 hover:bg-slate-50 md:hidden"
@@ -202,9 +202,10 @@ export default function DashboardInstructor() {
         />
       )}
 
-      <div
+      <aside
+        aria-label="Navegación del panel de instructor"
         className={`
-        fixed left-0 z-40 flex flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-in-out
+        fixed left-0 z-40 flex flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-in-out md:sticky
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
         ${isCollapsed ? "w-28" : "w-72"}
       `}
@@ -408,13 +409,9 @@ export default function DashboardInstructor() {
             </button>
           </div>
         </div>
-      </div>
+      </aside>
 
-      <div
-        className={`flex-1 px-4 transition-all duration-300 ${
-          !isOpen ? "ml-0" : isCollapsed ? "ml-28" : "ml-72"
-        }`}
-      >
+      <div className="min-w-0 flex-1 px-4 transition-all duration-300">
         <Outlet />
       </div>
     </div>

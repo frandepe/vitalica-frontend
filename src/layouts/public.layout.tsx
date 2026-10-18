@@ -6,7 +6,7 @@ import { BetaNavbarBar } from "@/components/beta/BetaNavbarBar";
 
 const PublicLayout = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Scroll global al cambiar de ruta */}
       <ScrollToTop />
 
@@ -22,7 +22,7 @@ const PublicLayout = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex flex-1 flex-col">
         <Outlet />
       </main>
 

@@ -52,4 +52,20 @@ describe("DashboardInstructor count labels", () => {
     expect(within(navigationItem!).getByText("7")).toBeInTheDocument();
     expect(within(navigationItem!).queryByText("99")).not.toBeInTheDocument();
   });
+
+  it("keeps the desktop sidebar in flow so it does not cover the footer", async () => {
+    render(
+      <MemoryRouter initialEntries={["/instructor/especialidades"]}>
+        <DashboardInstructor />
+      </MemoryRouter>,
+    );
+
+    const sidebar = await screen.findByRole("complementary", {
+      name: "Navegación del panel de instructor",
+    });
+
+    expect(sidebar).toHaveClass("fixed", "md:sticky");
+    expect(sidebar).toHaveStyle({ top: "0px", height: "calc(100vh - 0px)" });
+    expect(sidebar.parentElement).toHaveClass("flex", "items-start");
+  });
 });

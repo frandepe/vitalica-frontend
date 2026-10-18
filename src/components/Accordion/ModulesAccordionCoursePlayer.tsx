@@ -194,44 +194,47 @@ export function ModulesAccordionCoursePlayer({
                         </p>
                       )}
                     </div>
-                    <Card className="mx-1 mb-4 max-w-max">
-                      <Button
-                        onClick={() => handleOpenExam(item.id)}
-                        variant="link"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <Loader2 size={18} className="mr-1 animate-spin" />
-                        ) : (
-                          <BookOpenText size={18} className="mr-1" />
-                        )}
-                        Examen del módulo {item.order}
-                      </Button>
+                    {(item.availableQuizCount === undefined ||
+                      item.availableQuizCount > 0) && (
+                        <Card className="mx-1 mb-4 max-w-max">
+                          <Button
+                            onClick={() => handleOpenExam(item.id)}
+                            variant="link"
+                            disabled={isLoading}
+                          >
+                            {isLoading ? (
+                              <Loader2 size={18} className="mr-1 animate-spin" />
+                            ) : (
+                              <BookOpenText size={18} className="mr-1" />
+                            )}
+                            Examen del módulo {item.order}
+                          </Button>
 
-                      <UniversalModal
-                        open={openModuleId === item.id}
-                        onOpenChange={handleCloseModal}
-                        title={`Examen del módulo ${item.order}`}
-                      >
-                        {isLoading ? (
-                          <div className="flex items-center justify-center p-8">
-                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                            <span className="ml-2 text-muted-foreground">
-                              Cargando preguntas...
-                            </span>
-                          </div>
-                        ) : (
-                          <QuizCoursePlayer
-                            quizzes={quizzes}
-                            moduleTitle={`Módulo ${item.order}: ${item.title}`}
-                            onComplete={(answers: QuizAnswerMap) =>
-                              console.log("Respuestas enviadas", answers)
-                            }
-                            isPractice={true}
-                          />
-                        )}
-                      </UniversalModal>
-                    </Card>
+                          <UniversalModal
+                            open={openModuleId === item.id}
+                            onOpenChange={handleCloseModal}
+                            title={`Examen del módulo ${item.order}`}
+                          >
+                            {isLoading ? (
+                              <div className="flex items-center justify-center p-8">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                <span className="ml-2 text-muted-foreground">
+                                  Cargando preguntas...
+                                </span>
+                              </div>
+                            ) : (
+                              <QuizCoursePlayer
+                                quizzes={quizzes}
+                                moduleTitle={`Módulo ${item.order}: ${item.title}`}
+                                onComplete={(answers: QuizAnswerMap) =>
+                                  console.log("Respuestas enviadas", answers)
+                                }
+                                isPractice={true}
+                              />
+                            )}
+                          </UniversalModal>
+                        </Card>
+                      )}
                   </motion.div>
                 )}
               </AnimatePresence>

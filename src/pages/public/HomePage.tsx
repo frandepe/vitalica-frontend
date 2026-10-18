@@ -137,7 +137,7 @@ const HomePage = () => {
   return (
     <section className="relative overflow-hidden bg-[linear-gradient(180deg,#f5fffc_0%,#ffffff_24%,#ffffff_100%)]">
       <motion.div
-        className="relative z-10 py-10 lg:py-0 lg:mt-10 px-6 lg:px-0"
+        className="relative z-10 lg:py-0 lg:mt-10 lg:px-0"
         initial="hidden"
         animate="show"
         variants={{
@@ -150,7 +150,7 @@ const HomePage = () => {
           },
         }}
       >
-        <div className="flex-1 text-center space-y-6 z-10 mx-auto container my-30">
+        <div className="flex-1 text-center space-y-6 z-10 mx-auto container px-6 my-30">
           <motion.h1
             className="text-4xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight"
             variants={{

@@ -53,6 +53,7 @@ export interface ICourseModuleWithProgress {
   id: string;
   title: string;
   order: number;
+  availableQuizCount?: number;
   lessons: ILessonWithProgress[];
   description?: string;
 }
