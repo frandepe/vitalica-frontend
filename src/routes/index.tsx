@@ -22,8 +22,6 @@ const PrivacyPolicyPage = lazy(
 );
 const Search = lazy(() => import("@/pages/public/Courses/Search"));
 const ContactPage = lazy(() => import("@/pages/public/ContactPage"));
-const BetaPage = lazy(() => import("@/pages/public/BetaPage"));
-const BetaFeedbackPage = lazy(() => import("@/pages/public/BetaFeedbackPage"));
 const TermsAndConditionsPage = lazy(
   () => import("@/pages/public/TermsAndConditionsPage"),
 );
@@ -195,14 +193,6 @@ export const router = createBrowserRouter([
       {
         path: "preguntas-frecuentes",
         element: <FrequentlyAskedQuestionsPage />,
-      },
-      {
-        path: "beta",
-        element: <BetaPage />,
-      },
-      {
-        path: "beta/feedback",
-        element: <BetaFeedbackPage />,
       },
       {
         path: "politicas-de-privacidad",

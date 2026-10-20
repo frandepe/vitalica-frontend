@@ -177,7 +177,7 @@ export default function DashboardInstructor() {
     [dashboardCounts],
   );
 
-  const navbarHeight = 100.8; // px
+  const navbarHeight = 64; // px
   const top = useStickyTop(navbarHeight);
   const sidebarHeight = `calc(100vh - ${top}px)`;
 

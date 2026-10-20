@@ -7,4 +7,3 @@ export * from "./mpEndpoints";
 export * from "./practiceEndpoints";
 export * from "./commerceEndpoints";
 export * from "./contactEndpoints";
-export * from "./betaFeedbackEndpoints";

@@ -148,7 +148,7 @@ function CoursePlayerContent() {
   if (loading || !course) return <GlobalLoading text="Obteniendo curso..." />;
 
   return (
-    <div className="flex h-[calc(100dvh-104px)] min-h-0 overflow-hidden bg-background">
+    <div className="flex h-[calc(100dvh-64px)] min-h-0 overflow-hidden bg-background">
       <CoursePlayerSidebar
         course={course}
         isMobile={isMobile}

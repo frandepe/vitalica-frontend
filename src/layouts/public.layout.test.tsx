@@ -5,9 +5,6 @@ import PublicLayout from "./public.layout";
 
 vi.mock("./Navbar", () => ({ Navbar: () => <nav>Navbar</nav> }));
 vi.mock("./Footer", () => ({ Footer: () => <footer>Footer</footer> }));
-vi.mock("@/components/beta/BetaNavbarBar", () => ({
-  BetaNavbarBar: () => <div>Beta bar</div>,
-}));
 vi.mock("@/utils/scroll-top", () => ({ ScrollToTop: () => null }));
 
 describe("PublicLayout", () => {

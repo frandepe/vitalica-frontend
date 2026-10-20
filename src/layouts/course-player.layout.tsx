@@ -1,7 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { NavbarCourse } from "./NavbarCourse";
 import { ScrollToTop } from "@/utils/scroll-top";
-import { BetaNavbarBar } from "@/components/beta/BetaNavbarBar";
 
 const CourseLayout = () => {
   return (
@@ -10,10 +9,9 @@ const CourseLayout = () => {
       <ScrollToTop />
       {/* Navbar fijo */}
       <NavbarCourse />
-      <BetaNavbarBar />
 
       {/* Espacio para compensar el navbar fijo */}
-      <main className="pt-[104px] flex-1">
+      <main className="pt-16 flex-1">
         <Outlet />
       </main>
 

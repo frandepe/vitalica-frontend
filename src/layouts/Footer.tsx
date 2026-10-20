@@ -126,7 +126,7 @@ export function Footer({ className, ...props }: FooterProps) {
                 className="inline-flex items-center gap-3 text-foreground transition-opacity hover:opacity-90"
               >
                 <img
-                  src="/Logo/logoVitalica_beta.png"
+                  src="/Logo/logoVitalica.png"
                   alt="Vitalica"
                   className="h-10 w-auto"
                 />

@@ -115,7 +115,7 @@ export function Navbar() {
         {/* LOGO */}
         <div className="flex lg:justify-center ml-4 md:ml-0">
           <img
-            src="/Logo/logoVitalica_beta.png"
+            src="/Logo/logoVitalica.png"
             alt="Logotipo de Vitalica con la letra V en forma de pulso de actividad, completando el nombre de la marca"
             width={120}
             height={80}
